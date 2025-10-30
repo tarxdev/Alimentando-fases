@@ -39,6 +39,8 @@ body {
 /* ==== NOVAS REGRAS PARA O MODAL DO JOGO ==== */
 /* ================================================= */
 
+/* (BLOCO DESATIVADO PARA REMOVER O BLUR)
+
 /* Trava a rolagem do body quando o modal está aberto */
 body.game-modal-open {
     overflow: hidden;
@@ -54,6 +56,8 @@ body.game-modal-open::before {
     -webkit-backdrop-filter: blur(8px);
     z-index: 1999; /* Fica atrás do contêiner do jogo */
 }
+
+*/
 
 /* ================================================= */
 /* ================================================= */
@@ -2259,4 +2263,202 @@ hr {
     .wordsearch-words-container h4 {
         font-size: 1.1em;
     }
+}
+
+/* ================================================= */
+/* ==== NOVO: CORREÇÃO MODAL CAÇA-PALAVRAS ==== */
+/* ================================================= */
+
+/* Este é o overlay (fundo) do modal */
+#wordsearch-win-modal {
+    position: fixed; /* 'fixed' para cobrir a tela */
+    inset: 0;
+    background-color: transparent; /* Fundo transparente, como pedido */
+    z-index: 2000; /* Tem que ser bem alto */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+/* Mostra o modal quando o JS adiciona a classe .active */
+#wordsearch-win-modal.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* Este é o conteúdo (a caixa branca) de dentro do modal */
+#wordsearch-win-modal .game-modal-content {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    border: 2px solid var(--color-primary);
+    transform: scale(0.8) translateY(20px);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+}
+
+#wordsearch-win-modal.active .game-modal-content {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+/* Estilos para o conteúdo (copiado de .game-modal-content) */
+#wordsearch-win-modal .win-icon { width: 80px; height: auto; margin-bottom: 15px; }
+#wordsearch-win-modal h3 {
+    font-family: var(--font-heading); color: var(--color-primary); font-size: 2em; margin-bottom: 10px;
+}
+#wordsearch-win-modal p { font-size: 1.1em; color: var(--color-text-dark); margin-bottom: 25px; }
+#wordsearch-win-modal p strong { color: var(--color-secondary); }
+#wordsearch-win-modal .modal-buttons { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+
+
+
+/* ================================================= */
+/* ==== ADICIONADO: AVISO DE PROTÓTIPO (EM CONSTRUÇÃO) ==== */
+/* ================================================= */
+
+.prototype-notice {
+    display: flex;
+    align-items: flex-start; /* Alinha o ícone ao topo */
+    gap: 15px; /* Espaço entre o ícone e o texto */
+    
+    /* Usando cores neutras para não conflitar com o design */
+    background-color: #f4f4f5; /* Um cinza bem claro */
+    border: 1px solid #d1d5db; /* Borda cinza */
+    border-left: 5px solid var(--color-secondary); /* Destaque com sua cor secundária */
+    
+    color: #374151; /* Texto escuro para legibilidade */
+    padding: 20px;
+    border-radius: 8px;
+    
+    /* Centraliza o aviso dentro da seção */
+    margin: 40px auto; 
+    
+    /* Limita a largura */
+    max-width: 800px; 
+    width: 90%;
+    
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.prototype-notice .prototype-icon {
+    font-size: 1.5em; /* Tamanho do ícone/emoji */
+    line-height: 1.2; /* Alinhamento vertical */
+    color: var(--color-secondary); /* Cor do ícone */
+}
+
+.prototype-notice .prototype-content {
+    flex: 1; /* Ocupa o resto do espaço */
+}
+
+.prototype-notice .prototype-content strong {
+    font-family: var(--font-heading); /* Usa sua fonte de título */
+    font-size: 1.15em;
+    color: #111827; /* Título um pouco mais escuro */
+    display: block;
+    margin-bottom: 5px;
+}
+
+.prototype-notice .prototype-content p {
+    font-family: var(--font-body); /* Usa sua fonte de corpo */
+    margin: 0;
+    line-height: 1.5;
+    font-size: 0.95em;
+}
+
+/* ================================================= */
+/* ==== ADICIONADO: SELO DE AVISO (JOGO) ==== */
+/* ================================================= */
+.prototype-badge {
+    text-align: center;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--color-secondary);
+    background-color: rgba(110, 81, 61, 0.05); /* Cor secundária com 5% de opacidade */
+    border: 1px solid rgba(110, 81, 61, 0.2); /* Cor secundária com 20% de opacidade */
+    padding: 8px 15px;
+    border-radius: 50px; /* Estilo "pílula" */
+    display: inline-block; /* Para centralizar com margin:auto */
+    margin: -20px auto 30px auto; /* Puxa para cima e dá espaço abaixo */
+    max-width: 90%;
+}
+
+.prototype-badge i {
+    margin-right: 8px;
+}
+
+
+/* ================================================= */
+/* ==== ADICIONADO: MODAL DE AVISO DE PROTÓTIPO (INICIAL) ==== */
+/* ================================================= */
+
+.prototype-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6); /* Fundo escuro */
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 9998; /* Muito alto, mas abaixo do modal em si */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    
+    /* Controlado por JS */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.prototype-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.prototype-modal-content {
+    background: #ffffff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    border: 2px solid var(--color-primary);
+    max-width: 500px; /* Limita a largura */
+    width: 100%;
+    z-index: 9999;
+    
+    /* Animação de entrada */
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.prototype-modal-overlay.active .prototype-modal-content {
+    transform: scale(1);
+}
+
+.prototype-modal-icon {
+    display: block;
+    font-size: 3em;
+    color: var(--color-secondary);
+    margin-bottom: 15px;
+}
+
+.prototype-modal-content h3 {
+    font-family: var(--font-heading);
+    color: var(--color-primary);
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+
+.prototype-modal-content p {
+    font-size: 1.05em;
+    color: var(--color-text-dark);
+    margin-bottom: 25px;
+    line-height: 1.6;
 }
