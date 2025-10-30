@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Plataforma de nutrição com guias, receitas e informações científicas para cada fase da vida, da infância à terceira idade, com base no Guia Alimentar para a População Brasileira.">
+
+    <title>Alimentando Fases - Nutrição e Saúde no Ciclo de Vida</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Lato:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css?v=11"> <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/ScrollTrigger.min.js"></script>
+    
+</head>
+<body>
+
+    <a href="#app-container" class="skip-link">Pular para o Conteúdo</a>
+
+    <header class="main-header">
+        <div class="main-header__wrapper">
+            <a href="#" class="main-header__logo nav-link" data-page="home">
+                <img src="logo1.png" alt="Logotipo Alimentando Fases">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        ALIMENTANDO <span class="title-highlight">FASES</span>
+                    </h1>
+                    <span class="site-subtitle">Nutrição para todo ciclo da vida</span>
+                </div>
+            </a>
+            <div class="main-header__navigation-wrapper">
+                <nav class="main-header__navigation">
+                    <ul class="main-header__list">
+                        <li class="main-header__list-item">
+                            <a href="#" class="nav-link" data-page="home">Início</a>
+                        </li>
+                        <li class="main-header__list-item">
+                            <a href="#" class="nav-link" data-page="quemsomos">Quem Somos</a>
+                        </li>
+                        <li class="main-header__list-item has-submenu">
+                            <a href="#">
+                                <span>Fases da Vida</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="9" height="5" viewBox="0 0 9 5"><path d="M0.612712 0.200408C0.916245 -0.081444 1.39079 -0.0638681 1.67265 0.239665L4.37305 3.14779L7.07345 0.239665C7.35531 -0.0638681 7.82986 -0.081444 8.13339 0.200408C8.43692 0.48226 8.45450 0.956809 8.17265 1.26034L4.92265 4.76034C4.78074 4.91317 4.58160 5 4.37305 5C4.16450 5 3.96536 4.91317 3.82345 4.76034L0.573455 1.26034C0.291603 0.956809 0.309179 0.48226 0.612712 0.200408Z" /></svg>
+                            </a>
+                            <div class="submenu-wrapper">
+                                <div class="submenu-list__wrapper">
+                                    <ul class="submenu-list">
+                                        <li class="submenu-list__item has-submenu">
+                                            <a href="#" class="submenu-list__item-wrapper nav-link" data-page="infancia">
+                                                <div class="submenu-list__item-link">
+                                                    <span class="submenu-list__item-title">Infância (0-10)</span>
+                                                    <span class="submenu-list__item-subtile">Bases para o desenvolvimento</span>
+                                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="14" viewBox="0 0 16 14"><path d="M0.5 6.99996H15.5M15.5 6.99996L9.66667 1.16663M15.5 6.99996L9.66667 12.8333" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                            </a>
+                                        </li>
+                                        <li class="submenu-list__item has-submenu">
+                                            <a href="#" class="submenu-list__item-wrapper nav-link" data-page="adolescencia">
+                                                <div class="submenu-list__item-link">
+                                                    <span class="submenu-list__item-title">Adolescência (10-19)</span>
+                                                    <span class="submenu-list__item-subtile">Necessidades ampliadas</span>
+                                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="14" viewBox="0 0 16 14"><path d="M0.5 6.99996H15.5M15.5 6.99996L9.66667 1.16663M15.5 6.99996L9.66667 12.8333" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                            </a>
+                                        </li>
+                                        <li class="submenu-list__item has-submenu">
+                                            <a href="#" class="submenu-list__item-wrapper nav-link" data-page="adulto">
+                                                <div class="submenu-list__item-link">
+                                                    <span class="submenu-list__item-title">Fase Adulta (20-59)</span>
+                                                    <span class="submenu-list__item-subtile">Equilíbrio e prevenção</span>
+                                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="14" viewBox="0 0 16 14"><path d="M0.5 6.99996H15.5M15.5 6.99996L9.66667 1.16663M15.5 6.99996L9.66667 12.8333" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                            </a>
+                                        </li>
+                                        <li class="submenu-list__item has-submenu">
+                                            <a href="#" class="submenu-list__item-wrapper nav-link" data-page="idoso">
+                                                <div class="submenu-list__item-link">
+                                                    <span class="submenu-list__item-title">Terceira Idade (60+)</span>
+                                                    <span class="submenu-list__item-subtile">Qualidade de vida</span>
+                                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="14" viewBox="0 0 16 14"><path d="M0.5 6.99996H15.5M15.5 6.99996L9.66667 1.16663M15.5 6.99996L9.66667 12.8333" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <div class="submenu-content__column">
+                                        <div class="submenu-content" data-submenu-for="Infância (0-10)">
+                                            <div class="submenu-content__title">Destaques da Infância</div>
+                                            <ul class="submenu-content__list">
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="destaque2.png" alt="Lanches Divertidos"></div><div class="submenu-content__link-title">Lanches Divertidos</div><div class="submenu-content__link-text">Ideias criativas e saudáveis para a lancheira escolar que os pequenos vão adorar.</div></div></li>
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="background1.jpg" alt="Introdução Alimentar"></div><div class="submenu-content__link-title">Introdução Alimentar</div><div class="submenu-content__link-text">Como iniciar a alimentação complementar de forma segura e nutritiva após os 6 meses.</div></div></li>
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="background2.jpg" alt="Crescimento Saudável"></div><div class="submenu-content__link-title">Crescimento Saudável</div><div class="submenu-content__link-text">A importância do aleitamento materno e do monitoramento das curvas de crescimento.</div></div></li>
+                                            </ul>
+                                        </div>
+                                        <div class="submenu-content" data-submenu-for="Adolescência (10-19)">
+                                            <div class="submenu-content__title">Foco na Adolescência</div>
+                                            <ul class="submenu-content__list">
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="card.ebook1.png" alt="Energia para os Estudos"></div><div class="submenu-content__link-title">Energia para os Estudos</div><div class="submenu-content__link-text">Alimentos que turbinam o cérebro e melhoram a concentração durante a fase escolar.</div></div></li>
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="fasesdavida.png" alt="Pico de Massa Óssea"></div><div class="submenu-content__link-title">Pico de Massa Óssea</div><div class="submenu-content__link-text">A importância do cálcio e da Vitamina D para garantir ossos fortes para toda a vida.</div></div></li>
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="destaque1.png" alt="Prevenção de Deficiências"></div><div class="submenu-content__link-title">Prevenção de Deficiências</div><div class="submenu-content__link-text">Como garantir o aporte adequado de ferro e outros nutrientes essenciais nesta fase.</div></div></li>
+                                            </ul>
+                                        </div>
+                                        <div class="submenu-content" data-submenu-for="Fase Adulta (20-59)">
+                                            <div class="submenu-content__title">Saúde do Adulto</div>
+                                            <ul class="submenu-content__list">
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="ebook-cover3.png" alt="Prevenção de DCNT"></div><div class="submenu-content__link-title">Prevenção de DCNT</div><div class="submenu-content__link-text">Como a alimentação pode ajudar a prevenir doenças crônicas como diabetes e hipertensão.</div></div></li>
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="destaque1.png" alt="Controle de Peso"></div><div class="submenu-content__link-title">Controle de Peso</div><div class="submenu-content__link-text">Estratégias para manter um peso corporal saudável através de escolhas inteligentes.</div></div></li>
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="fasesdavida.png" alt="Longevidade"></div><div class="submenu-content__link-title">Alimentação e Longevidade</div><div class="submenu-content__link-text">Os pilares de uma dieta equilibrada para uma vida longa e com mais qualidade.</div></div></li>
+                                            </ul>
+                                        </div>
+                                        <div class="submenu-content" data-submenu-for="Terceira Idade (60+)">
+                                            <div class="submenu-content__title">Nutrição para Idosos</div>
+                                            <ul class="submenu-content__list">
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="ebook-cover2.png" alt="Prevenção da Sarcopenia"></div><div class="submenu-content__link-title">Prevenção da Sarcopenia</div><div class="submenu-content__link-text">A importância das proteínas de alta qualidade para manter a força e a massa muscular.</div></div></li>
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="background2.jpg" alt="Saúde Óssea"></div><div class="submenu-content__link-title">Saúde Óssea</div><div class="submenu-content__link-text">Cuidados com a ingestão de cálcio e vitamina D para evitar a osteoporose.</div></div></li>
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="destaque1.png" alt="Hidratação"></div><div class="submenu-content__link-title">Hidratação e Vitamina B12</div><div class="submenu-content__link-text">Atenção redobrada aos riscos de desidratação e deficiência de nutrientes essenciais.</div></div></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                         <li class="main-header__list-item">
+                            <a href="#" class="nav-link" data-page="materiais-jogos">Nossos Materiais</a>
+                        </li>
+                        <li class="main-header__list-item has-submenu">
+                            <a href="#">
+                                <span>Receitas</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="9" height="5" viewBox="0 0 9 5"><path d="M0.612712 0.200408C0.916245 -0.081444 1.39079 -0.0638681 1.67265 0.239665L4.37305 3.14779L7.07345 0.239665C7.35531 -0.0638681 7.82986 -0.081444 8.13339 0.200408C8.43692 0.48226 8.45450 0.956809 8.17265 1.26034L4.92265 4.76034C4.78074 4.91317 4.58160 5 4.37305 5C4.16450 5 3.96536 4.91317 3.82345 4.76034L0.573455 1.26034C0.291603 0.956809 0.309179 0.48226 0.612712 0.200408Z" /></svg>
+                            </a>
+                            <div class="submenu-wrapper">
+                                <div class="submenu-list__wrapper">
+                                    <ul class="submenu-list">
+                                        <li class="submenu-list__item has-submenu">
+                                            <a href="#" class="submenu-list__item-wrapper nav-link" data-page="receitas">
+                                                <div class="submenu-list__item-link">
+                                                    <span class="submenu-list__item-title">Receitas em Vídeo</span>
+                                                    <span class="submenu-list__item-subtile">Saudáveis e sustentáveis</span>
+                                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="14" viewBox="0 0 16 14"><path d="M0.5 6.99996H15.5M15.5 6.99996L9.66667 1.16663M15.5 6.99996L9.66667 12.8333" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                            </a>
+                                        </li>
+                                        <li class="submenu-list__item has-submenu">
+                                            <a href="#" class="submenu-list__item-wrapper nav-link" data-page="higiene">
+                                                <div class="submenu-list__item-link">
+                                                    <span class="submenu-list__item-title">Higiene dos Alimentos</span>
+                                                    <span class="submenu-list__item-subtile">Segurança em primeiro lugar</span>
+                                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="14" viewBox="0 0 16 14"><path d="M0.5 6.99996H15.5M15.5 6.99996L9.66667 1.16663M15.5 6.99996L9.66667 12.8333" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <div class="submenu-content__column">
+                                        <div class="submenu-content" data-submenu-for="Receitas em Vídeo">
+                                            <div class="submenu-content__title">Receitas em Destaque</div>
+                                            <ul class="submenu-content__list">
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="destaque3.png" alt="Moqueca de Banana da Terra"></div><div class="submenu-content__link-title">Moqueca de Banana da Terra</div><div class="submenu-content__link-text">Um clássico da nossa culinária em uma versão 100% vegetal, cheia de sabor e saúde.</div></div></li>
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="receitasacessiveis.png" alt="Bolo de Casca de Banana"></div><div class="submenu-content__link-title">Bolo de Casca de Banana</div><div class="submenu-content__link-text">Uma forma deliciosa de evitar o desperdício e adicionar fibras à sua dieta.</div></div></li>
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="fasesdavida.png" alt="Farofa de Talos"></div><div class="submenu-content__link-title">Farofa de Talos e Folhas</div><div class="submenu-content__link-text">Nutrição e sabor utilizando partes dos vegetais que normalmente são descartadas.</div></div></li>
+                                            </ul>
+                                        </div>
+                                         <div class="submenu-content" data-submenu-for="Higiene dos Alimentos">
+                                            <div class="submenu-content__title">Guias de Higiene</div>
+                                            <ul class="submenu-content__list">
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="higienedealimentos.png" alt="Lavagem de Verduras"></div><div class="submenu-content__link-title">Lavagem de Verduras e Frutas</div><div class="submenu-content__link-text">Aprenda o passo a passo para higienizar corretamente hortaliças e frutas.</div></div></li>
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="background1.jpg" alt="Armazenamento Correto"></div><div class="submenu-content__link-title">Armazenamento Correto</div><div class="submenu-content__link-text">Dicas para guardar cada tipo de alimento na geladeira e despensa, evitando desperdício.</div></div></li>
+                                                <li class="submenu-content__list-item"><div class="submenu-content__link"><div class="submenu-content__link-img"><img src="fasesdavida.png" alt="Contaminação Cruzada"></div><div class="submenu-content__link-title">Evitando a Contaminação</div><div class="submenu-content__link-text">Como usar tábuas e utensílios diferentes para carnes e vegetais.</div></div></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="main-header__list-item">
+                            <a href="#" class="nav-link" data-page="acoes">Nossas Ações</a>
+                        </li>
+                         <li class="main-header__list-item">
+                            <a href="#" class="nav-link" data-page="contato">Contato</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="main-header__burger"><i></i><i></i><i></i></div>
+        </div>
+    </header>
+    <main id="app-container">
+
+        <section id="home" class="page-content active">
+            <div class="hero-section">
+                <div class="hero-slides-container">
+                    <div class="hero-slide" style="background-image: url('background1.jpg');"></div>
+                    <div class="hero-slide" style="background-image: url('background2.jpg');"></div>
+                </div>
+                <div class="hero-content">
+                    <h2>NUTRIÇÃO, ANCESTRALIDADE E SAÚDE PARA TODAS AS FASES DA VIDA.</h2>
+                    <p>Orientação alimentar baseada em evidências científicas e no Guia Alimentar para a População Brasileira, valorizando nossas origens e a sustentabilidade.</p>
+                    <a href="#" data-page="infancia" class="cta-button nav-link">Navegue pelas Fases da Vida</a>
+                </div>
+                <button class="carousel-nav prev" aria-label="Slide anterior"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+                <button class="carousel-nav next" aria-label="Próximo slide"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+                <div class="carousel-dots"></div>
+            </div>
+
+            <section id="pilares" class="content-section calls-to-action">
+                <h2 class="section-title">Explore Nossos Pilares</h2>
+                <div class="grid-container-3d gs_reveal gs_reveal_fromLeft">
+                    <div class="card-3d">
+                        <div class="face face1" style="background-image: url('fasesdavida.png');">
+                            <div class="content"><h3>Fases da Vida</h3></div>
+                        </div>
+                        <div class="face face2">
+                            <div class="content"><p>Conhecimento especializado sobre as demandas nutricionais de cada faixa etária.</p><a href="#" data-page="infancia" class="nav-link">Saiba Mais</a></div>
+                        </div>
+                    </div>
+                    <div class="card-3d gs_reveal gs_reveal_fromLeft">
+                        <div class="face face1" style="background-image: url('receitasacessiveis.png');">
+                            <div class="content"><h3>Receitas Acessíveis</h3></div>
+                        </div>
+                        <div class="face face2">
+                            <div class="content"><p>Aprenda a preparar pratos saudáveis que respeitam nossas origens e o aproveitamento integral.</p><a href="#" data-page="receitas" class="nav-link">Acessar Receituário</a></div>
+                        </div>
+                    </div>
+                    <div class="card-3d gs_reveal gs_reveal_fromLeft">
+                        <div class="face face1" style="background-image: url('higienedealimentos.png');">
+                            <div class="content"><h3>Higiene Alimentar</h3></div>
+                        </div>
+                        <div class="face face2">
+                            <div class="content"><p>Aprenda as melhores práticas para higienizar e armazenar seus alimentos de forma segura.</p><a href="#" data-page="higiene" class="nav-link">Ver Guias de Higiene</a></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="materiais-exclusivos-home" class="content-section">
+                <h2 class="section-title">Nossos Materiais Exclusivos</h2>
+                <div class="grid-container">
+                    <div class="card-container gs_reveal gs_reveal_fromRight">
+                        <a href="pdf/Guia de Lanches Saudáveis.pdf" target="_blank" aria-label="Baixar eBook Guia de Lanches Saudáveis" class="card-ebook-link">
+                            <div class="card-ebook"><div class="wrapper"><img src="card.ebook1/card.ebook1.png" class="cover-image" alt="Fundo do eBook"  /></div></div>
+                        </a>
+                        <a href="pdf/Guia de Lanches Saudáveis.pdf" class="card-cta" target="_blank">Baixar E-book</a>
+                    </div>
+                    <div class="card-container gs_reveal gs_reveal_fromRight">
+                        <a href="pdf/Nutrição na terceira idade.pdf" target="_blank" aria-label="Baixar eBook Nutrição na Terceira Idade" class="card-ebook-link">
+                           <div class="card-ebook"><div class="wrapper"><img src="card.ebook2/card.ebook2.png" class="cover-image" alt="Fundo do eBook" />
+                               <img src="" class="title" alt="" />
+                               <img src="card.ebook2/card.ebook2.2.png" class="character" alt="Personagem do eBook" />
+                           </div></div>
+                        </a>
+                        <a href="pdf/Nutrição na terceira idade.pdf" class="card-cta" target="_blank">Baixar E-book</a>
+                    </div>
+                    <div class="card-container gs_reveal gs_reveal_fromRight">
+                        <a href="pdf/Desvendando Mitos da Nutrição.pdf" target="_blank" aria-label="Baixar eBook Desvendando Mitos da Nutrição" class="card-ebook-link">
+                            <div class="card-ebook"><div class="wrapper"><img src="card.ebook3/futurosaudavel.png" class="cover-image" /></div></div>
+                        </a>
+                        <a href="pdf/criança bem nutrida.pdf" class="card-cta" target="_blank">Baixar E-book</a>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 40px;">
+                     <a href="#" data-page="materiais-jogos" class="cta-button nav-link">Ver Todos os Materiais e Jogos</a>
+                </div>
+            </section>
+
+            <section id="conteudos-destaque" class="content-section">
+                <h2 class="section-title">Conteúdos em Destaque</h2>
+                <div class="grid-container">
+                    <article class="card card--has-image gs_reveal gs_reveal_fromLeft"><a href="#" class="card-link-wrapper"><img src="destaque1.png" alt="Prato colorido com vegetais frescos" class="card-image-top"><div class="card-content"><span class="card-tag">Artigo</span><h4>Os 5 Benefícios dos Alimentos Fermentados</h4><p>Descubra como kombuchas, iogurtes e outros probióticos podem transformar sua saúde intestinal.</p></div></a></article>
+                    <article class="card card--has-image gs_reveal gs_reveal_fromLeft"><a href="#" class="card-link-wrapper"><img src="destaque2.png" alt="Criança sorrindo enquanto come uma fruta" class="card-image-top"><div class="card-content"><span class="card-tag">Guia Prático</span><h4>Lanches Divertidos para Crianças</h4><p>Ideias criativas e saudáveis para a lancheira escolar que os pequenos vão adorar.</p></div></a></article>
+                    <article class="card card--has-image gs_reveal gs_reveal_fromLeft"><a href="#" class="card-link-wrapper"><img src="destaque3.png" alt="Tigela com moqueca de banana da terra" class="card-image-top"><div class="card-content"><span class="card-tag">Receita da Semana</span><h4>Moqueca de Banana da Terra Vegana</h4><p>Um clássico da nossa culinária em uma versão 100% vegetal, cheia de sabor e saúde.</p></div></a></article>
+                </div>
+            </section>
+
+            <section class="newsletter-section">
+                <div class="newsletter-content">
+                    <h3 class="newsletter-title">Junte-se à Nossa Comunidade</h3>
+                    <p>Receba nossas melhores receitas, guias e novidades sobre nutrição diretamente na sua caixa de entrada.</p>
+                    <form class="newsletter-form"><input type="email" placeholder="Seu melhor e-mail" required><button type="submit">Inscrever</button></form>
+                </div>
+            </section>
+        </section>
+
+        <section id="quemsomos" class="page-content">
+            <section class="content-section">
+                <h2 class="section-title">Quem Somos</h2>
+                <div class="mission-statement" style="max-width: 900px; margin: 0 auto; text-align: center;">
+                    <p>O projeto <strong>Alimentando Fases</strong> é uma plataforma de referência em Educação Alimentar e Nutricional (EAN), criada para preencher a lacuna de informações acessíveis sobre as demandas nutricionais de cada etapa da vida, desde a infância até a terceira idade.</p>
+                    <p style="margin-top: 15px;">Nosso conteúdo é baseado no Guia Alimentar para a População Brasileira, em evidências científicas atualizadas e no respeito à nossa ancestralidade e biodiversidade, promovendo uma alimentação saudável e sustentável com uma linguagem simple e inclusiva.</p>
+                </div>
+            </section>
+        </section>
+
+        <section id="infancia" class="page-content">
+            <section class="content-section">
+                <h2 class="section-title">Nutrição na Infância (0-10 anos)</h2>
+
+                <article class="fase-content-article">
+                    <h4>Nutrição na Infância: Bases para o Desenvolvimento</h4>
+                    <p>Esta fase é crucial para a formação de hábitos alimentares e o desenvolvimento físico e cognitivo. É mandatório o aleitamento materno exclusivo até o sexto mês de vida, seguido da introdução de alimentos complementares, priorizando preparações <em>in natura</em> e minimamente processadas.</p>
+                    <ul>
+                        <li>Monitoramento da curva de crescimento e desenvolvimento.</li>
+                        <li>Aporte adequado de ferro, zinco e vitaminas para o sistema imunológico.</li>
+                    </ul>
+                </article>
+
+                <div style="margin-top: 60px;">
+                    <h3 style="text-align: center; font-family: var(--font-heading); color: var(--color-primary); margin-bottom: 40px;">Explore Nossos Guias para a Infância</h3>
+                    <div class="grid-container">
+                        <article class="card card--has-image gs_reveal">
+                            <a href="#" class="card-link-wrapper">
+                                <img src="destaque2.png" alt="Criança comendo frutas" class="card-image-top">
+                                <div class="card-content">
+                                    <span class="card-tag">Guia Prático</span>
+                                    <h4>Introdução Alimentar Segura</h4>
+                                    <p>O passo a passo completo para iniciar a alimentação complementar do seu bebê após os 6 meses, com segurança e nutrientes.</p>
+                                </div>
+                            </a>
+                        </article>
+
+                        <article class="card card--has-image gs_reveal">
+                            <a href="#" class="card-link-wrapper">
+                                <img src="background1.jpg" alt="Lancheira escolar colorida" class="card-image-top">
+                                <div class="card-content">
+                                    <span class="card-tag">Dicas</span>
+                                    <h4>Lanches Criativos para a Escola</h4>
+                                    <p>Ideias fáceis, saudáveis e divertidas que as crianças vão amar levar na lancheira (e comer de verdade!).</p>
+                                </div>
+                            </a>
+                        </article>
+
+                        <article class="card card--has-image gs_reveal">
+                            <a href="#" class="card-link-wrapper">
+                                <img src="fasesdavida.png" alt="Família cozinhando junto" class="card-image-top">
+                                <div class="card-content">
+                                    <span class="card-tag">Artigo</span>
+                                    <h4>Envolvendo as Crianças na Cozinha</h4>
+                                    <p>Descubra a importância de cozinhar com seus filhos para criar uma relação positiva e duradoura com a comida.</p>
+                                </div>
+                            </a>
+                        </article>
+                    </div>
+                </div>
+
+            </section>
+        </section>
+
+        <section id="adolescencia" class="page-content">
+            <section class="content-section">
+                <h2 class="section-title">Nutrição na Adolescência (10-19 anos)</h2>
+                <p class="section-description">A adolescência é uma fase biológica e social de transição do indivíduo, que marca a passagem da infância para a idade adulta. Nesta fase de tantas transformações, a <strong>alimentação</strong> e a formação de <strong>hábidos saudáveis</strong> são cruciais para o desenvolvimento e o bem-estar futuro.</p>
+
+                <div class="section-intro-image gs_reveal">
+                    <img src="adolescente.png" alt="Grupo de adolescentes diversos sorrindo juntos">
+                </div>
+
+                <div class="topic-container">
+
+                    <article class="topic-block gs_reveal">
+                        <div class="topic-header">
+                            <i class="fa-solid fa-book-open fa-2x"></i>
+                            <h4>Alimentação Saudável com Base no Guia</h4>
+                        </div>
+                        <div class="topic-content">
+                            <p>O <span class="key-term" data-tooltip="Documento oficial do Ministério da Saúde com diretrizes para uma alimentação saudável.">Guia Alimentar para a População Brasileira</span> apresenta um conjunto de informações e recomendações para promover a saúde das pessoas, famílias e comunidades.</p>
+
+                            <h5>Princípios do Guia na Adolescência:</h5>
+                            <ul>
+                                <li><strong>Alimentação é mais que nutrientes:</strong> Envolve os alimentos, o modo como são preparados, o modo de comer e as dimensões culturais e sociais.</li>
+                                <li><strong>Autonomia nas escolhas:</strong> O guia amplia a autonomia, o que é importante para que o adolescente exerça seu direito humano à alimentação adequada e saudável.</li>
+                            </ul>
+
+                            <h5>O problema dos <span class="key-term" data-tooltip="Alimentos industrializados com muitos ingredientes, aditivos e pouco valor nutricional (ex: salgadinhos, refrigerantes, bolachas recheadas).">ultraprocessados</span></h5>
+                            <p>Estes alimentos, que incluem refrigerante e salgadinho de pacote, substituem a "comida de verdade" e comprovadamente causam excesso de peso, obesidade, hipertensão, doenças do coração e até depressão.</p>
+
+                            <h5>Influência e Fatores Externos</h5>
+                            <p>Para quem tem adolescentes em fase de criar hábitos, os adultos são os primeiros exemplos. Além disso, adotar uma alimentação saudável não é apenas uma escolha individual, mas é influenciada por fatores como a presença de feiras e mercados de boa qualidade no território.</p>
+                        </div>
+                    </article>
+
+                    <article class="topic-block topic-block--highlight gs_reveal">
+                        <div class="topic-header">
+                            <i class="fa-solid fa-person-running fa-2x"></i>
+                            <h4>A Fase do Estirão Puberal</h4>
+                        </div>
+                        <div class="topic-content">
+                            <p>O <span class="key-term" data-tooltip="Período de crescimento muito rápido em altura que ocorre durante a puberdade.">Estirão do Crescimento</span> (ou Estirão Puberal) é um período de crescimento acelerado em que ocorre um grande aumento da velocidade de crescimento em altura, coincidindo com a puberdade. Essa fase é de extrema importância nutricional.</p>
+
+                            <h5>Características do Estirão:</h5>
+                            <ul>
+                                <li><strong>O que é:</strong> É uma explosão de crescimento rápido dos ossos e músculos, com a velocidade de crescimento podendo quase dobrar (alcançando, em média, até 11 cm por ano).</li>
+                                <li><strong>Duração:</strong> Dura, em média, de três a quatro anos.</li>
+                                <li><strong>Idade Média (Meninas):</strong> O <span class="key-term" data-tooltip="Pico de Velocidade de Crescimento - o momento de maior aceleração do crescimento em altura.">pico de velocidade de crescimento (PVC)</span> ocorre entre 11 e 12 anos. A menstruação (<span class="key-term" data-tooltip="Primeira menstruação da mulher.">menarca</span>) ocorre após o pico, na fase de desaceleração.</li>
+                                <li><strong>Idade Média (Meninos):</strong> O estirão é um pouco mais tardio e mais intenso, com pico entre 13 e 14 anos (crescimento médio de 10 cm por ano).</li>
+                                <li><strong>Sintomas comuns:</strong> A rápida aceleração pode levar às "dores do crescimento", que afetam principalmente as pernas, joelhos e coluna.</li>
+                                <li><strong>Impacto na Nutrição:</strong> As necessidades nutricionais aumentam drasticamente. Os adolescentes sentem uma onda de fome constante, pois o corpo precisa de mais calorias e nutrientes para sustentar o desenvolvimento.</li>
+                            </ul>
+
+                            <p class="pullquote">Os adolescentes sentem uma onda de fome constante, pois o corpo precisa de mais calorias e nutrientes para sustentar o desenvolvimento.</p>
+                        </div>
+                    </article>
+
+                    <article class="topic-block gs_reveal">
+                        <div class="topic-header">
+                            <i class="fa-solid fa-apple-whole fa-2x"></i>
+                            <h4>Vitaminas e Minerais Essenciais</h4>
+                        </div>
+                        <div class="topic-content">
+                            <p>Durante o estirão puberal, a demanda por nutrientes específicos aumenta. Garanta o consumo adequado dos seguintes elementos para um desenvolvimento ósseo e muscular completo:</p>
+
+                            <div class="content-wrapper">
+                            
+                                <div class="news-card gs_reveal">
+                                    <img src="Vitaminas.minerais/calcio.png" alt="Fontes de Cálcio" class="news-card__image">
+                                    <div class="news-card__text-wrapper">
+                                        <h2 class="news-card__title">Cálcio (Ca)</h2>
+                                        <div class="news-card__post-date">OSSO</div>
+                                        <div class="news-card__details-wrapper">
+                                            <p class="news-card__excerpt">
+                                                <strong>Função:</strong> Fortalece seus OSSOS! Crucial para atingir o pico de massa óssea.
+                                                <br><br>
+                                                <strong>Fontes:</strong> Leite e derivados, brócolis, gergelim.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                                <div class="news-card gs_reveal">
+                                    <img src="Vitaminas.minerais/ferro.png" alt="Fontes de Ferro" class="news-card__image">
+                                    <div class="news-card__text-wrapper">
+                                        <h2 class="news-card__title">Ferro (Fe)</h2>
+                                        <div class="news-card__post-date badge-energia">ENERGIA</div>
+                                        <div class="news-card__details-wrapper">
+                                            <p class="news-card__excerpt">
+                                                <strong>Função:</strong> Garante energia pura! Essencial para o transporte de oxigênio e combate à fadiga.
+                                                <br><br>
+                                                <strong>Fontes:</strong> Carnes vermelhas, feijão, lentilha.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                                <div class="news-card gs_reveal">
+                                    <img src="Vitaminas.minerais/zinco.png" alt="Fontes de Zinco" class="news-card__image">
+                                    <div class="news-card__text-wrapper">
+                                        <h2 class="news-card__title">Zinco (Zn)</h2>
+                                        <div class="news-card__post-date badge-imunidade">IMUNIDADE</div>
+                                        <div class="news-card__details-wrapper">
+                                            <p class="news-card__excerpt">
+                                                <strong>Função:</strong> Turbina a IMUNIDADE! Ajuda na maturação sexual e cicatrização (acne).
+                                                <br><br>
+                                                <strong>Fontes:</strong> Ostras, carnes, sementes de abóbora.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                                <div class="news-card gs_reveal">
+                                    <img src="Vitaminas.minerais/vitamina.c.png" alt="Fontes de Vitamina C" class="news-card__image">
+                                    <div class="news-card__text-wrapper">
+                                        <h2 class="news-card__title">Vitamina C</h2>
+                                        <div class="news-card__post-date badge-protecao">PROTEÇÃO</div>
+                                        <div class="news-card__details-wrapper">
+                                            <p class="news-card__excerpt">
+                                                <strong>Função:</strong> SUPER-PROTEÇÃO! Essencial para o sistema imunológico e absorção de ferro.
+                                                <br><br>
+                                                <strong>Fontes:</strong> Acerola, laranja, morango, pimentão.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                                <div class="news-card gs_reveal">
+                                    <img src="Vitaminas.minerais/vitamina.a.png" alt="Fontes de Vitamina A" class="news-card__image">
+                                    <div class="news-card__text-wrapper">
+                                        <h2 class="news-card__title">Vitamina A</h2>
+                                        <div class="news-card__post-date badge-visao">VISÃO/PELE</div>
+                                        <div class="news-card__details-wrapper">
+                                            <p class="news-card__excerpt">
+                                                <strong>Função:</strong> VISÃO & PELE SAUDÁVEIS! Combate à acne hormonal e mantém a saúde ocular.
+                                                <br><br>
+                                                <strong>Fontes:</strong> Cenoura, mamão, gema de ovo.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                                <div class="news-card gs_reveal">
+                                    <img src="Vitaminas.minerais/proteina.png" alt="Fontes de Proteínas" class="news-card__image">
+                                    <div class="news-card__text-wrapper">
+                                        <h2 class="news-card__title">Proteínas</h2>
+                                        <div class="news-card__post-date badge-musculo">MÚSCULO</div>
+                                        <div class="news-card__details-wrapper">
+                                            <p class="news-card__excerpt">
+                                                <strong>Função:</strong> CONSTRÓI MÚSCULOS! Vital para o ganho de massa magra e reparo dos tecidos no estirão.
+                                                <br><br>
+                                                <strong>Fontes:</strong> Carnes magras, ovo, leite, feijão.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                            </div>
+                            </div>
+                    </article>
+
+                    <article class="topic-block topic-block--warning gs_reveal">
+                        <div class="topic-header">
+                            <i class="fa-solid fa-triangle-exclamation fa-2x"></i>
+                            <h4>ATENÇÃO: Consumo de Bebidas Energéticas e Álcool</h4>
+                        </div>
+                        <div class="topic-content">
+                            <p>O consumo de <span class="key-term" data-tooltip="Bebida alcoólica, depressora do sistema nervoso central.">Álcool</span> e <span class="key-term" data-tooltip="Bebidas com altas doses de cafeína e outros estimulantes.">Bebidas Energéticas</span> na adolescência é altamente desaconselhado e traz riscos amplificados devido ao intenso desenvolvimento cerebral.</p>
+
+                            <h5>Danos ao Desenvolvimento Cerebral</h5>
+                            <p>O cérebro adolescente está em fase crítica de amadurecimento, especialmente no <span class="key-term" data-tooltip="Área do cérebro responsável pelo planejamento, tomada de decisões e controle de impulsos.">córtex pré-frontal</span> (julgamento, controle de impulsos). O álcool atua como neurotoxina, prejudicando o amadurecimento dessas funções. A alta dose de cafeína dos energéticos afeta a química cerebral, potencializando a ansiedade e a insônia.</p>
+
+                            <h5>O Perigo da Mistura (Álcool + Energético)</h5>
+                            <p>A combinação é perigosa pois o estimulante do energético "mascara" o efeito depressor do álcool, fazendo com que o adolescente beba muito mais, aumentando o risco de intoxicação grave e sobrecarga cardíaca.</p>
+
+                            <h5>Consequências Comportamentais</h5>
+                            <p>O uso dessas substâncias facilita a exposição a situações de risco devido ao prejuízo no julgamento, including:</p>
+                            <ul>
+                                <li>Acidentes e Lesões.</li>
+                                <li>Comportamento Sexual de Risco.</li>
+                                <li>Maior propensão ao uso de outras drogas.</li>
+                            </ul>
+                        </div>
+                    </article>
+
+                </div>
+                
+                <h2 class="section-title" style="margin-top: 60px; border-top: 1px solid #eee; padding-top: 40px;">
+                    Receitas de Aproveitamento Integral
+                </h2>
+
+                <div class="main">
+                  <ul class="cards">
+                    
+                    <li class="cards_item">
+                      <div class="card">
+                        <div class="card_image">
+                           <img src="Receitas.img/arrozdoce.png" alt="Arroz doce com especiarias" />
+                        </div>
+                        <div class="recipe-meta"> 
+                            <div>
+                                <i class="fa-solid fa-clock"></i>
+                                <strong>Preparo</strong>
+                                30 min
+                            </div>
+                            <div>
+                                <i class="fa-solid fa-utensils"></i>
+                                <strong>Rende</strong>
+                                6 porções
+                            </div>
+                             <div>
+                                <i class="fa-solid fa-leaf"></i> 
+                                <strong>Nível</strong>
+                                Fácil
+                            </div> 
+                        </div> 
+                        <div class="card_content">
+                          <h2 class="card_title card_title--with-tags">Arroz doce com especiarias</h2> 
+                          <div class="card_text">
+                            <h5>Ingredientes:</h5>
+                            <ul class="recipe-list">
+                                <li>1 xícara de arroz cru (ou 2 de arroz cozido)</li>
+                                <li>3 xícaras de água (se usar arroz cru)</li>
+                                <li>1 litro de leite de vaca</li>
+                                <li>4 colheres (sopa) de açúcar</li>
+                                <li>2 paus de canela, 4 cravos</li>
+                                <li>½ colher (chá) de gengibre em pó</li>
+                                <li>½ colher (chá) de noz moscada</li>
+                                <li>Raspas de 1 limão</li>
+                                <li>1 colher (chá) de açafrão (cúrcuma)</li>
+                            </ul>
+                            <hr />
+                            <h5>Preparo:</h5>
+                            <ol class="recipe-list">
+                                <li>Cozinhe o arroz com água. Adicione o leite, açúcar e especiarias (menos o limão).</li>
+                                <li>Cozinhe em fogo baixo, mexendo até ficar cremoso.</li>
+                                <li>Adicione as raspas de limão ao final. Sirva quente ou frio.</li>
+                            </ol>
+                            <p style="font-size: 14px; line-height: 1.5;"><strong>Nutrientes:</strong> Vitaminas do Complexo B (B1, B2, B6, B12), Vitamina C, Potássio, Fósforo, Cálcio e Magnésio.</p>
+                            
+                            <hr />
+                            <h5>Informação Nutricional (porção)</h5>
+                            <ul class="recipe-list nutrition-list-inline">
+                                <li>
+                                    <strong>Calorias:</strong> 
+                                    <span>288 kcal</span>
+                                </li>
+                                <li>
+                                    <strong>Carboidratos:</strong> 
+                                    <span>49.2 g</span>
+                                </li>
+                                <li>
+                                    <strong>Proteínas:</strong> 
+                                    <span>11.2 g</span>
+                                </li>
+                                <li>
+                                    <strong>Gorduras Totais:</strong> 
+                                    <span>6.7 g</span>
+                                </li>
+                                <li>
+                                    <strong>Fibras:</strong> 
+                                    <span>1.2 g</span>
+                                </li>
+                            </ul>
+                            </div>
+                        </div>
+                      </div>
+                      <div class="recipe-inline-tags">
+                            <span class="tag tag-gf" title="Sem Glúten"><i class="fas fa-wheat-awn-circle-exclamation"></i> Sem Glúten</span>
+                      </div>
+                    </li>
+                
+                    <li class="cards_item">
+                      <div class="card">
+                        <div class="card_image">
+                           <img src="Receitas.img/sucodecasca.png" alt="Suco de Casca de Frutas" />
+                        </div>
+                        <div class="recipe-meta">
+                            <div>
+                                <i class="fa-solid fa-clock"></i>
+                                <strong>Preparo</strong>
+                                10 min
+                            </div>
+                            <div>
+                                <i class="fa-solid fa-utensils"></i>
+                                <strong>Rende</strong>
+                                2 litros
+                            </div>
+                             <div>
+                                <i class="fa-solid fa-leaf"></i> 
+                                <strong>Nível</strong>
+                                Fácil
+                            </div> 
+                        </div>
+                        <div class="card_content">
+                          <h2 class="card_title card_title--with-tags">Suco de Casca de Frutas</h2> 
+                          <div class="card_text">
+                            <h5>Ingredientes:</h5>
+                            <ul class="recipe-list">
+                                <li>3 xícaras (chá) de cascas de frutas variadas (abacaxi, maçã, manga, etc.)</li>
+                                <li>2 litros de água</li>
+                                <li>Açúcar a gosto</li>
+                            </ul>
+                            <hr />
+                            <h5>Preparo:</h5>
+                            <ol class="recipe-list">
+                                <li>Lave bem as cascas.</li>
+                                <li>Bata no liquidificador com a água.</li>
+                                <li>Coe bem e adoce a gosto.</li>
+                            </ol>
+                            <p style="font-size: 14px; line-height: 1.5;"><strong>Nutrientes:</strong> Vitaminas C e B1, Potássio, Fósforo, Cálcio e Magnésio.</p>
+
+                            <hr />
+                            <h5>Informação Nutricional (copo 200ml)</h5>
+                            <ul class="recipe-list nutrition-list-inline">
+                                <li>
+                                    <strong>Calorias:</strong> 
+                                    <span>45 - 65 kcal</span>
+                                </li>
+                                <li>
+                                    <strong>Carboidratos:</strong> 
+                                    <span>11 - 16 g</span>
+                                </li>
+                                <li>
+                                    <strong>Proteínas:</strong> 
+                                    <span>0.1 - 0.3 g</span>
+                                </li>
+                                <li>
+                                    <strong>Gorduras Totais:</strong> 
+                                    <span>0 g</span>
+                                </li>
+                                <li>
+                                    <strong>Fibras:</strong> 
+                                    <span>0.3 - 0.5 g</span>
+                                </li>
+                            </ul>
+                            </div>
+                        </div>
+                      </div>
+                      <div class="recipe-inline-tags">
+                            <span class="tag tag-gf" title="Sem Glúten"><i class="fas fa-wheat-awn-circle-exclamation"></i> Sem Glúten</span>
+                            <span class="tag tag-vegan" title="Vegano"><i class="fas fa-seedling"></i> Vegano</span>
+                      </div>
+                    </li>
+                
+                    <li class="cards_item">
+                      <div class="card">
+                        <div class="card_image">
+                           <img src="Receitas.img/salpicao.png" alt="Salpicão com Aproveitamento de Cascas" />
+                        </div>
+                        <div class="recipe-meta">
+                            <div>
+                                <i class="fa-solid fa-clock"></i>
+                                <strong>Preparo</strong>
+                                25 min
+                            </div>
+                            <div>
+                                <i class="fa-solid fa-utensils"></i>
+                                <strong>Rende</strong>
+                                4 porções
+                            </div>
+                             <div>
+                                <i class="fa-solid fa-seedling"></i> <strong>Nível</strong>
+                                Médio 
+                            </div> 
+                        </div>
+                        <div class="card_content">
+                          <h2 class="card_title card_title--with-tags">Salpicão com Aproveitamento de Cascas</h2> 
+                          <div class="card_text">
+                            <h5>Ingredientes:</h5>
+                            <ul class="recipe-list">
+                                <li>1 xícara de casca de abóbora (tiras)</li>
+                                <li>1 xícara de casca de chuchu (tiras)</li>
+                                <li>1 xícara de casca de manga (tiras)</li>
+                                <li>1 xícara de casca de melão (tiras)</li>
+                                <li>½ xícara de couve picada</li>
+                                <li>1 xícara de salsão com folhas picado</li>
+                                <li>Azeite, limão, sal, ervas e pimenta</li>
+                            </ul>
+                            <hr />
+                            <h5>Preparo:</h5>
+                            <ol class="recipe-list">
+                                <li>Lave bem tudo. Cozinhe as cascas no vapor "al dente" (macias, mas não moles).</li>
+                                <li>Deixe esfriar e misture com a couve e o salsão.</li>
+                                <li>Tempere com azeite, sal, ervas e limão. Sirva frio.</li>
+                            </ol>
+                            <p style="font-size: 14px; line-height: 1.5;"><strong>Nutrientes:</strong> Vitaminas C, K, A, E, B9 e B1. Potássio, Fósforo, Cálcio, Magnésio, Ferro e Manganês.</p>
+
+                            <hr />
+                            <h5>Informação Nutricional (porção)</h5>
+                            <ul class="recipe-list nutrition-list-inline">
+                                <li>
+                                    <strong>Calorias:</strong> 
+                                    <span>100 kcal</span>
+                                </li>
+                                <li>
+                                    <strong>Carboidratos:</strong> 
+                                    <span>9.1 g</span>
+                                </li>
+                                <li>
+                                    <strong>Proteínas:</strong> 
+                                    <span>1.3 g</span>
+                                </li>
+                                <li>
+                                    <strong>Gorduras Totais:</strong> 
+                                    <span>6.9 g</span>
+                                </li>
+                                <li>
+                                    <strong>Fibras:</strong> 
+                                    <span>3.9 g</span>
+                                </li>
+                            </ul>
+                            </div>
+                        </div>
+                      </div>
+                      <div class="recipe-inline-tags">
+                            <span class="tag tag-gf" title="Sem Glúten"><i class="fas fa-wheat-awn-circle-exclamation"></i> Sem Glúten</span>
+                      </div>
+                    </li>
+
+                  </ul>
+                </div>
+            </section> <section class="content-section" style="background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-radius: 8px; margin: 40px auto; max-width: 90%; padding-top: 40px; padding-bottom: 40px;">
+                <h2 class="section-title">Teste seu Conhecimento!</h2>
+                <p class="section-description" style="margin-bottom: 30px;">Encontre as palavras-chave da nutrição na adolescência em nosso caça-palavras!</p>
+                
+                <div id="wordsearch-game-area-embedded" style="max-width: 850px; margin: 0 auto;">
+                    <div class="wordsearch-wrapper">
+                        <div class="wordsearch-grid-container">
+                            <div class="wordsearch-grid">
+                                </div>
+                        </div>
+                        <div class="wordsearch-words-container">
+                            <h4>Palavras:</h4>
+                            <ul class="wordsearch-words-list">
+                                </ul>
+                        </div>
+                    </div>
+                    <div class="classify-feedback" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; display: flex; justify-content: center;">
+                        <button class="game-restart-btn" id="wordsearch-embedded-restart">
+                            <i class="fa-solid fa-rotate-right"></i> Reiniciar Jogo
+                        </button>
+                    </div>
+                </div>
+            </section>
+            </section> <section id="adulto" class="page-content">
+            <section class="content-section">
+                <h2 class="section-title">Nutrição na Fase Adulta (20-59 anos)</h2>
+                <article class="fase-content-article">
+                    <h4>Fase Adulta: Equilíbrio e Prevenção</h4>
+                    <p>A alimentação do adulto visa a manutenção da saúde, o controle do peso corporal e a prevenção de Doenças Crônicas Não Transmissíveis (DCNT). O equilíbrio entre macronutrientes, a ingestão de fibras e o fracionamento das refeições são pilares essenciais para a longevidade.</p>
+                    <ul><li>Adoção de padrões alimentares baseados em alimentos minimamente processados.</li><li>Gestão da ingestão de sódio, açúcares e gorduras saturadas/trans.</li></ul>
+                </article>
+            </section>
+        </section>
+        <section id="idoso" class="page-content">
+            <section class="content-section">
+                <h2 class="section-title">Nutrição na Terceira Idade (60+ anos)</h2>
+                <article class="fase-content-article">
+                    <h4>Terceira Idade: Otimização da Qualidade de Vida</h4>
+                    <p>Nesta fase, as alterações fisiológicas exigem um ajuste na dieta, com foco na manutenção da massa magra (prevenção da sarcopenia), na saúde óssea e na ingestão de água. A densidade nutricional é mais importante do que o volume calórico total.</p>
+                    <ul><li>Aumento do aporte proteico de alta qualidade para a manutenção muscular.</li><li>Atenção à deficiência de Vitamina B12 e risco de desidratação.</li></ul>
+                </article>
+            </section>
+        </section>
+
+        <section id="materiais-jogos" class="page-content">
+            <section class="content-section">
+                <h2 class="section-title">Materiais Educativos e Jogos</h2>
+                <p class="section-description">Aprenda brincando e aprofunde seus conhecimentos com nossos e-books gratuitos e jogos interativos sobre alimentação e saúde.</p>
+
+                <h3 style="text-align: center; font-family: var(--font-heading); color: var(--color-secondary); margin-top: 40px; margin-bottom: 20px;">E-books e Guias</h3>
+                <div class="grid-container">
+                    <div class="card-container gs_reveal">
+                        <a href="pdf/Guia de Lanches Saudáveis.pdf" target="_blank" aria-label="Baixar eBook Guia de Lanches Saudáveis" class="card-ebook-link">
+                            <div class="card-ebook"><div class="wrapper"><img src="card.ebook1/card.ebook1.png" class="cover-image" alt="Fundo do eBook"  /></div></div>
+                        </a>
+                        <a href="pdf/Guia de Lanches Saudáveis.pdf" class="card-cta" target="_blank">Baixar E-book</a>
+                    </div>
+                    <div class="card-container gs_reveal">
+                        <a href="pdf/Nutrição na terceira idade.pdf" target="_blank" aria-label="Baixar eBook Nutrição na Terceira Idade" class="card-ebook-link">
+                           <div class="card-ebook"><div class="wrapper"><img src="card.ebook2/card.ebook2.png" class="cover-image" alt="Fundo do eBook" />
+                               <img src="" class="title" alt="" />
+                               <img src="card.ebook2/card.ebook2.2.png" class="character" alt="Personagem do eBook" />
+                           </div></div>
+                        </a>
+                        <a href="pdf/Nutrição na terceira idade.pdf" class="card-cta" target="_blank">Baixar E-book</a>
+                    </div>
+                    <div class="card-container gs_reveal">
+                        <a href="pdf/Desvendando Mitos da Nutrição.pdf" target="_blank" aria-label="Baixar eBook Desvendando Mitos da Nutrição" class="card-ebook-link">
+                            <div class="card-ebook"><div class="wrapper"><img src="card.ebook3/futurosaudavel.png" class="cover-image" /></div></div>
+                        </a>
+                        <a href="pdf/criança bem nutrida.pdf" class="card-cta" target="_blank">Baixar E-book</a>
+                    </div>
+                </div>
+
+                <h3 style="text-align: center; font-family: var(--font-heading); color: var(--color-secondary); margin-top: 60px; margin-bottom: 20px;">Jogos Educativos (Infância)</h3>
+
+                <div class="game-launch-pad">
+                    <button class="game-launcher-card" aria-label="Jogar Jogo da Memória Saudável">
+                        <img src="jogo-memoria-nutri/assets/game-card-cover.png" alt="Jogar Jogo da Memória Saudável">
+                        <span class="game-card-tag">NOVO</span>
+                    </button>
+
+                    <button class="game-launcher-card" aria-label="Jogar O Caminho do Alimento">
+                        <img src="jogo-caminho/assets/game-card-cover.png" alt="Jogar O Caminho do Alimento">
+                        <span class="game-card-tag">NOVO</span>
+                    </button>
+                </div>
+
+                <div id="wordsearch-win-modal" class="game-modal-overlay">
+                    <div class="game-modal-content">
+                        <img src="jogo-memoria-nutri/assets/win-icon.png" alt="Troféu" class="win-icon">
+                        <h3>Parabéns!</h3>
+                        <p>Você encontrou todas as palavras e provou que sabe tudo sobre nutrição na adolescência!</p>
+                        <div class="modal-buttons">
+                            <button class="cta-button" id="wordsearch-win-restart">Jogar Novamente</button>
+                            <button class="cta-link" id="wordsearch-win-close">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="memory-game-container" class="game-container-wrapper">
+                    <div id="memory-game-area" class="game-area">
+
+                        <button class="game-close-btn" aria-label="Fechar Jogo">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+
+                        <h3 class="game-title">Jogo da Memória</h3>
+                        <p class="game-instructions">Encontre todos os pares de alimentos!</p>
+
+                        <div class="memory-game">
+                            </div>
+
+                        <div class="classify-feedback">
+                            <span id="moves-counter">Jogadas: 0</span>
+                            <button class="game-restart-btn"><i class="fa-solid fa-rotate-right"></i> Reiniciar</button>
+                        </div>
+
+                    </div>
+
+                    <div id="win-modal" class="game-modal-overlay">
+                        <div class="game-modal-content">
+                            <img src="jogo-memoria-nutri/assets/win-icon.png" alt="Troféu" class="win-icon">
+                            <h3>Parabéns!</h3>
+                            <p>Você encontrou todos os pares em <strong id="final-moves">0</strong> jogadas!</p>
+                            <div class="modal-buttons">
+                                <button class="cta-button">Jogar Novamente</button>
+                                <button class="cta-link">Ver outros jogos</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="classify-game-container" class="game-container-wrapper">
+                     <div id="classify-game-area" class="game-area active">
+                         <button class="game-close-btn" aria-label="Fechar Jogo">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <h3 class="game-title">O Caminho do Alimento</h3>
+                        <p class="game-instructions">Arraste cada alimento para a categoria correta!</p>
+
+                        <div class="classify-dropzones">
+                            <div class="classify-zone" data-category="natura">
+                                <h4>In Natura / Minimamente Processados</h4>
+                            </div>
+                            <div class="classify-zone" data-category="processado">
+                                <h4>Processados</h4>
+                            </div>
+                            <div class="classify-zone" data-category="ultra">
+                                <h4>Ultraprocessados</h4>
+                            </div>
+                        </div>
+
+                        <div class="classify-food-bank">
+                            </div>
+
+                        <div class="classify-feedback">
+                            <span id="classify-score">Itens restantes: 0</span>
+                            <button class="game-restart-btn"><i class="fa-solid fa-rotate-right"></i> Reiniciar</button>
+                        </div>
+                    </div>
+
+                    <div id="classify-win-modal" class="game-modal-overlay">
+                        <div class="game-modal-content">
+                            <img src="jogo-memoria-nutri/assets/win-icon.png" alt="Troféu" class="win-icon">
+                            <h3>Parabéns!</h3>
+                            <p>Você classificou todos os alimentos e agora sabe a diferença entre eles!</p>
+                            <div class="modal-buttons">
+                                <button class="cta-button">Jogar Novamente</button>
+                                <button class="cta-link">Ver outros jogos</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </section>
+
+        <section id="receitas" class="page-content">
+            <section class="content-section recipe-video-section">
+                <h2 class="section-title">Receitas Acessíveis e Sustentáveis</h2>
+                <p class="section-description">Receitas práticas para todas as fases da vida, com foco em aproveitamento integral dos alimentos, opções veganas, sem glúten e muito mais.</p>
+
+                <h2 class="section-title">Aproveitamento Integral</h2>
+                
+                <div class="main">
+                  <ul class="cards">
+                    
+                    <li class="cards_item">
+                      <div class="card">
+                        <div class="card_image">
+                           <img src="caminho/para/sua/imagem-bolo-banana.jpg" alt="Bolo de Casca de Banana" /> <span class="note">Sustentável | Lanche</span>
+                        </div>
+                        <div class="recipe-meta"> 
+                            <div>
+                                <i class="fa-solid fa-clock"></i>
+                                <strong>Preparo</strong>
+                                45 min
+                            </div>
+                            <div>
+                                <i class="fa-solid fa-utensils"></i>
+                                <strong>Rende</strong>
+                                8 fatias
+                            </div>
+                             <div>
+                                <i class="fa-solid fa-leaf"></i> 
+                                <strong>Nível</strong>
+                                Fácil
+                            </div> 
+                        </div> 
+                        <div class="card_content">
+                          <h2 class="card_title">Bolo de Casca de Banana</h2> 
+                          <div class="card_text">
+                            <p>Uma forma deliciosa de evitar o desperdício e adicionar fibras à sua dieta.</p>
+                            <hr />
+                            <p style="text-align: center;"><a href="#" class="cta-link">Ver Receita em Vídeo</a></p>
+                          </div>
+                        </div>
+                      </div>
+                       </li>
+                
+                    <li class="cards_item">
+                      <div class="card">
+                        <div class="card_image">
+                           <img src="caminho/para/sua/imagem-farofa-talos.jpg" alt="Farofa de Talos" /> <span class="note">Sustentável | Acompanhamento</span>
+                        </div>
+                         <div class="recipe-meta"> 
+                            <div>
+                                <i class="fa-solid fa-clock"></i>
+                                <strong>Preparo</strong>
+                                20 min
+                            </div>
+                            <div>
+                                <i class="fa-solid fa-utensils"></i>
+                                <strong>Rende</strong>
+                                6 porções
+                            </div>
+                             <div>
+                                <i class="fa-solid fa-seedling"></i> 
+                                <strong>Nível</strong>
+                                Médio
+                            </div> 
+                        </div> 
+                        <div class="card_content">
+                          <h2 class="card_title">Farofa de Talos e Folhas</h2> 
+                          <div class="card_text">
+                            <p>Nutrição e sabor utilizando partes dos vegetais que normalmente são descartadas.</p>
+                             <hr />
+                            <p style="text-align: center;"><a href="#" class="cta-link">Ver Receita em Vídeo</a></p>
+                          </div>
+                        </div>
+                      </div>
+                       </li>
+                
+                    <li class="cards_item">
+                      <div class="card">
+                        <div class="card_image">
+                           <img src="caminho/para/sua/imagem-cha-abacaxi.jpg" alt="Chá de Casca de Abacaxi" /> <span class="note">Sustentável | Bebida</span>
+                        </div>
+                         <div class="recipe-meta"> 
+                            <div>
+                                <i class="fa-solid fa-clock"></i>
+                                <strong>Preparo</strong>
+                                15 min
+                            </div>
+                            <div>
+                                <i class="fa-solid fa-utensils"></i>
+                                <strong>Rende</strong>
+                                1 litro
+                            </div>
+                             <div>
+                                <i class="fa-solid fa-leaf"></i> 
+                                <strong>Nível</strong>
+                                Fácil
+                            </div> 
+                        </div> 
+                        <div class="card_content">
+                          <h2 class="card_title">Chá de Casca de Abacaxi</h2> 
+                          <div class="card_text">
+                             <p>Refrescante, digestivo e uma ótima maneira de usar 100% da fruta.</p>
+                             <hr />
+                             <p style="text-align: center;"><a href="#" class="cta-link">Ver Receita em Vídeo</a></p>
+                          </div>
+                        </div>
+                      </div>
+                       </li>
+
+                  </ul>
+                </div>
+                <h3 style="text-align: center; font-family: var(--font-heading); color: var(--color-primary); margin-top: 50px;">Receitas Veganas</h3>
+                <div class="grid-container">
+                    <article class="card gs_reveal"><div class="card-content"><h4>Moqueca de Banana da Terra</h4><span class="card-tag">Vegano | Principal</span><p>Um prato cheio de sabor, tradição brasileira e 100% vegetal.</p><a href="#" class="cta-link">Ver Receita em Vídeo</a></div></article>
+                     <article class="card gs_reveal"><div class="card-content"><h4>"Carne" de Jaca Desfiada</h4><span class="card-tag">Vegano | Versátil</span><p>Aprenda a preparar a jaca verde para usar em sanduíches, tacos e recheios.</p><a href="#" class="cta-link">Ver Receita em Vídeo</a></div></article>
+                </div>
+
+                <div style="margin-top: 40px; border-top: 1px solid #ddd; padding-top: 40px;">
+                    <h4 style="text-align: center; font-size: 1.5em; margin-bottom: 20px;">Receita da Semana: Bolo de Casca de Banana</h4>
+                    <video controls width="100%" style="max-width: 600px; margin: auto; display: block; border-radius: 8px;" poster="receitasacessiveis.png">
+                        <source src="https://www.youtube.com/embed/Eb8cs0T7ZEg" type="video/mp4">
+                        <track src="caminho/para/legenda.vtt" kind="subtitles" srclang="pt" label="Português">
+                        Seu navegador não suporta vídeos.
+                    </video>
+                </div>
+            </section>
+        </section>
+
+        <section id="higiene" class="page-content">
+            <section class="content-section">
+                <h2 class="section-title">Higiene e Segurança dos Alimentos</h2>
+                <p class="section-description">Aprenda as melhores práticas para manusear, higienizar e armazenar seus alimentos de forma segura para garantir a saúde de toda a família.</p>
+                <div class="fase-content-article">
+                    <h4>Guia Rápido para Higienização e Armazenamento</h4>
+                    <p>A segurança alimentar começa na cozinha. Higienizar e armazenar os alimentos corretamente evita a contaminação e o desperdício, preservando os nutrientes e o sabor.</p>
+                    <ul>
+                        <li><strong>Lavagem de Hortifrúti:</strong> Lave bem frutas, legumes e verduras em água corrente, esfregando. Em seguida, deixe de molho por 10 minutos em solução com água sanitária ou hipoclorito de sódio (geralmente, uma colher de sopa para 1 litro de água), e enxágue.</li>
+                        <li><strong>Armazenamento:</strong> Guarde vegetais, talos e folhas em potes bem fechados para conservar por mais tempo. É importante separar alimentos crus e cozidos para evitar contaminação cruzada.</li>
+                        <li><strong>Cozimento:</strong> Cozinhe completamente carnes, frango, ovos e pescados, garantindo que alcancem 70 °C, e reaqueça completamente a comida cozida.</li>
+                    </ul>
+                </div>
+            </section>
+        </section>
+        <section id="acoes" class="page-content">
+            <section class="content-section">
+                <h2 class="section-title">Nossas Ações na Comunidade</h2>
+                <p class="section-description">Fique por dentro das nossas próximas palestras, workshops e eventos na comunidade, focados em promover a educação alimentar e nutricional para todos.</p>
+                <div class="placeholder-content"><p><strong>Próximos Eventos:</strong> Em breve divulgaremos nossa agenda de ações!</p></div>
+            </section>
+        </section>
+        <section id="contato" class="page-content">
+            <section class="content-section">
+                <h2 class="section-title">Contato</h2>
+                <p class="section-description">Tem alguma dúvida, sugestão ou gostaria de propor uma parceria? Fale conosco!</p>
+                <p style="text-align: center; font-size: 1.2em;"><strong>Email:</strong> <a href="mailto:contato@alimentandofases.com">contato@alimentandofases.com</a></p>
+            </section>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <ul class="social">
+            <li data-tooltip="Twitter" style="--bg: #101419"><a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a></li>
+            <li data-tooltip="YouTube" style="--bg: #ff0000"><a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a></li>
+            <li data-tooltip="Instagram" style="--bg: linear-gradient(-45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5)"><a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a></li>
+        </ul>
+        <p>Desenvolvido com Rigor Científico | &copy; 2025 Alimentando Fases. Todos os direitos reservados.</p>
+        <p><a href="#">Termos de Uso</a> | <a href="#">Política de Privacidade</a></p>
+    </footer>
+
+    <script src="confetti.js"></script> 
+    
+    <script src="wordsearch.js" defer></script>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
