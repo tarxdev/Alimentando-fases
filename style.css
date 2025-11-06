@@ -489,6 +489,7 @@ a.submenu-list__item-wrapper > svg {
         flex-direction: column; align-items: center; position: absolute; top: 100%;
         left: 0; padding: 20px; opacity: 0; visibility: hidden; transition: var(--transition);
         width: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background-color: var(--color-background);
+        z-index: 100;
     }
     .main-header__navigation-wrapper.open { opacity: 1; visibility: visible; }
     .main-header__navigation, .main-header__list { width: 100%; }
