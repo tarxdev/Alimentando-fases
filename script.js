@@ -71,6 +71,14 @@ document.addEventListener('DOMContentLoaded', () => {
         submenuLinks.forEach((subLink) => {
             subLink.removeEventListener('mouseenter', handleSubmenuLinkHover);
         });
+
+        // --- INÍCIO DA CORREÇÃO (NÍVEL 1) ---
+        // Fecha o acordeão no mobile
+        const submenuWrapper = item.querySelector('.submenu-wrapper');
+        if (submenuWrapper) {
+            submenuWrapper.style.maxHeight = null;
+        }
+        // --- FIM DA CORREÇÃO ---
     }
 
     // Função para ABRIR um menu
@@ -78,6 +86,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Abre ESTE menu
         item.classList.remove('is-closing');
         item.classList.add('js-hover'); // Ativa a cor verde e a abertura (via CSS)
+
+        // --- INÍCIO DA CORREÇÃO (NÍVEL 1) ---
+        // Abre o acordeão no mobile
+        const submenuWrapper = item.querySelector('.submenu-wrapper');
+        if (submenuWrapper) {
+            // Usa scrollHeight para definir a altura exata do conteúdo
+            submenuWrapper.style.maxHeight = submenuWrapper.scrollHeight + "px";
+        }
+        // --- FIM DA CORREÇÃO ---
 
         // 3. Lógica interna (ativar primeiro tab)
         const submenuLinks = item.querySelectorAll('.submenu-list__item.has-submenu');
@@ -96,10 +113,56 @@ document.addEventListener('DOMContentLoaded', () => {
              }
         }
 
-        // 4. Adiciona listeners de hover internos
+        // --- INÍCIO DA CORREÇÃO (NÍVEL 2) ---
+        // 4. Adiciona listeners (separados para Desktop e Mobile)
         submenuLinks.forEach((subLink) => {
-             subLink.addEventListener('mouseenter', handleSubmenuLinkHover);
+            
+            // LÓGICA DE HOVER (DESKTOP)
+            subLink.addEventListener('mouseenter', handleSubmenuLinkHover);
+
+            // LÓGICA DE CLIQUE (MOBILE ACCORDION)
+            subLink.addEventListener('click', (e) => {
+                const burger = document.querySelector('.main-header__burger');
+                
+                // Só executa se o burger estiver visível (modo mobile)
+                if (getComputedStyle(burger).display !== 'flex') {
+                    return; // Deixa o link de desktop funcionar (que é o nav-link)
+                }
+
+                e.preventDefault(); // Impede o link '#' de pular
+
+                const parentItem = subLink.parentElement; // O <li>
+                const submenuContent = parentItem.querySelector('.submenu-content'); // O L2
+                if (!submenuContent) return; // Sai se não houver L2
+
+                const mainWrapper = parentItem.closest('.submenu-wrapper'); // O L1
+
+                // Fecha outros L2 que possam estar abertos
+                parentItem.parentElement.querySelectorAll('.submenu-list__item.has-submenu.active').forEach(openItem => {
+                    if (openItem !== parentItem) {
+                        openItem.classList.remove('active');
+                        openItem.querySelector('.submenu-content').style.maxHeight = null;
+                    }
+                });
+
+                // Abre/Fecha o L2 clicado
+                parentItem.classList.toggle('active');
+                if (parentItem.classList.contains('active')) {
+                    submenuContent.style.maxHeight = submenuContent.scrollHeight + "px";
+                } else {
+                    submenuContent.style.maxHeight = null;
+                }
+
+                // Reajusta a altura do L1 para acomodar a mudança
+                if (mainWrapper) {
+                    // Usa scrollHeight para re-calcular a altura total
+                    setTimeout(() => {
+                        mainWrapper.style.maxHeight = mainWrapper.scrollHeight + "px";
+                    }, 410); // Espera a animação do L2 (0.4s)
+                }
+            });
         });
+        // --- FIM DA CORREÇÃO (NÍVEL 2) ---
     }
 
     // --- Loop principal de setup do menu ---
