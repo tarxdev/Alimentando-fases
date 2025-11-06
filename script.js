@@ -1,55 +1,18 @@
 /* =======================================================
- * SCRIPT PRINCIPAL - ALIMENTANDO FASES
+ * SCRIPT PRINCIPAL - ALIMENTANDO FASES (V26.0 - Hero Carrossel)
+ * CORRIGIDO: Removida Calculadora de Hidratação
+ * NOVO: Adicionada lógica de rolagem para âncoras do Submenu
+ * NOVO: Adicionado Carrossel de Imagens no Hero
  * ======================================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. LÓGICA DE NAVEGAÇÃO (SPA) ---
-    const navLinks = document.querySelectorAll('.nav-link');
-    const pages = document.querySelectorAll('.page-content');
-    const appContainer = document.getElementById('app-container');
-
-    function navigateTo(pageId) {
-        // Esconde todas as páginas
-        pages.forEach(page => page.classList.remove('active'));
-
-        // Mostra a página correta
-        const targetPage = document.getElementById(pageId);
-        if (targetPage) {
-            targetPage.classList.add('active');
-        } else {
-            // Se não achar, volta pra home
-            document.getElementById('home').classList.add('active');
-        }
-
-        // (NOVO) Inicia o caça-palavras se a página for a correta
-        if (pageId === 'adolescencia') {
-            if (typeof WordSearchGame !== 'undefined' && WordSearchGame.init) {
-                // Um pequeno delay para garantir que a página esteja visível antes de construir o grid
-                setTimeout(() => {
-                    WordSearchGame.init();
-                }, 100);
-            } else {
-                console.warn('WordSearchGame não está pronto para iniciar.');
-            }
-        }
-
-        // Rola para o topo do container
-        if (appContainer) appContainer.scrollIntoView({ behavior: 'smooth' });
-
-        // Fecha o menu mobile (se estiver aberto)
-        closeMobileMenu();
+    // *** (V25.5) CORREÇÃO Scroll-on-Refresh ***
+    if (history.scrollRestoration) {
+        history.scrollRestoration = 'manual';
     }
+    // *** FIM DA CORREÇÃO ***
 
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const pageId = link.dataset.page;
-            if (pageId) {
-                navigateTo(pageId);
-            }
-        });
-    });
 
     // --- 2. LÓGICA DO MENU MOBILE ---
     const burger = document.querySelector('.main-header__burger');
@@ -71,179 +34,351 @@ document.addEventListener('DOMContentLoaded', () => {
         burger.addEventListener('click', toggleMobileMenu);
     }
 
+
     // --- 3. LÓGICA DO MEGA MENU (Desktop) ---
+    // Este bloco agora vem ANTES da Lógica de Navegação
     const menuItems = document.querySelectorAll('.main-header__list-item.has-submenu');
-    let activeSubmenu = null;
-    let closeTimer = null;
+    const mainHeader = document.querySelector('.main-header'); // Para "click outside"
 
-    menuItems.forEach(item => {
-        const link = item.querySelector(':scope > a'); // Seletor mais específico
-        const submenuWrapper = item.querySelector('.submenu-wrapper');
+    // Função de hover para os TABS internos (Isso não muda)
+    const handleSubmenuLinkHover = (event) => {
+        const subLink = event.currentTarget;
+        const parentMenuItem = subLink.closest('.main-header__list-item.has-submenu');
+        if (!parentMenuItem) return;
 
-        if (!link || !submenuWrapper) return; // Garante que elementos existem
+         const allSubmenuLinks = parentMenuItem.querySelectorAll('.submenu-list__item.has-submenu');
+         const allSubmenuContents = parentMenuItem.querySelectorAll('.submenu-content');
 
-        // Mostra no hover/focus
-        const showSubmenu = () => {
-            if (closeTimer) clearTimeout(closeTimer);
-            if (activeSubmenu && activeSubmenu !== item) {
-                activeSubmenu.classList.remove('is-closing'); // Remove classe de fechamento de outros
-            }
-            item.classList.remove('is-closing'); // Remove classe de fechamento do item atual
-            activeSubmenu = item; // Define o item atual como ativo
+         allSubmenuLinks.forEach(sl => sl.classList.remove('active'));
+         allSubmenuContents.forEach(sc => sc.classList.remove('active'));
 
-
-            // Lógica de conteúdo interno do submenu (ativação do primeiro item)
-            const submenuLinks = item.querySelectorAll('.submenu-list__item.has-submenu');
-            const submenuContents = item.querySelectorAll('.submenu-content');
-
-            // Reset inicial antes de ativar o primeiro
-            submenuLinks.forEach(sl => sl.classList.remove('active'));
-            submenuContents.forEach(sc => sc.classList.remove('active'));
-
-            if (submenuLinks.length > 0) {
-                 const firstSubLink = submenuLinks[0];
-                 firstSubLink.classList.add('active');
-                 const firstContentKeyElement = firstSubLink.querySelector('.submenu-list__item-title');
-                 if (firstContentKeyElement) {
-                     const firstContentKey = firstContentKeyElement.textContent;
-                     const firstContent = item.querySelector(`.submenu-content[data-submenu-for="${firstContentKey}"]`);
-                     if(firstContent) firstContent.classList.add('active');
-                 }
-            }
-
-
-            // Adiciona listeners para hover nos links internos APENAS QUANDO o submenu é mostrado
-            submenuLinks.forEach((subLink) => {
-                // Usar 'mouseenter' em vez de 'mouseover' para evitar disparos múltiplos
-                 subLink.addEventListener('mouseenter', handleSubmenuLinkHover);
-            });
-        };
-
-        const handleSubmenuLinkHover = (event) => {
-            const subLink = event.currentTarget;
-            const parentMenuItem = subLink.closest('.main-header__list-item.has-submenu'); // Acha o menu principal pai
-            if (!parentMenuItem) return;
-
-             const allSubmenuLinks = parentMenuItem.querySelectorAll('.submenu-list__item.has-submenu');
-             const allSubmenuContents = parentMenuItem.querySelectorAll('.submenu-content');
-
-             // Remove active de todos os links e conteúdos DENTRO DO MESMO SUBMENU PRINCIPAL
-             allSubmenuLinks.forEach(sl => sl.classList.remove('active'));
-             allSubmenuContents.forEach(sc => sc.classList.remove('active'));
-
-             // Ativa o atual
-             subLink.classList.add('active');
-             const contentKeyElement = subLink.querySelector('.submenu-list__item-title');
-             if (contentKeyElement) {
-                 const contentKey = contentKeyElement.textContent;
-                 const targetContent = parentMenuItem.querySelector(`.submenu-content[data-submenu-for="${contentKey}"]`);
-                 if (targetContent) {
-                     targetContent.classList.add('active');
-                 }
+         subLink.classList.add('active');
+         const contentKeyElement = subLink.querySelector('.submenu-list__item-title');
+         if (contentKeyElement) {
+             const firstContentKey = contentKeyElement.textContent;
+             const targetContent = parentMenuItem.querySelector(`.submenu-content[data-submenu-for="${firstContentKey}"]`);
+             if (targetContent) {
+                 targetContent.classList.add('active');
              }
-        };
+         }
+    };
 
+    // Função para FECHAR um menu
+    function closeMenu(item) {
+        item.classList.remove('js-hover'); // 'js-hover' é a nossa classe que significa "aberto"
+        item.classList.add('is-closing'); // Ativa a animação de fechamento
+        const submenuLinks = item.querySelectorAll('.submenu-list__item.has-submenu');
+        submenuLinks.forEach((subLink) => {
+            subLink.removeEventListener('mouseenter', handleSubmenuLinkHover);
+        });
+    }
 
-        // Esconde
-        const hideSubmenu = () => {
-             // Remove listeners internos ao esconder para evitar acumulo
-             const submenuLinks = item.querySelectorAll('.submenu-list__item.has-submenu');
-             submenuLinks.forEach((subLink) => {
-                 subLink.removeEventListener('mouseenter', handleSubmenuLinkHover);
-             });
+    // Função para ABRIR um menu
+    function openMenu(item) {
+        // 2. Abre ESTE menu
+        item.classList.remove('is-closing');
+        item.classList.add('js-hover'); // Ativa a cor verde e a abertura (via CSS)
 
-            closeTimer = setTimeout(() => {
-                item.classList.add('is-closing');
-                // Não precisa remover active dos internos aqui, pois serão resetados no próximo showSubmenu
-            }, 100); // Aumentei um pouco o delay
-        };
+        // 3. Lógica interna (ativar primeiro tab)
+        const submenuLinks = item.querySelectorAll('.submenu-list__item.has-submenu');
+        const submenuContents = item.querySelectorAll('.submenu-content');
+        submenuLinks.forEach(sl => sl.classList.remove('active'));
+        submenuContents.forEach(sc => sc.classList.remove('active'));
 
-        item.addEventListener('mouseenter', showSubmenu);
-        item.addEventListener('mouseleave', hideSubmenu);
-        if (link) {
-           link.addEventListener('focus', showSubmenu); // Adicionado focus no link principal
+        if (submenuLinks.length > 0) {
+             const firstSubLink = submenuLinks[0];
+             firstSubLink.classList.add('active');
+             const firstContentKeyElement = firstSubLink.querySelector('.submenu-list__item-title');
+             if (firstContentKeyElement) {
+                 const firstContentKey = firstContentKeyElement.textContent;
+                 const firstContent = item.querySelector(`.submenu-content[data-submenu-for="${firstContentKey}"]`);
+                 if(firstContent) firstContent.classList.add('active');
+             }
         }
 
-        // Lógica de acessibilidade para 'focusout' - Garante que o submenu feche ao sair dele
+        // 4. Adiciona listeners de hover internos
+        submenuLinks.forEach((subLink) => {
+             subLink.addEventListener('mouseenter', handleSubmenuLinkHover);
+        });
+    }
+
+    // --- Loop principal de setup do menu ---
+    menuItems.forEach(item => {
+        const link = item.querySelector(':scope > a');
+        const submenuWrapper = item.querySelector('.submenu-wrapper');
+
+        if (!link || !submenuWrapper) return;
+
+        // ===============================================
+        // LÓGICA DE CLIQUE (V25.3 - Lógica de Toggle)
+        // ===============================================
+        
+        // 1. CLIQUE NO LINK PRINCIPAL (Ex: "Fases da Vida")
+        link.addEventListener('click', (e) => {
+            e.preventDefault(); // Impede o link de navegar (#)
+            e.stopPropagation(); // <-- Impede o clique de "vazar" para o document
+            
+            // Verifica o estado do item clicado
+            const wasOpen = item.classList.contains('js-hover');
+
+            // 1. Fecha TODOS OS OUTROS menus
+            menuItems.forEach(otherItem => {
+                if (otherItem !== item) { // Só fecha os que NÃO são o item clicado
+                    closeMenu(otherItem);
+                }
+            });
+
+            // 2. Faz o toggle no item clicado
+            if (wasOpen) {
+                closeMenu(item); // Se estava aberto, fecha
+            } else {
+                openMenu(item); // Se estava fechado, abre
+            }
+        });
+        
+        // 2. CLIQUE DENTRO DO PAINEL DO SUBMENU
+        submenuWrapper.addEventListener('click', (e) => {
+            e.stopPropagation(); // <-- Impede que cliques *dentro* do menu fechem ele.
+        });
+        
+        // ===============================================
+        // FIM DA CORREÇÃO
+        // ===============================================
+
+        // Lógica de acessibilidade (focus) - ainda útil
         const focusableElements = Array.from(item.querySelectorAll('a, button'));
         if (focusableElements.length > 0) {
             const lastElement = focusableElements[focusableElements.length - 1];
-
-             // Adiciona listener no primeiro e último elementos focáveis
-             const firstElement = focusableElements[0];
-
+            const firstElement = focusableElements[0];
             firstElement.addEventListener('keydown', (e) => {
-                // Se Shift+Tab no primeiro item, fecha o submenu
                 if (e.shiftKey && e.key === 'Tab') {
-                     hideSubmenu();
+                     closeMenu(item);
                 }
             });
-
             lastElement.addEventListener('keydown', (e) => {
-                // Se Tab (sem Shift) no último item, fecha o submenu
                 if (!e.shiftKey && e.key === 'Tab') {
-                    hideSubmenu();
+                    closeMenu(item);
                 }
             });
-
-             // Listener genérico no item para fechar se o foco sair completamente
              item.addEventListener('focusout', (e) => {
-                 // Verifica se o novo foco (relatedTarget) está FORA do item do menu
                  if (!item.contains(e.relatedTarget)) {
-                     hideSubmenu();
+                     closeMenu(item);
                  }
              });
         }
     });
 
+    // LÓGICA DE CLICAR FORA (Click Outside) - Mantida
+    document.addEventListener('click', (e) => {
+        menuItems.forEach(menuItem => {
+            closeMenu(menuItem);
+        });
+    });
 
-    // --- 4. LÓGICA DO CARROSSEL (HERO) ---
-    const slides = document.querySelectorAll('.hero-slide');
-    const dotsContainer = document.querySelector('.carousel-dots');
-    const nextBtn = document.querySelector('.carousel-nav.next');
-    const prevBtn = document.querySelector('.carousel-nav.prev');
-    let currentSlide = 0;
-    let slideInterval;
-    let heroCarouselInitialized = false; // Flag para inicialização
 
-    function initHeroCarousel() {
-        if (heroCarouselInitialized || !slides || slides.length <= 0 || !dotsContainer) return; // Roda só uma vez e verifica se slides existe
+    // --- 1. LÓGICA DE NAVEGAÇÃO (SPA) ---
+    const navLinks = document.querySelectorAll('.nav-link');
+    const pages = document.querySelectorAll('.page-content');
+    const appContainer = document.getElementById('app-container');
 
-        function createDots() {
-            dotsContainer.innerHTML = ''; // Limpa dots antigos
-            slides.forEach((_, index) => {
-                const button = document.createElement('button');
-                button.setAttribute('aria-label', `Ir para slide ${index + 1}`);
-                button.addEventListener('click', () => {
-                    goToSlide(index);
-                    resetInterval();
+    // =======================================================
+    // ✅ FUNÇÃO navigateTo ATUALIZADA (com anchorId)
+    // =======================================================
+    function navigateTo(pageId, anchorId = null) { // <-- 1. PARÂMETRO ADICIONADO
+        // Esconde todas as páginas
+        pages.forEach(page => page.classList.remove('active'));
+
+        // Mostra a página correta
+        const targetPage = document.getElementById(pageId);
+        if (targetPage) {
+            targetPage.classList.add('active');
+        } else {
+            // Se não achar, volta pra home
+            document.getElementById('home').classList.add('active');
+        }
+
+        // --- Lógica de inicialização de jogos (código existente) ---
+        if (pageId === 'adolescencia') {
+            if (typeof WordSearchGame !== 'undefined' && WordSearchGame.init) {
+                setTimeout(() => {
+                    WordSearchGame.init();
+                }, 100);
+            } else {
+                console.warn('WordSearchGame não está pronto para iniciar.');
+            }
+        } 
+        else if (pageId === 'infancia') {
+             if (typeof EmbeddedClassifyGame !== 'undefined' && EmbeddedClassifyGame.init) {
+                setTimeout(() => {
+                    EmbeddedClassifyGame.init();
+                }, 100);
+            } else {
+                console.warn('EmbeddedClassifyGame não está pronto para iniciar.');
+            }
+        }
+        else if (pageId === 'receitas') {
+             if (typeof setupRecipeFilters !== 'undefined') {
+                setTimeout(() => {
+                    setupRecipeFilters();
+                }, 100);
+            } else {
+                console.warn('setupRecipeFilters não está pronto para iniciar.');
+            }
+        }
+        // A lógica da calculadora foi removida
+
+
+        // *** 2. LÓGICA DE ROLAGEM MODIFICADA ***
+        if (anchorId) {
+            // Se uma âncora foi fornecida (ex: #infancia-quiz)
+            const targetElement = document.querySelector(anchorId);
+            if (targetElement) {
+                // Espera um instante para a página renderizar e rola suavemente
+                setTimeout(() => {
+                    // Ajuste de 90px para compensar o header fixo
+                    const headerOffset = 90; 
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                  
+                    window.scrollTo({
+                         top: offsetPosition,
+                         behavior: "smooth"
+                    });
+                }, 50); // 50ms é geralmente suficiente
+            } else {
+                 // Se não achar a âncora, rola para o topo
+                 window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        } else {
+            // Comportamento padrão: rola para o topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        // *** FIM DA MODIFICAÇÃO DE ROLAGEM ***
+        
+        // Fecha o menu mobile (já existia)
+        closeMobileMenu();
+
+        // (V25.4) Fecha todos os mega-menus do desktop ao navegar
+        if (menuItems && typeof closeMenu === 'function') {
+            menuItems.forEach(menuItem => {
+                closeMenu(menuItem);
+            });
+        }
+    }
+
+    // Listener antigo (para links de navegação principais)
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const pageId = link.dataset.page;
+            if (pageId) {
+                e.preventDefault();
+                // Chama a navegação sem âncora (rola para o topo)
+                navigateTo(pageId); 
+            }
+            // Links sem data-page (como "Fases da Vida") não chamam navigateTo
+            // e são tratados pela lógica do menu (Lógica 3)
+        });
+    });
+    // --- FIM DO BLOCO MOVIDO ---
+
+    // =======================================================
+    // ✅ NOVO LISTENER PARA OS LINKS DE ROLAGEM (DESTAQUES)
+    // =======================================================
+    const scrollLinks = document.querySelectorAll('.submenu-link-scroll');
+
+    scrollLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const pageId = link.dataset.page;
+            const anchorId = link.getAttribute('href'); // Pega o #infancia-quiz
+
+            if (pageId && anchorId) {
+                // Chama a navegação COM âncora
+                navigateTo(pageId, anchorId);
+            }
+            
+            // Fecha menus (código de conveniência)
+            closeMobileMenu();
+            if (menuItems && typeof closeMenu === 'function') {
+                menuItems.forEach(menuItem => {
+                    closeMenu(menuItem);
                 });
-                dotsContainer.appendChild(button);
+            }
+        });
+    });
+    // =======================================================
+    // FIM DO NOVO BLOCO
+    // =======================================================
+
+    // =======================================================
+    // ✅ NOVA LÓGICA DO CARROSSEL DO HERO
+    // =======================================================
+    function setupHeroCarousel() {
+        const slides = document.querySelectorAll('.hero-slide');
+        const dots = document.querySelectorAll('.carousel-dots button');
+        const prevBtn = document.querySelector('.carousel-nav.prev');
+        const nextBtn = document.querySelector('.carousel-nav.next');
+        
+        if (slides.length <= 1) { // Se não houver slides ou só 1, não faz nada
+            if(prevBtn) prevBtn.style.display = 'none';
+            if(nextBtn) nextBtn.style.display = 'none';
+            if(dots.length > 0) document.querySelector('.carousel-dots').style.display = 'none';
+            return;
+        }
+
+        let currentSlide = 0;
+        let slideInterval;
+
+        function showSlide(n) {
+            // Ajusta o índice para loop
+            if (n >= slides.length) { n = 0; }
+            if (n < 0) { n = slides.length - 1; }
+            
+            // Remove 'active' de todos
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+
+            // Adiciona 'active' ao slide e dot corretos
+            slides[n].classList.add('active');
+            dots[n].classList.add('active');
+            
+            currentSlide = n;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Event Listeners para os botões
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                nextSlide();
+                resetInterval();
+            });
+        }
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                prevSlide();
+                resetInterval();
             });
         }
 
-        function updateDots() {
-            const dots = dotsContainer.querySelectorAll('button');
-            dots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentSlide);
+        // Event Listeners para os pontos
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                showSlide(index);
+                resetInterval();
             });
-        }
+        });
 
-        function goToSlide(slideIndex) {
-            if (!slides[currentSlide]) return; // Adiciona verificação
-            slides[currentSlide].classList.remove('active');
-            currentSlide = (slideIndex + slides.length) % slides.length;
-            if (!slides[currentSlide]) return; // Adiciona verificação
-            slides[currentSlide].classList.add('active');
-            updateDots();
-        }
-
+        // Autoplay
         function startInterval() {
-             // Limpa intervalo anterior antes de começar um novo
-             if (slideInterval) clearInterval(slideInterval);
-            slideInterval = setInterval(() => {
-                goToSlide(currentSlide + 1);
-            }, 5000); // Muda a cada 5 segundos
+            slideInterval = setInterval(nextSlide, 5000); // Muda de slide a cada 5 segundos
         }
 
         function resetInterval() {
@@ -251,29 +386,39 @@ document.addEventListener('DOMContentLoaded', () => {
             startInterval();
         }
 
-        if(nextBtn) nextBtn.addEventListener('click', () => {
-            goToSlide(currentSlide + 1);
-            resetInterval();
-        });
-        if(prevBtn) prevBtn.addEventListener('click', () => {
-            goToSlide(currentSlide - 1);
-            resetInterval();
-        });
-
-        createDots();
-        goToSlide(0); // Garante que o primeiro slide esteja ativo
-        startInterval();
-        heroCarouselInitialized = true; // Marca como inicializado
+        showSlide(0); // Mostra o primeiro slide
+        startInterval(); // Inicia o autoplay
     }
-     // Chama a inicialização quando o DOM estiver pronto
-     initHeroCarousel();
 
+    setupHeroCarousel(); // Chama a função do carrossel
+    // =======================================================
+    // FIM DO CÓDIGO DO CARROSSEL
+    // =======================================================
+
+
+    // =======================================================
+    // GRÁFICO DE BARRAS (SEÇÃO ADULTO) - VERSÃO ESTÁTICA (SEM ANIMAÇÃO)
+    // =======================================================
+    function animateChartBars() {
+        const charts = document.querySelectorAll('.interactive-chart');
+    
+        charts.forEach(chart => {
+            // Encontra as barras DENTRO deste gráfico específico
+            const bars = chart.querySelectorAll('.chart-bar');
+            
+            // 1. USA 'gsap.set' PARA APLICAR A LARGURA INSTANTANEAMENTE
+            gsap.set(bars, {
+                width: (i, target) => target.dataset.value.replace(',', '.') + "%", 
+                autoAlpha: 1 // Garante que a barra esteja visível
+            });
+        });
+    }
 
     // --- 5. LÓGICA DE ANIMAÇÃO (GSAP) ---
     if (typeof gsap !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
+        animateChartBars(); // <-- A CHAMADA AGORA FUNCIONA
 
-        // --- Função Genérica para Animar Elementos (Fade In + Slide Up Sutil) ---
         function animateFrom(elem, direction = 1, distance = 50) {
             let y = direction * distance;
             gsap.fromTo(elem, { y: y, autoAlpha: 0 }, {
@@ -285,55 +430,50 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // --- Função Genérica para Esconder Elementos ---
         function hide(elem) {
-            gsap.set(elem, { autoAlpha: 0 }); // Mantém escondido antes de animar
+            gsap.set(elem, { autoAlpha: 0 });
         }
 
-        // --- Animação Genérica para elementos .gs_reveal ---
         gsap.utils.toArray(".gs_reveal").forEach(function (elem) {
-            hide(elem); // Esconde inicialmente
+            hide(elem); 
 
             ScrollTrigger.create({
                 trigger: elem,
                 start: "top 85%",
                 end: "bottom 15%",
                 onEnter: () => animateFrom(elem),
-                onEnterBack: () => animateFrom(elem, -1), // Anima ao voltar
-                onLeave: () => hide(elem), // Opcional: esconde ao sair completamente
-                markers: false // Debug (mude para true se precisar)
+                onEnterBack: () => animateFrom(elem, -1),
+                onLeave: () => hide(elem),
+                markers: false
             });
         });
 
-        // --- Animação Orquestrada (Stagger) para os .topic-block ---
-        //    (Animação específica para os blocos dentro de #adolescencia)
         const topicBlocks = gsap.utils.toArray('#adolescencia .topic-block');
         if (topicBlocks.length > 0) {
-             // Esconde os blocos inicialmente (mesmo estado 'from' da animação)
              gsap.set(topicBlocks, { autoAlpha: 0, y: 50 });
 
             ScrollTrigger.create({
-                trigger: "#adolescencia .topic-container", // O container que agrupa os blocos
-                start: "top 75%", // Quando 75% do topo do container entra na tela
-                end: "bottom 25%", // Opcional: define um fim para o trigger
-                markers: false, // Debug
+                trigger: "#adolescencia .topic-container",
+                start: "top 75%",
+                end: "bottom 25%",
+                markers: false,
                 onEnter: () => {
-                    gsap.to(topicBlocks, { // Animamos 'para' o estado final
-                        duration: 0.8,      // Duração da animação de CADA bloco (reduzida)
-                        autoAlpha: 1,     // Fade in
-                        y: 0,             // Slide para a posição final (Y=0)
-                        stagger: 0.15,    // Atraso entre o início da animação de cada bloco
-                        ease: "power2.out", // Ease mais suave
-                        overwrite: "auto" // Evita conflitos se o usuário rolar rápido
+                    gsap.to(topicBlocks, {
+                        duration: 0.8,
+                        autoAlpha: 1,
+                        y: 0,
+                        stagger: 0.15,
+                        ease: "power2.out",
+                        overwrite: "auto"
                     });
                 },
-                onLeaveBack: () => { // Opcional: Reseta a animação se o usuário rolar para CIMA
-                     gsap.set(topicBlocks, { autoAlpha: 0, y: 50 }); // Volta ao estado inicial
+                onLeaveBack: () => {
+                     gsap.set(topicBlocks, { autoAlpha: 0, y: 50 });
                 }
             });
         }
 
-    } // --- Fim do if typeof gsap ---
+    } 
 
     // --- 6. LÓGICA DO CARROSSEL 3D (NUTRIENTES) ---
     const carouselWrapperNutrients = document.querySelector('#adolescencia .carousel-wrapper'); 
@@ -345,7 +485,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (carouselWrapperNutrients && gridNutrients && cardsNutrients.length > 0 && prevButtonNutrients && nextButtonNutrients) { 
         let currentIndexNutrients = 0;
         const totalCardsNutrients = cardsNutrients.length;
-        // Pega o gap do CSS (remove 'px' e converte para número)
         const gapNutrients = parseFloat(window.getComputedStyle(gridNutrients).gap) || 30; 
 
         function getCardWidth() {
@@ -363,41 +502,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const wrapperWidth = carouselWrapperNutrients.clientWidth;
-
-            // Calcula quantos cards completos cabem na tela (usando floor para ser seguro)
             const visibleCards = Math.max(1, Math.floor((wrapperWidth + gapNutrients) / (cardWidth + gapNutrients)));
-            
-            // Calcula o número de passos que podemos dar (último card visível na tela)
             const maxIndex = Math.max(0, totalCardsNutrients - visibleCards);
             
-            // Garante que o índice atual não ultrapasse o máximo
             if (currentIndexNutrients > maxIndex) {
                  currentIndexNutrients = maxIndex;
             }
 
-            // Calcula o scroll máximo real
             const totalGridWidth = (cardWidth * totalCardsNutrients) + (gapNutrients * (totalCardsNutrients - 1));
             const maxScroll = Math.max(0, totalGridWidth - wrapperWidth);
-
-            // Calcula o deslocamento alvo
             let targetOffset = currentIndexNutrients * (cardWidth + gapNutrients);
 
-            // Se o deslocamento alvo for maior que o máximo, usa o máximo (garante que o final não seja cortado)
             if (targetOffset > maxScroll) {
                 targetOffset = maxScroll;
             }
 
-            // Aplica a transformação
             gridNutrients.style.transform = `translateX(-${targetOffset}px)`;
             gridNutrients.style.transition = 'transform 0.5s ease-out';
 
-            // Atualiza o estado dos botões
             prevButtonNutrients.disabled = currentIndexNutrients === 0;
-            // Desativa o botão "próximo" se o deslocamento atual for igual ao scroll máximo (ou muito próximo)
-            nextButtonNutrients.disabled = targetOffset >= (maxScroll - 1); // -1 é uma margem de erro
+            nextButtonNutrients.disabled = targetOffset >= (maxScroll - 1);
         }
 
-        // --- Navegação ---
         prevButtonNutrients.addEventListener('click', () => {
             if (currentIndexNutrients > 0) {
                 currentIndexNutrients--;
@@ -406,40 +532,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         nextButtonNutrients.addEventListener('click', () => {
-            // A lógica de desabilitar o botão já impede avanços inválidos
             if (!nextButtonNutrients.disabled) {
                 currentIndexNutrients++;
                 updateNutrientsCarousel();
             }
         });
 
-        // Recalcular no resize
         window.addEventListener('resize', () => {
-            // Garante que a transição seja desativada durante o resize
             gridNutrients.style.transition = 'none'; 
             updateNutrientsCarousel();
         });
 
-        // Inicializa
         setTimeout(updateNutrientsCarousel, 50);
 
-    } else {
-        console.warn("Elementos do carrossel de nutrientes (wrapper, grid, cards ou botões) não encontrados.");
-        if(prevButtonNutrients) prevButtonNutrients.style.display = 'none';
-        if(nextButtonNutrients) nextButtonNutrients.style.display = 'none';
+    } else if (prevButtonNutrients && nextButtonNutrients) {
+        prevButtonNutrients.style.display = 'none';
+        nextButtonNutrients.style.display = 'none';
     }
-
-
-    // --- SEÇÃO 7 VAZIA (REMOVIDA) ---
 
 
     /* =======================================================
      * CONTROLE GERAL DOS JOGOS
      * ======================================================= */
 
-    /**
-     * Esconde todos os containers de jogo e modais, voltando ao "launch pad"
-     */
     function showGameCover() {
         document.body.classList.remove('game-modal-open');
         document.querySelectorAll('.game-container-wrapper').forEach(container => {
@@ -450,11 +565,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /**
-     * Mostra um container de jogo e chama sua função de inicialização
-     * @param {string} containerId - O ID do container (ex: 'memory-game-container')
-     * @param {Function} gameInitializerFunction - A função que inicia o jogo (ex: MemoryGame.init)
-     */
     function launchGame(containerId, gameInitializerFunction) {
         document.body.classList.add('game-modal-open');
 
@@ -470,17 +580,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const gameArea = gameContainer.querySelector('.game-area');
             if (gameArea) {
-                gameArea.classList.add('active'); // Garante que a área interna seja exibida
+                gameArea.classList.add('active');
             } else {
                  console.warn(`Área de jogo não encontrada dentro de #${containerId}`);
             }
 
             if (gameInitializerFunction && typeof gameInitializerFunction === 'function') {
                 try {
-                    gameInitializerFunction(); // Chama a inicialização do jogo específico
+                    gameInitializerFunction();
                 } catch (error) {
                     console.error(`Erro ao inicializar o jogo ${containerId}:`, error);
-                     showGameCover(); // Fecha se houver erro na inicialização
+                     showGameCover();
                 }
             } else {
                  console.warn(`Função de inicialização para ${containerId} não fornecida ou inválida.`);
@@ -488,71 +598,210 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } else {
             console.error(`Container do jogo "${containerId}" não encontrado.`);
-             document.body.classList.remove('game-modal-open'); // Libera o scroll se o container não existe
+             document.body.classList.remove('game-modal-open');
         }
     }
 
-    // --- Anexando os Event Listeners (Sem 'onclick' no HTML) ---
+    // --- Anexando os Event Listeners ---
 
-    // 1. Botões de Lançamento (no "launch pad")
-    const memLauncher = document.querySelector('button[aria-label*="Memória"]');
-    if (memLauncher) {
-         memLauncher.addEventListener('click', () => {
-             // Garante que MemoryGame existe antes de chamar
-             if (typeof MemoryGame !== 'undefined' && MemoryGame.init) {
-                 launchGame('memory-game-container', MemoryGame.init.bind(MemoryGame));
-             } else {
-                 console.error('Objeto MemoryGame ou MemoryGame.init não encontrado.');
-             }
-         });
-    }
+    // Jogo de Classificar (Embutido na página Infância)
+    document.querySelector('#classify-game-area-embedded .game-restart-btn')?.addEventListener('click', () => {
+         if (typeof EmbeddedClassifyGame !== 'undefined' && EmbeddedClassifyGame.init) EmbeddedClassifyGame.init();
+    });
 
-    const classifyLauncher = document.querySelector('button[aria-label*="Caminho"]');
-    if (classifyLauncher) {
-        classifyLauncher.addEventListener('click', () => {
-             // Garante que ClassifyGame existe antes de chamar
-             if (typeof ClassifyGame !== 'undefined' && ClassifyGame.init) {
-                 launchGame('classify-game-container', ClassifyGame.init.bind(ClassifyGame));
-             } else {
-                 console.error('Objeto ClassifyGame ou ClassifyGame.init não encontrado.');
-             }
-         });
-    }
+
+    // ===============================================
+    // ==== ✂️ LÓGICA DA CALCULADORA REMOVIDA ✂️ =====
+    // ===============================================
+
     
-    // (REMOVIDO) O listener do wordsearch-launcher foi removido
+    // ===============================================
+    // ==== INÍCIO DO CÓDIGO DO PLANEJADOR DE LANCHES (ADULTO) =====
+    // ===============================================
 
-    // 2. Botões Internos (Fechar, Reiniciar, Jogar de Novo)
+    function setupSnackPlanner() {
+        const plannerDays = document.querySelectorAll('.planner-day');
+        const modal = document.getElementById('snack-selector-modal');
+        const modalTitle = document.getElementById('snack-modal-title');
+        const optionButtons = document.querySelectorAll('.snack-option-btn');
+        const closeModalBtn = document.querySelector('#snack-selector-modal .game-close-btn');
+        const resetBtn = document.getElementById('planner-reset-btn');
+        const downloadBtn = document.getElementById('planner-download-btn'); // NOVO: Botão de Download
 
-    // Jogo da Memória
-    document.querySelector('#memory-game-area .game-restart-btn')?.addEventListener('click', () => {
-         if (typeof MemoryGame !== 'undefined' && MemoryGame.init) MemoryGame.init();
-    });
-    document.querySelector('#win-modal .cta-button')?.addEventListener('click', () => {
-         if (typeof MemoryGame !== 'undefined' && MemoryGame.init) MemoryGame.init();
-    });
-    document.querySelectorAll('#memory-game-container .game-close-btn, #win-modal .cta-link').forEach(btn => {
-        btn.addEventListener('click', showGameCover);
-    });
+        if (plannerDays.length === 0 || !modal || optionButtons.length === 0 || !resetBtn || !downloadBtn) {
+            return; // Sai se os elementos não forem encontrados
+        }
 
-    // Jogo de Classificar
-    document.querySelector('#classify-game-area .game-restart-btn')?.addEventListener('click', () => {
-         if (typeof ClassifyGame !== 'undefined' && ClassifyGame.init) ClassifyGame.init();
-    });
-    document.querySelector('#classify-win-modal .cta-button')?.addEventListener('click', () => {
-         if (typeof ClassifyGame !== 'undefined' && ClassifyGame.init) ClassifyGame.init();
-    });
-    document.querySelectorAll('#classify-game-container .game-close-btn, #classify-win-modal .cta-link').forEach(btn => {
-        btn.addEventListener('click', showGameCover);
-    });
+        let currentDayElement = null;
+        const weekDayNames = {
+            seg: 'Segunda-feira',
+            ter: 'Terça-feira',
+            qua: 'Quarta-feira',
+            qui: 'Quinta-feira',
+            sex: 'Sexta-feira',
+            sab: 'Sábado', 
+            dom: 'Domingo'  
+        };
 
-    // (REMOVIDO) Os listeners do caça-palavras foram movidos para o wordsearch.js
+        // Função para abrir o modal
+        function openModal(dayElement) {
+            currentDayElement = dayElement;
+            const dayKey = currentDayElement.dataset.day;
+            modalTitle.textContent = `Escolha seu lanche para: ${weekDayNames[dayKey]}`;
+            
+            // Abre o modal e trava o body (o CSS agora o torna fixo e centralizado)
+            modal.classList.add('active');
+            document.body.classList.add('game-modal-open');
+        }
 
+        // Função para fechar o modal
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.classList.remove('game-modal-open');
+            currentDayElement = null;
+        }
+        
+        // ===================================================
+        // FUNÇÃO PRINCIPAL: GERAR O ARQUIVO DE TEXTO
+        // ===================================================
+        function generateDownload() {
+            const date = new Date().toLocaleDateString('pt-BR');
+            let content = "=== Meu Plano Semanal de Lanches (Alimentando Fases) ===\n";
+            content += `Gerado em: ${date}\n\n`;
+            
+            let allEmpty = true;
+
+            plannerDays.forEach(day => {
+                const dayName = day.querySelector('h5').textContent;
+                const choice = day.querySelector('.planner-choice span').textContent;
+                
+                let line = `${dayName}: `;
+                
+                if (day.classList.contains('filled')) {
+                    line += choice + " (Lanche Inteligente)";
+                    allEmpty = false;
+                } else if (day.classList.contains('off-day')) {
+                    line += choice + " (Dia de Descanso)";
+                    allEmpty = false;
+                } else {
+                    line += "Não Planejado";
+                }
+                content += line + "\n";
+            });
+            
+            if (allEmpty) {
+                alert("O plano está vazio! Escolha suas opções antes de baixar.");
+                return;
+            }
+
+            content += "\n========================================================\n";
+            content += "Lembre-se: Hidratação e planejamento são a chave para o sucesso na rotina adulta!";
+
+            // Cria um BLOB (objeto de dados) e um link de download
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Plano_Lanches_Semana_${date.replace(/\//g, '-')}.txt`;
+            
+            // Simula o clique para iniciar o download
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url); // Libera o objeto
+        }
+        // ===================================================
+        // FIM: GERAR O ARQUIVO DE TEXTO
+        // ===================================================
+
+
+        // ADICIONA EVENT LISTENERS
+        
+        // 1. Botões dos Dias
+        plannerDays.forEach(day => {
+            day.addEventListener('click', () => {
+                openModal(day);
+            });
+        });
+
+        // 2. Opções de Lanche (Lógica de 3 estados: Lanche, Folga, Limpar)
+        optionButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (currentDayElement) {
+                    const choiceText = button.dataset.snack;
+                    const choiceSpan = currentDayElement.querySelector('.planner-choice span');
+                    
+                    // Limpa todos os estados anteriores
+                    currentDayElement.classList.remove('filled', 'off-day');
+                    currentDayElement.querySelector('.planner-choice i').style.display = 'block';
+
+                    if (choiceText === "Folga") {
+                        // 1. Estado de FOLGA
+                        choiceSpan.textContent = choiceText;
+                        currentDayElement.classList.add('off-day');
+                        currentDayElement.querySelector('.planner-choice i').style.display = 'none';
+
+                    } else if (choiceText) {
+                        // 2. Estado de LANCHE
+                        choiceSpan.textContent = choiceText;
+                        currentDayElement.classList.add('filled');
+                        currentDayElement.querySelector('.planner-choice i').style.display = 'none';
+
+                    } else {
+                        // 3. Estado de LIMPAR (Nenhum)
+                        choiceSpan.textContent = 'Clique para escolher';
+                    }
+                }
+                closeModal();
+            });
+        });
+
+        // 3. Eventos para fechar o modal
+        closeModalBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            // Fecha se clicar no overlay (fundo)
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // 4. Evento do botão de Resetar
+        resetBtn.addEventListener('click', () => {
+            plannerDays.forEach(day => {
+                day.querySelector('.planner-choice span').textContent = 'Clique para escolher';
+                day.querySelector('.planner-choice i').style.display = 'block';
+                day.classList.remove('filled', 'off-day'); 
+            });
+        });
+        
+        // 5. Evento do botão de Download (NOVO)
+        downloadBtn.addEventListener('click', generateDownload);
+
+    }
+
+    // Chama a função do planejador
+    setupSnackPlanner();
+
+    // ===============================================
+    // === ADICIONADO: CHAMADA DAS NOVAS FUNÇÕES =====
+    // ===============================================
+    
+    setupFontControls(); // Para os botões A+/A-
+    setupHandwashGuide(); // Para o guia de lavar as mãos
+    setupOriginMap(); // Para o mapa interativo
+    setupRecipeFilters(); // <-- NOVA FUNÇÃO ADICIONADA
+    
+    // ===============================================
+    // ====== FIM DO CÓDIGO DO PLANEJADOR DE LANCHES ======
+    // ===============================================
+    
 
 }); // --- FIM DO DOMContentLoaded ---
 
 
 /* =======================================================
- * FUNÇÃO DE CONFETE (CORRIGIDO O TIMING E Z-INDEX)
+ * FUNÇÃO DE CONFETE
  * ======================================================= */
 function triggerConfetti(modalElement) {
     if (typeof confetti !== 'function' || !modalElement) {
@@ -561,205 +810,37 @@ function triggerConfetti(modalElement) {
     }
 
     const icon = modalElement.querySelector('.win-icon');
-
-    // Espera a animação do modal + um pequeno delay
     setTimeout(() => {
-        let origin = { y: 0.6, x: 0.5 }; // Padrão (centro)
+        let origin = { y: 0.6, x: 0.5 }; 
         if (icon) {
             const rect = icon.getBoundingClientRect();
-             if (rect.width > 0 && rect.height > 0) { // Garante que o ícone está visível
+             if (rect.width > 0 && rect.height > 0) { 
                  origin = {
                      x: (rect.left + rect.width / 2) / window.innerWidth,
                      y: (rect.top + rect.height / 2) / window.innerHeight
                  };
              }
         }
-
         confetti({
             particleCount: 150,
             spread: 90,
             origin: origin,
             colors: ['#53954a', '#6e513d', '#f9efd4', '#FFFFFF'],
-            zIndex: 3000 // Garante que fique na frente
+            zIndex: 3000
         });
-    }, 450); // Tempo da animação do modal é 400ms + 50ms de margem
+    }, 450); 
 }
 
 
 /* =======================================================
- * LÓGICA JOGO DA MEMÓRIA
+ * LÓGICA JOGO DE CLASSIFICAR (EMBUTIDO NA INFÂNCIA)
  * ======================================================= */
 
-const MemoryGame = {
-    cardNames: ['banana', 'brocolis', 'cenoura', 'laranja', 'maca', 'morango', 'pimentao', 'uva'],
-    gameBoard: null,
-    movesCounter: null,
-    winModal: null,
-    finalMoves: null,
-    hasFlippedCard: false,
-    lockBoard: false,
-    firstCard: null,
-    secondCard: null,
-    moves: 0,
-    matches: 0,
-    // Sons omitidos por brevidade, mas podem ser adicionados como no seu original
-
-    init: function() {
-        this.gameBoard = document.querySelector('#memory-game-area .memory-game');
-        this.movesCounter = document.getElementById('moves-counter'); // Re-obtido, pode ser diferente do Classify
-        this.winModal = document.getElementById('win-modal');
-        this.finalMoves = document.getElementById('final-moves');
-
-        if (!this.gameBoard || !this.movesCounter || !this.winModal || !this.finalMoves) {
-            console.error("Elementos do DOM do Jogo da Memória não encontrados.");
-            return;
-        }
-
-        if (this.winModal) this.winModal.classList.remove('active');
-        this.gameBoard.classList.add('restarting'); // Para feedback visual
-        this.lockBoard = true;
-        this.resetGameVariables();
-
-        // Vira cartas para baixo ANTES de limpar, para animação
-        const allCards = this.gameBoard.querySelectorAll('.card');
-        allCards.forEach(card => card.classList.remove('flip', 'match'));
-
-        setTimeout(() => {
-            this.createBoard();
-            this.gameBoard.classList.remove('restarting');
-            this.lockBoard = false;
-        }, 600); // Espera animação de virar
-    },
-
-    createBoard: function() {
-        this.gameBoard.innerHTML = ''; // Limpa tabuleiro
-        const duplicatedCards = [...this.cardNames, ...this.cardNames];
-        this.shuffleArray(duplicatedCards);
-
-        duplicatedCards.forEach(name => {
-            const card = document.createElement('div');
-            card.classList.add('card');
-            card.dataset.name = name;
-            // Usando 'button' interno para melhor acessibilidade (embora o jogo seja visual)
-            card.innerHTML = `
-                <button class="card-inner" aria-label="Carta ${name}">
-                    <div class="card-face card-back"></div>
-                    <div class="card-face card-front"><img src="jogo-memoria-nutri/assets/cards/${name}.png" alt="${name}"></div>
-                </button>
-            `;
-             // Adiciona listener ao botão interno
-             card.querySelector('.card-inner').addEventListener('click', () => this.flipCard(card));
-            this.gameBoard.appendChild(card);
-        });
-    },
-
-     // Modificado para receber o elemento 'card' como argumento
-     flipCard: function(cardElement) {
-        if (this.lockBoard || cardElement === this.firstCard || cardElement.classList.contains('flip')) return;
-
-        cardElement.classList.add('flip');
-        // this.playSound(this.flipSound);
-
-        if (!this.hasFlippedCard) {
-            this.hasFlippedCard = true;
-            this.firstCard = cardElement;
-            return;
-        }
-
-        this.secondCard = cardElement;
-        this.incrementMoves();
-        this.checkForMatch();
-    },
-
-    checkForMatch: function() {
-        if (!this.firstCard || !this.secondCard) return;
-        let isMatch = this.firstCard.dataset.name === this.secondCard.dataset.name;
-        isMatch ? this.disableCards() : this.unflipCards();
-    },
-
-    disableCards: function() {
-        this.matches++;
-        // this.playSound(this.matchSound);
-
-         // Remove listener do botão interno
-         // Certifique-se de que a função passada para removeEventListener é a mesma que foi adicionada
-         // É mais seguro referenciar a função diretamente se possível, ou usar bind corretamente.
-         // Mas como a função é anônima e criada no loop, a remoção pode não funcionar como esperado.
-         // A alternativa é desabilitar o botão ou usar a classe .match para CSS pointer-events: none.
-         // this.firstCard.querySelector('.card-inner').removeEventListener('click', ...);
-         // this.secondCard.querySelector('.card-inner').removeEventListener('click', ...);
-
-        this.firstCard.classList.add('match');
-        this.secondCard.classList.add('match');
-        this.resetBoard();
-
-        if (this.matches === this.cardNames.length) {
-            // this.playSound(this.winSound);
-            setTimeout(() => this.showWinModal(), 800); // Delay antes de mostrar modal
-        }
-    },
-
-    unflipCards: function() {
-        this.lockBoard = true;
-        // Adiciona classe para visualmente bloquear (opcional)
-        if (this.firstCard) this.firstCard.classList.add('block-click');
-        if (this.secondCard) this.secondCard.classList.add('block-click');
-
-
-        setTimeout(() => {
-            if (this.firstCard) this.firstCard.classList.remove('flip', 'block-click');
-            if (this.secondCard) this.secondCard.classList.remove('flip', 'block-click');
-            this.resetBoard();
-        }, 1300); // Tempo para ver as cartas
-    },
-
-    showWinModal: function() {
-        this.finalMoves.textContent = this.moves;
-        this.winModal.classList.add('active');
-        triggerConfetti(this.winModal); // Chama confete
-    },
-
-    resetBoard: function() {
-        [this.hasFlippedCard, this.lockBoard] = [false, false];
-        [this.firstCard, this.secondCard] = [null, null];
-    },
-    resetGameVariables: function() {
-        this.matches = 0;
-        this.moves = 0;
-        if(this.movesCounter) this.movesCounter.textContent = `Jogadas: 0`; // Verifica se existe
-        this.resetBoard();
-    },
-    incrementMoves: function() {
-        this.moves++;
-        if(this.movesCounter) this.movesCounter.textContent = `Jogadas: ${this.moves}`; // Verifica se existe
-    },
-    /* playSound: function(sound) { // Exemplo
-        if (sound && sound.play) {
-            sound.currentTime = 0;
-            sound.play().catch(e => console.warn("Ação do usuário necessária para tocar som."));
-        }
-    }, */
-    shuffleArray: function(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
-};
-
-/* =======================================================
- * LÓGICA JOGO DE CLASSIFICAR (CAMINHO DO ALIMENTO)
- * ======================================================= */
-
-const ClassifyGame = {
-    // --- 1. Definição dos Alimentos ---
-    // IMPORTANTE: Preencha com seus dados!
+const EmbeddedClassifyGame = {
     foodItemsData: [
-        // Exemplos - SUBSTITUA PELOS SEUS DADOS REAIS
         { name: 'Maçã', imageSrc: 'jogo-caminho/assets/maca.png', category: 'natura' },
         { name: 'Brócolis', imageSrc: 'jogo-caminho/assets/brocolis.png', category: 'natura' },
-        { name: 'Arroz', imageSrc: 'jogo-caminho/assets/arroz.png', category: 'natura' }, // Minimamente Processado
+        { name: 'Arroz', imageSrc: 'jogo-caminho/assets/arroz.png', category: 'natura' },
         { name: 'Pão Francês', imageSrc: 'jogo-caminho/assets/pao.png', category: 'processado' },
         { name: 'Queijo', imageSrc: 'jogo-caminho/assets/queijo.png', category: 'processado' },
         { name: 'Geleia', imageSrc: 'jogo-caminho/assets/geleia.png', category: 'processado' },
@@ -767,60 +848,46 @@ const ClassifyGame = {
         { name: 'Refrigerante', imageSrc: 'jogo-caminho/assets/refri.png', category: 'ultra' },
         { name: 'Bolacha Recheada', imageSrc: 'jogo-caminho/assets/bolacha.png', category: 'ultra' },
         { name: 'Nuggets', imageSrc: 'jogo-caminho/assets/nuggets.png', category: 'ultra' },
-        // Adicione mais alimentos aqui...
     ],
-
-    // --- 2. Seletores de Elementos ---
     gameArea: null,
     foodBank: null,
     dropZones: null,
     scoreDisplay: null,
     winModal: null,
-
-    // --- 3. Variáveis de Estado ---
     remainingItems: 0,
-    draggedItemElement: null, // Referência ao elemento HTML sendo arrastado
+    draggedItemElement: null,
 
-    /** (RE)INICIA O JOGO */
     init: function() {
-        // 1. Busca os elementos do DOM
-        this.gameArea = document.getElementById('classify-game-area');
+        this.gameArea = document.getElementById('classify-game-area-embedded');
         this.foodBank = this.gameArea?.querySelector('.classify-food-bank');
         this.dropZones = this.gameArea?.querySelectorAll('.classify-zone');
-        this.scoreDisplay = document.getElementById('classify-score');
+        this.scoreDisplay = document.getElementById('classify-score-embedded');
         this.winModal = document.getElementById('classify-win-modal');
 
         if (!this.gameArea || !this.foodBank || !this.dropZones || !this.scoreDisplay || !this.winModal) {
-            console.error("Elementos do DOM do Jogo de Classificar não encontrados.");
-            return; // Sai se o DOM não estiver pronto
+            console.error("Elementos do DOM do Jogo de Classificar EMBUTIDO não encontrados.");
+            return;
         }
 
-        // 2. Reseta o estado
         this.resetGame();
         if (this.winModal) this.winModal.classList.remove('active');
 
-        // 3. Limpa áreas
         this.foodBank.innerHTML = '';
         this.dropZones.forEach(zone => {
             zone.classList.remove('correct', 'incorrect', 'over');
-            // Remove listeners antigos para evitar duplicação
-            // Usar bind(this) garante que a referência da função seja a mesma para adicionar e remover
              zone.removeEventListener('dragover', this.handleDragOver.bind(this));
              zone.removeEventListener('dragleave', this.handleDragLeave.bind(this));
              zone.removeEventListener('drop', this.handleDrop.bind(this));
         });
 
-
-        // 4. Cria e embaralha os itens
         const shuffledItems = this.shuffleArray([...this.foodItemsData]);
         shuffledItems.forEach(itemData => {
             const itemElement = this.createFoodItemElement(itemData);
             this.foodBank.appendChild(itemElement);
         });
-        this.remainingItems = shuffledItems.length; // Define contagem inicial
+        this.remainingItems = shuffledItems.length;
         this.updateScore();
 
-        // 5. Adiciona listeners às zonas de drop
         this.dropZones.forEach(zone => {
              zone.addEventListener('dragover', this.handleDragOver.bind(this));
              zone.addEventListener('dragleave', this.handleDragLeave.bind(this));
@@ -828,42 +895,34 @@ const ClassifyGame = {
         });
     },
 
-    /** Cria o elemento HTML para um item alimentar */
     createFoodItemElement: function(itemData) {
         const item = document.createElement('div');
         item.classList.add('classify-food-item');
         item.draggable = true;
-        item.dataset.name = itemData.name; // Guarda o nome para referência no drop
+        item.dataset.name = itemData.name;
         item.innerHTML = `<img src="${itemData.imageSrc}" alt="${itemData.name}">`;
-
-         // Adiciona listeners de drag ao item
          item.addEventListener('dragstart', this.handleDragStart.bind(this));
          item.addEventListener('dragend', this.handleDragEnd.bind(this));
-
         return item;
     },
 
-    // --- Funções de Drag and Drop ---
     handleDragStart: function(event) {
-        // Verifica se o elemento clicado é a imagem dentro do item
         const targetItem = event.target.closest('.classify-food-item');
         if (!targetItem) return;
-
-        this.draggedItemElement = targetItem; // Guarda o elemento que está sendo arrastado
+        this.draggedItemElement = targetItem;
         event.dataTransfer.setData('text/plain', targetItem.dataset.name);
-        setTimeout(() => targetItem.classList.add('dragging'), 0); // Adiciona classe com delay
+        setTimeout(() => targetItem.classList.add('dragging'), 0);
     },
 
     handleDragEnd: function(event) {
-         // Verifica se o elemento clicado é a imagem dentro do item
         const targetItem = event.target.closest('.classify-food-item');
         if (!targetItem) return;
         targetItem.classList.remove('dragging');
-        this.draggedItemElement = null; // Limpa referência
+        this.draggedItemElement = null;
     },
 
     handleDragOver: function(event) {
-        event.preventDefault(); // Necessário para permitir o drop
+        event.preventDefault();
         const zone = event.target.closest('.classify-zone');
          if (zone) {
             zone.classList.add('over');
@@ -877,38 +936,32 @@ const ClassifyGame = {
          }
      },
 
-
     handleDrop: function(event) {
         event.preventDefault();
         const zone = event.target.closest('.classify-zone');
-        if (!zone || !this.draggedItemElement) return; // Sai se não for zona ou não houver item arrastado
+        if (!zone || !this.draggedItemElement) return;
 
         const foodName = event.dataTransfer.getData('text/plain');
         const targetCategory = zone.dataset.category;
-
-        // Encontra os dados do alimento arrastado
         const foodData = this.foodItemsData.find(item => item.name === foodName);
 
-        zone.classList.remove('over'); // Remove feedback visual de 'over'
+        zone.classList.remove('over');
 
         if (foodData && foodData.category === targetCategory) {
-            // Correto!
             zone.classList.add('correct');
-            this.draggedItemElement.classList.add('hide'); // Esconde o item
-            this.draggedItemElement.draggable = false; // Impede arrastar novamente
+            this.draggedItemElement.classList.add('hide');
+            this.draggedItemElement.draggable = false;
             this.remainingItems--;
             this.updateScore();
             this.checkWinCondition();
-            setTimeout(() => zone.classList.remove('correct'), 500); // Remove feedback após um tempo
+            setTimeout(() => zone.classList.remove('correct'), 500);
         } else {
-            // Incorreto!
             zone.classList.add('incorrect');
-            setTimeout(() => zone.classList.remove('incorrect'), 500); // Remove feedback após um tempo
+            setTimeout(() => zone.classList.remove('incorrect'), 500);
         }
-        this.draggedItemElement = null; // Limpa referência após drop
+        this.draggedItemElement = null;
     },
 
-    // --- Funções Auxiliares ---
     updateScore: function() {
         if (this.scoreDisplay) {
             this.scoreDisplay.textContent = `Itens restantes: ${this.remainingItems}`;
@@ -924,14 +977,13 @@ const ClassifyGame = {
     showWinModal: function() {
         if (this.winModal) {
             this.winModal.classList.add('active');
-            triggerConfetti(this.winModal); // Chama confete
+            triggerConfetti(this.winModal);
         }
     },
 
     resetGame: function() {
         this.remainingItems = 0;
         this.draggedItemElement = null;
-        // Limpar classes de feedback visual das zonas, se necessário
          if (this.dropZones) {
              this.dropZones.forEach(zone => zone.classList.remove('correct', 'incorrect', 'over'));
          }
@@ -945,3 +997,338 @@ const ClassifyGame = {
         return array;
     }
 };
+
+/* =======================================================
+ * CONTROLES DE ACESSIBILIDADE (TAMANHO DA FONTE)
+ * ======================================================= */
+function setupFontControls() {
+    const htmlEl = document.documentElement; // Pega a tag <html>
+    const increaseBtn = document.getElementById('font-increase');
+    const decreaseBtn = document.getElementById('font-decrease');
+    const resetBtn = document.getElementById('font-reset');
+
+    if (!increaseBtn || !decreaseBtn || !resetBtn) {
+        return; // Sai se os botões não existirem
+    }
+
+    increaseBtn.addEventListener('click', () => {
+        if (htmlEl.classList.contains('font-large')) {
+            // Se já está 'large', vai para 'xlarge'
+            htmlEl.classList.remove('font-large');
+            htmlEl.classList.add('font-xlarge');
+        } else if (htmlEl.classList.contains('font-xlarge')) {
+            // Já está no máximo, não faz nada
+            return;
+        } else {
+            // Se está no normal, vai para 'large'
+            htmlEl.classList.add('font-large');
+        }
+    });
+
+    decreaseBtn.addEventListener('click', () => {
+        if (htmlEl.classList.contains('font-xlarge')) {
+            // Se está 'xlarge', volta para 'large'
+            htmlEl.classList.remove('font-xlarge');
+            htmlEl.classList.add('font-large');
+        } else if (htmlEl.classList.contains('font-large')) {
+            // Se está 'large', volta para normal
+            htmlEl.classList.remove('font-large');
+        } else {
+            // Já está no normal, não faz nada
+            return;
+        }
+    });
+
+    resetBtn.addEventListener('click', () => {
+        // Remove todas as classes de fonte
+        htmlEl.classList.remove('font-large', 'font-xlarge');
+    });
+}
+
+/* =======================================================
+ * GUIA INTERATIVO (HIGIENE DAS MÃOS)
+ * ======================================================= */
+function setupHandwashGuide() {
+    // 1. Definição dos Passos
+    const handWashSteps = [
+        {
+            icon: 'fa-faucet',
+            title: 'Passo 1 de 5',
+            text: 'Molhe as mãos com água corrente.'
+        },
+        {
+            icon: 'fa-pump-soap',
+            title: 'Passo 2 de 5',
+            text: 'Aplique sabão suficiente para cobrir toda a superfície das mãos.'
+        },
+        {
+            icon: 'fa-hand-sparkles',
+            title: 'Passo 3 de 5',
+            text: 'Esfregue as mãos por pelo menos 20 segundos (palmas, costas, dedos, unhas e punhos).'
+        },
+        {
+            icon: 'fa-faucet-drip',
+            title: 'Passo 4 de 5',
+            text: 'Enxágue as mãos completamente com água corrente.'
+        },
+        {
+            icon: 'fa-scroll',
+            title: 'Passo 5 de 5',
+            text: 'Seque as mãos com uma toalha limpa ou secador de mãos.'
+        }
+    ];
+
+    // 2. Seleção dos Elementos do DOM
+    const guide = document.querySelector('.handwash-guide');
+    if (!guide) return; // Se o guia não estiver na página, não faz nada
+
+    const prevBtn = document.getElementById('btn-prev-step');
+    const nextBtn = document.getElementById('btn-next-step');
+    const stepCounter = document.getElementById('step-counter');
+    
+    const iconEl = guide.querySelector('.guide-icon i');
+    const titleEl = guide.querySelector('.guide-step-title');
+    const textEl = guide.querySelector('.guide-step-text');
+    
+    let currentStep = 0;
+
+    // 3. Função para Atualizar a Tela
+    function updateStep(stepIndex) {
+        const stepData = handWashSteps[stepIndex];
+
+        // Adiciona classe para animação de fade-out
+        textEl.classList.add('fade-out');
+        iconEl.classList.add('fade-out'); // Anima o ícone também
+
+        setTimeout(() => {
+            // Atualiza o conteúdo
+            iconEl.className = `fa-solid ${stepData.icon}`; // Atualiza o ícone
+            titleEl.textContent = stepData.title;
+            textEl.textContent = stepData.text;
+            stepCounter.textContent = `${stepIndex + 1} / ${handWashSteps.length}`;
+
+            // Controla os botões
+            prevBtn.disabled = (stepIndex === 0);
+            nextBtn.disabled = (stepIndex === handWashSteps.length - 1);
+            
+            // Remove classe para animação de fade-in
+            textEl.classList.remove('fade-out');
+            iconEl.classList.remove('fade-out');
+        }, 300); // Tempo da transição do CSS
+    }
+
+    // 4. Adiciona os Event Listeners
+    nextBtn.addEventListener('click', () => {
+        if (currentStep < handWashSteps.length - 1) {
+            currentStep++;
+            updateStep(currentStep);
+        }
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentStep > 0) {
+            currentStep--;
+            updateStep(currentStep);
+        }
+    });
+
+    // 5. Inicializa o guia no primeiro passo
+    // (O HTML já cuida disso)
+}
+
+
+/* =======================================================
+ * 22. LÓGICA DO MAPA INTERATIVO (JORNADA DOS SABORES)
+ * ======================================================= */
+
+// 1. Dados para cada Matriz
+const originMapData = {
+    'indigena': {
+        title: 'Matriz Indígena',
+        imageSrc: 'origem-alimentar/icone-indigena.png', 
+        altText: 'Ícone da Matriz Indígena',
+        color: 'var(--color-primary)', // Verde
+        bgColor: '#f0fdf4', // Verde claro
+        items: [
+            { icon: 'fa-seedling', text: 'Mandioca (Farinha, Beiju, Polvilho)' },
+            { icon: 'fa-mortar-pestle', text: 'Paçoca (Mistura original)' },
+            { icon: 'fa-apple-whole', text: 'Frutos Nativos (Açaí, Pequi, Cupuaçu)' },
+            { icon: 'fa-leaf', text: 'Conhecimento da Terra e das Estações' }
+        ]
+    },
+    'portuguesa': {
+        title: 'Matriz Portuguesa',
+        imageSrc: 'origem-alimentar/icone-portuguesa.png', 
+        altText: 'Ícone da Matriz Portuguesa',
+        color: 'var(--color-secondary)', // Marrom
+        bgColor: 'var(--color-background)', // Bege
+        items: [
+            { icon: 'fa-utensils', text: 'Adaptação de Pratos (Ex: Feijoada)' },
+            { icon: 'fa-wheat-awn', text: 'Introdução do Arroz' },
+            { icon: 'fa-wine-bottle', text: 'Azeite de Oliva, Alho e Cebola' },
+            { icon: 'fa-users', text: 'Hábito do Almoço de Domingo' }
+        ]
+    },
+    'africana': {
+        title: 'Matriz Africana',
+        imageSrc: 'origem-alimentar/icone-africana.png', 
+        altText: 'Ícone da Matriz Africana',
+        color: '#d97706', // Laranja
+        bgColor: '#fffbeb', // Laranja claro
+        items: [
+            { icon: 'fa-oil-can', text: 'Azeite de Dendê' },
+            { icon: 'fa-mug-hot', text: 'Leite de Coco' },
+            { icon: 'fa-drumstick-bite', text: 'Vatapá e Caruru' },
+            { icon: 'fa-mug-hot', text: 'Adaptação da Canjica (Kanzika)' }
+        ]
+    }
+};
+
+// 2. Função para fechar o modal
+function closeOriginModal() {
+    const modal = document.getElementById('origin-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.classList.remove('game-modal-open');
+    }
+}
+
+// 3. Função para preencher e abrir o modal
+function populateOriginModal(data) {
+    const modal = document.getElementById('origin-modal');
+    if (!modal) return;
+    
+    const modalContent = modal.querySelector('.game-modal-content');
+    const titleEl = document.getElementById('origin-modal-title');
+    const iconEl = document.getElementById('origin-modal-icon'); // Agora é um <img>
+    const listEl = document.getElementById('origin-modal-list');
+    const headerEl = modal.querySelector('.origin-modal-header');
+
+    // Preenche os dados
+    titleEl.textContent = data.title;
+    iconEl.src = data.imageSrc; 
+    iconEl.alt = data.altText; 
+    
+    // Limpa a lista antiga
+    listEl.innerHTML = '';
+    
+    // Adiciona os novos itens
+    data.items.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `<i class="fa-solid ${item.icon}" aria-hidden="true"></i> ${item.text}`;
+        listEl.appendChild(li);
+    });
+
+    // Atualiza as cores dinamicamente
+    modalContent.style.borderColor = data.color;
+    
+    // Abre o modal
+    modal.classList.add('active');
+    document.body.classList.add('game-modal-open');
+}
+
+// 4. Função principal de setup
+function setupOriginMap() {
+    const hotspots = document.querySelectorAll('.map-hotspot');
+    const modal = document.getElementById('origin-modal');
+    
+    // ===================================================
+    // === ANIMAÇÃO DE ENTRADA (GSAP) ===
+    // ===================================================
+    if (typeof gsap !== 'undefined' && hotspots.length > 0) {
+        gsap.to(hotspots, {
+            duration: 0.8, // Duração da animação de cada botão
+            opacity: 1,
+            scale: 1,
+            ease: "back.out(1.7)", // Efeito de "elástico"
+            stagger: 0.2, // Atraso entre cada botão
+            scrollTrigger: {
+                trigger: ".origin-map-container", // O container do mapa
+                start: "top 75%", // Começa quando 75% do mapa estiver visível
+                toggleActions: "play none none none" // Anima apenas uma vez
+            }
+        });
+    }
+    // ===================================================
+    // === FIM DA ANIMAÇÃO ===
+    // ===================================================
+
+    if (!hotspots.length || !modal) return; // Não faz nada se os elementos não existirem
+
+    const closeBtn = modal.querySelector('.game-close-btn');
+
+    // Listener para cada Hotspot
+    hotspots.forEach(hotspot => {
+        hotspot.addEventListener('click', () => {
+            const matrizKey = hotspot.dataset.matriz;
+            const data = originMapData[matrizKey];
+            if (data) {
+                populateOriginModal(data);
+            }
+        });
+    });
+
+    // Listeners para fechar o modal
+    closeBtn.addEventListener('click', closeOriginModal);
+    modal.addEventListener('click', (e) => {
+        // Fecha se clicar no fundo (overlay)
+        if (e.target === modal) {
+            closeOriginModal();
+        }
+    });
+}
+
+/* =======================================================
+ * 23. LÓGICA DO FILTRO DA PÁGINA DE RECEITAS
+ * ======================================================= */
+function setupRecipeFilters() {
+    const filterContainer = document.querySelector('.filter-bar');
+    // Verificação para garantir que estamos na página de receitas
+    // Adiciona uma verificação pelo ID da página de receitas
+    const recipePage = document.getElementById('receitas');
+    
+    if (!filterContainer || !recipePage || !recipePage.classList.contains('active')) {
+        // Se o container não existe OU a página de receitas não está ativa, não faz nada.
+        // Isso previne que o script tente rodar em outras páginas.
+        return;
+    }
+
+    const filterButtons = filterContainer.querySelectorAll('.filter-btn');
+    const recipeCards = document.querySelectorAll('#recipe-grid .cards_item');
+
+    // Função que realmente filtra
+    const performFilter = (filter) => {
+        recipeCards.forEach(card => {
+            const categories = card.dataset.category; // ex: "vegano sem-gluten"
+
+            if (filter === 'todos' || (categories && categories.includes(filter))) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+    };
+
+    // Adiciona listener aos botões
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const filter = button.dataset.filter;
+
+            // 1. Atualiza o botão ativo
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            // 2. Filtra os cards
+            performFilter(filter);
+        });
+    });
+
+    // Garante que o filtro 'todos' seja aplicado na primeira carga da página
+    // Encontra o botão 'todos' e o ativa, depois filtra
+    const initialActiveButton = filterContainer.querySelector('.filter-btn[data-filter="todos"]');
+    if (initialActiveButton) {
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        initialActiveButton.classList.add('active');
+        performFilter('todos');
+    }
+}
