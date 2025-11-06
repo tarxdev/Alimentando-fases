@@ -1,0 +1,39 @@
+# Ignorar configurações locais e editor
+.vscode/
+*.code-workspace
+
+# Ignorar arquivos temporários e caches
+*.log
+*.tmp
+*.bak
+*.DS_Store
+Thumbs.db
+
+# Ignorar exportações e arquivos grandes
+*.zip
+*.rar
+*.psd
+*.ai
+*.mp4
+*.mov
+*.wav
+*.avi
+*.gif
+*.tif
+
+# Ignorar pastas geradas automaticamente
+node_modules/
+dist/
+build/
+out/
+temp/
+cache/
+__pycache__/
+
+# Ignorar backups e PDFs grandes
+pdf/
+*.pdf
+
+# Ignorar imagens e assets pesados (se tiver cópias grandes)
+backup/
+old/
