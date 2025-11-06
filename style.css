@@ -484,6 +484,9 @@ a.submenu-list__item-wrapper > svg {
 }
 
 @media (max-width: 1024px) {
+    .main-header {
+    transform: none;
+}
     .main-header__burger { display: flex; }
     .main-header__navigation-wrapper {
         flex-direction: column; align-items: center; position: absolute; top: 100%;
