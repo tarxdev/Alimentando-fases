@@ -30,10 +30,6 @@ temp/
 cache/
 __pycache__/
 
-# Ignorar backups e PDFs grandes
-pdf/
-*.pdf
-
 # Ignorar imagens e assets pesados (se tiver cópias grandes)
 backup/
 old/
