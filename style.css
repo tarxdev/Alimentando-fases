@@ -247,7 +247,7 @@ a:hover {
 .main-header__list-item { 
     display: flex; 
     font-size: 16px; 
-    position: relative; 
+    position: static; 
 }
 .main-header__list-item > a { 
     padding: 15px; 
@@ -267,11 +267,8 @@ a:hover {
 
 /* Wrapper do Submenu */
 .main-header__list-item .submenu-wrapper {
-    /* --- CORREÇÃO DO BUG DE FUNDO --- */
-    /* Adicionamos a cor de fundo sólida aqui */
     background-color: var(--color-background);
-
-    position: fixed !important;
+    position: absolute !important;
     top: 70px; /* Altura do header */
     left: 50%;
     transform: translateX(-50%);
@@ -283,6 +280,7 @@ a:hover {
     visibility: hidden;
     pointer-events: none;
     transition: opacity 0.5s, visibility 0.5s;
+    transition: all 0.35s ease;
     box-shadow: 0 8px 16px rgba(0,0,0,0.15);
     border-top: 1px solid rgba(0,0,0,0.08);
     z-index: 9999; /* Z-index alto para ficar sobre o conteúdo */
@@ -2989,11 +2987,12 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
     z-index: 2000;
     display: flex; 
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
     transition: opacity 0.4s ease, visibility 0.4s ease;
+    padding: 100px 20px 50px;
 }
 
 .game-modal-overlay.active {
@@ -3010,8 +3009,6 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
     transform: scale(0.8);
     opacity: 0;
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
-    max-height: 90vh; 
-    overflow-y: auto; 
 }
 
 .game-modal-overlay.active .game-modal-content {
@@ -3763,7 +3760,8 @@ body.game-modal-open div[vw-access-button] {
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Cobre todo o espaço */
+    object-fit: cover;
+    object-position: center center; 
     z-index: 1; /* Fica no fundo */
     filter: brightness(0.6) contrast(1.1); /* Escurece a imagem para o texto ler melhor */
     transition: all 0.3s ease;

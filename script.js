@@ -73,10 +73,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- INÍCIO DA CORREÇÃO (NÍVEL 1) ---
         // Fecha o acordeão no mobile
-        const submenuWrapper = item.querySelector('.submenu-wrapper');
-        if (submenuWrapper) {
-            submenuWrapper.style.maxHeight = null;
-        }
+        
+        // 👇 CORREÇÃO ADICIONADA: SÓ EXECUTA NO MOBILE 👇
+        const burger = document.querySelector('.main-header__burger');
+        if (burger && getComputedStyle(burger).display === 'flex') {
+            const submenuWrapper = item.querySelector('.submenu-wrapper');
+            if (submenuWrapper) {
+                submenuWrapper.style.maxHeight = null;
+            }
+        } // 👈 FIM DA CONDIÇÃO
+        
         // --- FIM DA CORREÇÃO ---
     }
 
@@ -88,11 +94,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- INÍCIO DA CORREÇÃO (NÍVEL 1) ---
         // Abre o acordeão no mobile
-        const submenuWrapper = item.querySelector('.submenu-wrapper');
-        if (submenuWrapper) {
-            // Usa scrollHeight para definir a altura exata do conteúdo
-            submenuWrapper.style.maxHeight = submenuWrapper.scrollHeight + "px";
-        }
+        
+        // 👇 CORREÇÃO ADICIONADA: SÓ EXECUTA NO MOBILE 👇
+        const burger = document.querySelector('.main-header__burger');
+        if (burger && getComputedStyle(burger).display === 'flex') {
+            const submenuWrapper = item.querySelector('.submenu-wrapper');
+            if (submenuWrapper) {
+                // Usa scrollHeight para definir a altura exata do conteúdo
+                submenuWrapper.style.maxHeight = submenuWrapper.scrollHeight + "px";
+            }
+        } // 👈 FIM DA CONDIÇÃO
+
         // --- FIM DA CORREÇÃO ---
 
         // 3. Lógica interna (ativar primeiro tab)
@@ -115,8 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(firstContent) firstContent.classList.add('active');
                 }
             }
-        }, 510); // 510ms para esperar a animação de 0.5s do CSS terminar
-        // --- FIM DA CORREÇÃO ---
+        }, 0);
 
 
         // --- INÍCIO DA CORREÇÃO (NÍVEL 2) ---
