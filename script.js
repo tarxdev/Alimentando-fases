@@ -1,8 +1,6 @@
 /* =======================================================
- * SCRIPT PRINCIPAL - ALIMENTANDO FASES (V26.0 - Hero Carrossel)
- * CORRIGIDO: Removida Calculadora de Hidratação
- * NOVO: Adicionada lógica de rolagem para âncoras do Submenu
- * NOVO: Adicionado Carrossel de Imagens no Hero
+ * SCRIPT PRINCIPAL - ALIMENTANDO FASES (V28.0 - Animação GSAP)
+ * ATUALIZADO: Lógica da calculadora com animação de contador e stagger.
  * ======================================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -99,19 +97,26 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Lógica interna (ativar primeiro tab)
         const submenuLinks = item.querySelectorAll('.submenu-list__item.has-submenu');
         const submenuContents = item.querySelectorAll('.submenu-content');
-        submenuLinks.forEach(sl => sl.classList.remove('active'));
-        submenuContents.forEach(sc => sc.classList.remove('active'));
+        
+        // --- INÍCIO DA CORREÇÃO (BUG DO PRIMEIRO CLIQUE) ---
+        // Atrasa a ativação do tab em 50ms para permitir que o layout do CSS se estabilize
+        setTimeout(() => {
+            submenuLinks.forEach(sl => sl.classList.remove('active'));
+            submenuContents.forEach(sc => sc.classList.remove('active'));
 
-        if (submenuLinks.length > 0) {
-             const firstSubLink = submenuLinks[0];
-             firstSubLink.classList.add('active');
-             const firstContentKeyElement = firstSubLink.querySelector('.submenu-list__item-title');
-             if (firstContentKeyElement) {
-                 const firstContentKey = firstContentKeyElement.textContent;
-                 const firstContent = item.querySelector(`.submenu-content[data-submenu-for="${firstContentKey}"]`);
-                 if(firstContent) firstContent.classList.add('active');
-             }
-        }
+            if (submenuLinks.length > 0) {
+                const firstSubLink = submenuLinks[0];
+                firstSubLink.classList.add('active');
+                const firstContentKeyElement = firstSubLink.querySelector('.submenu-list__item-title');
+                if (firstContentKeyElement) {
+                    const firstContentKey = firstContentKeyElement.textContent;
+                    const firstContent = item.querySelector(`.submenu-content[data-submenu-for="${firstContentKey}"]`);
+                    if(firstContent) firstContent.classList.add('active');
+                }
+            }
+        }, 510); // 510ms para esperar a animação de 0.5s do CSS terminar
+        // --- FIM DA CORREÇÃO ---
+
 
         // --- INÍCIO DA CORREÇÃO (NÍVEL 2) ---
         // 4. Adiciona listeners (separados para Desktop e Mobile)
@@ -288,8 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.warn('setupRecipeFilters não está pronto para iniciar.');
             }
         }
-        // A lógica da calculadora foi removida
-
 
         // *** 2. LÓGICA DE ROLAGEM MODIFICADA ***
         if (anchorId) {
@@ -460,27 +463,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // =======================================================
-    // GRÁFICO DE BARRAS (SEÇÃO ADULTO) - VERSÃO ESTÁTICA (SEM ANIMAÇÃO)
+    // GRÁFICO DE BARRAS (SEÇÃO ADULTO) - AGORA COM ANIMAÇÃO
     // =======================================================
     function animateChartBars() {
         const charts = document.querySelectorAll('.interactive-chart');
     
         charts.forEach(chart => {
-            // Encontra as barras DENTRO deste gráfico específico
             const bars = chart.querySelectorAll('.chart-bar');
             
-            // 1. USA 'gsap.set' PARA APLICAR A LARGURA INSTANTANEAMENTE
-            gsap.set(bars, {
-                width: (i, target) => target.dataset.value.replace(',', '.') + "%", 
-                autoAlpha: 1 // Garante que a barra esteja visível
-            });
+            // 1. Define o estado inicial (largura 0)
+            if (typeof gsap !== 'undefined') {
+                gsap.set(bars, {
+                    width: "0%",
+                    autoAlpha: 1
+                });
+        
+                // 2. Cria o gatilho (ScrollTrigger) para animar
+                ScrollTrigger.create({
+                    trigger: chart, // O gatilho é o próprio gráfico
+                    start: "top 80%", // Começa quando 80% do gráfico estiver visível
+                    once: true, // Anima apenas uma vez
+                    onEnter: () => {
+                        // Anima as barras para o valor final
+                        gsap.to(bars, {
+                            duration: 1.5, // Duração da animação
+                            width: (i, target) => target.dataset.value.replace(',', '.') + "%",
+                            ease: "power2.out", // Efeito de desaceleração
+                            stagger: 0.1 // Atraso entre cada barra
+                        });
+                    }
+                });
+            } else {
+                // Fallback se o GSAP não carregar: apenas mostra as barras
+                bars.forEach(bar => {
+                    bar.style.width = bar.dataset.value.replace(',', '.') + "%";
+                });
+            }
         });
     }
 
     // --- 5. LÓGICA DE ANIMAÇÃO (GSAP) ---
     if (typeof gsap !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
-        animateChartBars(); // <-- A CHAMADA AGORA FUNCIONA
+        // A chamada da animação do gráfico foi movida para o final (DOMContentLoaded)
 
         function animateFrom(elem, direction = 1, distance = 50) {
             let y = direction * distance;
@@ -674,8 +699,170 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ===============================================
-    // ==== ✂️ LÓGICA DA CALCULADORA REMOVIDA ✂️ =====
+    // ==== ✂️ LÓGICA DA CALCULADORA REINSERIDA ✂️ =====
     // ===============================================
+
+    /* =======================================================
+     * 14. LÓGICA DA CALCULADORA DE HIDRATAÇÃO (IDOSO) - COM ANIMAÇÃO
+     * ======================================================= */
+    function setupHydrationCalculator() {
+        // 1. Selecionar todos os elementos
+        const calcContainer = document.getElementById('hydration-calculator');
+        if (!calcContainer) return; // Se não estiver na página, sai
+
+        const btnMenos = document.getElementById('btn-peso-menos');
+        const btnMais = document.getElementById('btn-peso-mais');
+        const displayPeso = document.getElementById('display-peso');
+        
+        const ageButtons = document.querySelectorAll('.age-button');
+        const btnCalcular = document.getElementById('calcHidratacaoBtn');
+        
+        const displayLitros = document.getElementById('calcLitros');
+        const displayCopos = document.getElementById('calcCopos');
+        const displayDisclaimer = document.getElementById('calc-disclaimer');
+        
+        // 2. Definir valores iniciais
+        let currentPeso = 70;
+        let currentMlPorKg = 30; // Padrão para "Adultos (55-65)" que está ativo no HTML
+        let currentAnimation = null; // Para controlar a animação do número
+
+        // 3. Funções de Lógica
+        
+        // Atualiza o peso na tela
+        function updatePesoDisplay() {
+            if(displayPeso) displayPeso.textContent = currentPeso;
+        }
+
+        // Lógica dos botões de peso
+        if(btnMenos) {
+            btnMenos.addEventListener('click', () => {
+                if (currentPeso > 20) { // Limite mínimo
+                    currentPeso--;
+                    updatePesoDisplay();
+                }
+            });
+        }
+
+        if(btnMais) {
+            btnMais.addEventListener('click', () => {
+                if (currentPeso < 200) { // Limite máximo
+                    currentPeso++;
+                    updatePesoDisplay();
+                }
+            });
+        }
+
+        // Lógica dos botões de idade
+        ageButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove 'active' de todos
+                ageButtons.forEach(btn => btn.classList.remove('active'));
+                // Adiciona 'active' ao clicado
+                button.classList.add('active');
+                // Atualiza o multiplicador
+                currentMlPorKg = parseInt(button.dataset.value, 10);
+            });
+        });
+
+        // Lógica do botão CALCULAR
+        if(btnCalcular) {
+            btnCalcular.addEventListener('click', () => {
+                // 1. Fazer o cálculo
+                const totalMl = currentPeso * currentMlPorKg;
+                const totalLitros = (totalMl / 1000); // Valor numérico, ex: 2.1
+                
+                // 2. Calcular copos (250ml por copo, arredondando para cima)
+                const totalCopos = Math.ceil(totalMl / 250);
+
+                // --- INÍCIO DAS NOVAS ANIMAÇÕES ---
+
+                // A. Animação do Número (Contador)
+                let counter = { value: 0 }; // Objeto para o GSAP animar
+                
+                // Tenta pegar o valor atual, se for um número, senão começa do 0
+                if(displayLitros && displayLitros.textContent) {
+                    let currentText = displayLitros.textContent.split(' ')[0].replace(',', '.');
+                    let currentValue = parseFloat(currentText);
+                    if (!isNaN(currentValue)) {
+                        counter.value = currentValue; // Começa do valor que já está na tela
+                    }
+                }
+                
+                // Se uma animação anterior estiver rodando, mate-a
+                if (currentAnimation) {
+                    currentAnimation.kill();
+                }
+
+                // Anima o objeto 'counter' de seu valor atual até o valor final
+                currentAnimation = gsap.to(counter, {
+                    duration: 1.2, // Duração de 1.2s
+                    value: totalLitros,
+                    ease: "power2.out",
+                    onUpdate: () => {
+                        // a cada "frame" da animação, atualiza o texto
+                        if(displayLitros) {
+                            displayLitros.textContent = `${counter.value.toFixed(2).replace('.', ',')} Litros`;
+                        }
+                    },
+                    onComplete: () => {
+                        currentAnimation = null; // Limpa a animação
+                    }
+                });
+
+                // B. Animação das Gotas (Stagger)
+                if(displayCopos) {
+                    displayCopos.innerHTML = ''; // Limpa os copos antigos
+                    let copoElements = []; // Array para guardar os novos elementos
+
+                    if (totalCopos > 0) {
+                        for (let i = 0; i < totalCopos; i++) {
+                            const copoIcon = document.createElement('i');
+                            copoIcon.className = 'fa-solid fa-droplet';
+                            
+                            if (i < 15) { // Mostra no máximo 15 copos
+                                displayCopos.appendChild(copoIcon);
+                                copoElements.push(copoIcon); // Adiciona ao array
+                            }
+                        }
+                        if (totalCopos > 15) {
+                            const extraText = document.createElement('span');
+                            extraText.textContent = ` +${totalCopos - 15}`;
+                            extraText.style.fontSize = '0.7em';
+                            extraText.style.fontWeight = 'bold';
+                            extraText.style.marginLeft = '5px';
+                            displayCopos.appendChild(extraText);
+                        }
+                    }
+
+                    // Anima os elementos que acabamos de criar
+                    // Começa de uma opacidade e escala 0
+                    gsap.fromTo(copoElements, {
+                        opacity: 0,
+                        scale: 0.5,
+                        y: -10 // Começa um pouco acima
+                    }, {
+                        duration: 0.3, // Duração de cada gota
+                        opacity: 1,
+                        scale: 1,
+                        y: 0,
+                        ease: "back.out(1.7)",
+                        stagger: 0.08, // Atraso entre cada gota
+                        delay: 0.2 // Começa 0.2s depois do clique
+                    });
+                }
+                // --- FIM DAS NOVAS ANIMAÇÕES ---
+
+                // 5. Esconder o aviso
+                if (displayDisclaimer) {
+                    displayDisclaimer.style.display = 'none';
+                }
+            });
+        }
+
+        // 6. Inicializar o display
+        updatePesoDisplay();
+    }
+    // --- FIM DA LÓGICA DA CALCULADORA ---
 
     
     // ===============================================
@@ -853,7 +1040,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFontControls(); // Para os botões A+/A-
     setupHandwashGuide(); // Para o guia de lavar as mãos
     setupOriginMap(); // Para o mapa interativo
-    setupRecipeFilters(); // <-- NOVA FUNÇÃO ADICIONADA
+    setupRecipeFilters(); // Filtro da página de receitas
+    setupHydrationCalculator(); // <-- CALCULADORA RE-ADICIONADA
+    animateChartBars(); // <-- ANIMAÇÃO DO GRÁFICO ADICIONADA
     
     // ===============================================
     // ====== FIM DO CÓDIGO DO PLANEJADOR DE LANCHES ======
@@ -901,16 +1090,16 @@ function triggerConfetti(modalElement) {
 
 const EmbeddedClassifyGame = {
     foodItemsData: [
-        { name: 'Maçã', imageSrc: 'jogo-caminho/assets/maca.png', category: 'natura' },
-        { name: 'Brócolis', imageSrc: 'jogo-caminho/assets/brocolis.png', category: 'natura' },
-        { name: 'Arroz', imageSrc: 'jogo-caminho/assets/arroz.png', category: 'natura' },
-        { name: 'Pão Francês', imageSrc: 'jogo-caminho/assets/pao.png', category: 'processado' },
-        { name: 'Queijo', imageSrc: 'jogo-caminho/assets/queijo.png', category: 'processado' },
-        { name: 'Geleia', imageSrc: 'jogo-caminho/assets/geleia.png', category: 'processado' },
-        { name: 'Salgadinho', imageSrc: 'jogo-caminho/assets/salgadinho.png', category: 'ultra' },
-        { name: 'Refrigerante', imageSrc: 'jogo-caminho/assets/refri.png', category: 'ultra' },
-        { name: 'Bolacha Recheada', imageSrc: 'jogo-caminho/assets/bolacha.png', category: 'ultra' },
-        { name: 'Nuggets', imageSrc: 'jogo-caminho/assets/nuggets.png', category: 'ultra' },
+        { name: 'Maçã', imageSrc: 'jogo-caminho/maca.png', category: 'natura' },
+        { name: 'Brócolis', imageSrc: 'jogo-caminho/brocolis.png', category: 'natura' },
+        { name: 'Arroz', imageSrc: 'jogo-caminho/arroz.png', category: 'natura' },
+        { name: 'Pão Francês', imageSrc: 'jogo-caminho/pao.png', category: 'processado' }, // Corrigido de "pao.png"
+        { name: 'Queijo', imageSrc: 'jogo-caminho/queijo.png', category: 'processado' },
+        { name: 'Geleia', imageSrc: 'jogo-caminho/geleia.png', category: 'processado' },
+        { name: 'Salgadinho', imageSrc: 'jogo-caminho/salgadinho.png', category: 'ultra' },
+        { name: 'Refrigerante', imageSrc: 'jogo-caminho/refri.png', category: 'ultra' },
+        { name: 'Bolacha Recheada', imageSrc: 'jogo-caminho/bolacha.png', category: 'ultra' },
+        { name: 'Nuggets', imageSrc: 'jogo-caminho/nuggets.png', category: 'ultra' },
     ],
     gameArea: null,
     foodBank: null,
@@ -925,14 +1114,18 @@ const EmbeddedClassifyGame = {
         this.foodBank = this.gameArea?.querySelector('.classify-food-bank');
         this.dropZones = this.gameArea?.querySelectorAll('.classify-zone');
         this.scoreDisplay = document.getElementById('classify-score-embedded');
-        this.winModal = document.getElementById('classify-win-modal');
+        this.winModal = document.getElementById('classify-win-modal'); // Ele ainda tenta encontrar o modal
 
-        if (!this.gameArea || !this.foodBank || !this.dropZones || !this.scoreDisplay || !this.winModal) {
+        // --- INÍCIO DA CORREÇÃO (LINHA 983) ---
+        // A verificação !this.winModal foi REMOVIDA
+        if (!this.gameArea || !this.foodBank || !this.dropZones || !this.scoreDisplay) {
             console.error("Elementos do DOM do Jogo de Classificar EMBUTIDO não encontrados.");
-            return;
+            return; // O script para aqui se não encontrar os elementos ESSENCIAIS
         }
+        // --- FIM DA CORREÇÃO ---
 
         this.resetGame();
+        // A verificação abaixo já é segura, pois só usa o winModal SE ele existir
         if (this.winModal) this.winModal.classList.remove('active');
 
         this.foodBank.innerHTML = '';
@@ -953,7 +1146,7 @@ const EmbeddedClassifyGame = {
 
         this.dropZones.forEach(zone => {
              zone.addEventListener('dragover', this.handleDragOver.bind(this));
-             zone.addEventListener('dragleave', this.handleDragLeave.bind(this));
+             zone.removeEventListener('dragleave', this.handleDragLeave.bind(this));
              zone.addEventListener('drop', this.handleDrop.bind(this));
         });
     },
@@ -1038,6 +1231,7 @@ const EmbeddedClassifyGame = {
     },
 
     showWinModal: function() {
+        // Esta função já é segura, pois só tenta usar o modal se ele foi encontrado
         if (this.winModal) {
             this.winModal.classList.add('active');
             triggerConfetti(this.winModal);

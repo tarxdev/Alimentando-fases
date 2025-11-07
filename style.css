@@ -1,5 +1,5 @@
 /* =======================================================
- * CSS PRINCIPAL - ALIMENTANDO FASES (V25.14 - CORREÇÃO FINAL ALINHAMENTO TABELA + VÍDEO)
+ * CSS PRINCIPAL - ALIMENTANDO FASES (CORREÇÃO COMPLETA)
  * ======================================================= */
 
 /* === 1. GERAL & SETUP === */
@@ -88,6 +88,10 @@ a:hover {
 
 
 /* === 2. LAYOUT & SEÇÕES GLOBAIS === */
+#app-container {
+    position: relative;
+    z-index: 1;
+}
 
 .page-content {
     display: none;
@@ -99,8 +103,8 @@ a:hover {
 .page-content.active { display: block; }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .content-section {
@@ -157,23 +161,30 @@ a:hover {
     margin-top: 20px;
 }
 
-/* === 3. HEADER & MEGA MENU === */
+/* =======================================================
+ * 3. HEADER & MEGA MENU (REVISADO E CORRIGIDO)
+ * ======================================================= */
 
 .main-header {
     --color-primary-hover: var(--color-primary);
     --transition: 0.4s;
     font-family: var(--font-body);
-    background-color: rgba(249, 239, 212, 0.8);
-    -webkit-backdrop-filter: blur(15px);
-    backdrop-filter: blur(15px);
+    
+    /* --- CORREÇÃO DO BUG DE FUNDO --- */
+    /* Garantimos que o fundo sólido seja aplicado */
+    background-color: var(--color-background); 
+    
+    /* As linhas de backdrop-filter que causam o bug de empilhamento permanecem comentadas */
+    /* -webkit-backdrop-filter: blur(15px); */
+    /* backdrop-filter: blur(15px); */
+
     padding: 5px 2%;
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 1000; /* Contexto de empilhamento principal */
     min-height: 70px;
     transition: box-shadow 0.4s ease-out, background-color 0.3s ease-in-out;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transform: translateZ(0); /* Correção para overflow */
     overflow: visible !important;
 }
 
@@ -182,10 +193,6 @@ a:hover {
     display: flex; 
     align-items: center; 
     justify-content: space-between !important; 
-}
-
-.main-header, .submenu-wrapper { 
-    background-color: var(--color-background) !important; 
 }
 
 .main-header__logo { 
@@ -260,10 +267,14 @@ a:hover {
 
 /* Wrapper do Submenu */
 .main-header__list-item .submenu-wrapper {
+    /* --- CORREÇÃO DO BUG DE FUNDO --- */
+    /* Adicionamos a cor de fundo sólida aqui */
+    background-color: var(--color-background);
+
     position: fixed !important;
     top: 70px; /* Altura do header */
     left: 50%;
-    transform: translateX(-50%) translateY(10px);
+    transform: translateX(-50%);
     width: 100%;
     max-width: 1200px;
     border-radius: 0 0 20px 20px;
@@ -271,10 +282,10 @@ a:hover {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.5s, visibility 0.5s, transform 0.5s ease-out;
+    transition: opacity 0.5s, visibility 0.5s;
     box-shadow: 0 8px 16px rgba(0,0,0,0.15);
     border-top: 1px solid rgba(0,0,0,0.08);
-    z-index: 9999;
+    z-index: 9999; /* Z-index alto para ficar sobre o conteúdo */
 }
 
 .submenu-list__wrapper {
@@ -459,7 +470,7 @@ a.submenu-list__item-wrapper > svg {
         opacity: 1;
         visibility: visible;
         pointer-events: auto;
-        transform: translateX(-50%) translateY(0);
+        transform: translateX(-50%);
     }
 
     /* 6. Mantém o hover interno dos sub-itens (painel esquerdo e direito) */
@@ -491,7 +502,11 @@ a.submenu-list__item-wrapper > svg {
     .main-header__navigation-wrapper {
         flex-direction: column; align-items: center; position: absolute; top: 100%;
         left: 0; padding: 20px; opacity: 0; visibility: hidden; transition: var(--transition);
-        width: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background-color: var(--color-background);
+        width: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+        
+        /* --- CORREÇÃO DO BUG DE FUNDO (Mobile) --- */
+        /* Garante que o menu mobile também tenha o fundo sólido */
+        background-color: var(--color-background);
         z-index: 100;
     }
     .main-header__navigation-wrapper.open { opacity: 1; visibility: visible; }
@@ -2478,8 +2493,6 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
     margin: 0;
     color: var(--color-text-dark);
 }
-
-
 /* === 8. ANIMAÇÕES (GSAP) === */
 
 .gs_reveal {
