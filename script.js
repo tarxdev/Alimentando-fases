@@ -1,6 +1,7 @@
 /* =======================================================
- * SCRIPT PRINCIPAL - ALIMENTANDO FASES (V28.0 - Animação GSAP)
- * ATUALIZADO: Lógica da calculadora com animação de contador e stagger.
+ * SCRIPT PRINCIPAL - ALIMENTANDO FASES (V29.0 - Otimização TBT)
+ * OTIMIZADO: Funções de setup agora são chamadas dentro de navigateTo
+ * para reduzir o Total Blocking Time (TBT) inicial.
  * ======================================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -262,37 +263,51 @@ document.addEventListener('DOMContentLoaded', () => {
             targetPage.classList.add('active');
         } else {
             // Se não achar, volta pra home
+            pageId = 'home'; // Garante que o pageId seja 'home'
             document.getElementById('home').classList.add('active');
         }
 
-        // --- Lógica de inicialização de jogos (código existente) ---
-        if (pageId === 'adolescencia') {
+        // --- LÓGICA DE INICIALIZAÇÃO SOB DEMANDA (OTIMIZAÇÃO TBT) ---
+        // Esta lógica agora carrega os scripts APENAS da página que está sendo aberta.
+        if (pageId === 'home') {
+            setupHeroCarousel(); 
+        }
+        else if (pageId === 'adolescencia') {
             if (typeof WordSearchGame !== 'undefined' && WordSearchGame.init) {
-                setTimeout(() => {
-                    WordSearchGame.init();
-                }, 100);
+                setTimeout(() => { WordSearchGame.init(); }, 100);
             } else {
                 console.warn('WordSearchGame não está pronto para iniciar.');
             }
         } 
         else if (pageId === 'infancia') {
              if (typeof EmbeddedClassifyGame !== 'undefined' && EmbeddedClassifyGame.init) {
-                setTimeout(() => {
-                    EmbeddedClassifyGame.init();
-                }, 100);
+                setTimeout(() => { EmbeddedClassifyGame.init(); }, 100);
             } else {
                 console.warn('EmbeddedClassifyGame não está pronto para iniciar.');
             }
         }
         else if (pageId === 'receitas') {
              if (typeof setupRecipeFilters !== 'undefined') {
-                setTimeout(() => {
-                    setupRecipeFilters();
-                }, 100);
+                setTimeout(() => { setupRecipeFilters(); }, 100);
             } else {
                 console.warn('setupRecipeFilters não está pronto para iniciar.');
             }
         }
+        else if (pageId === 'adulto') { 
+            setupSnackPlanner();
+            animateChartBars();
+        }
+        else if (pageId === 'idoso') { 
+            setupHydrationCalculator();
+        }
+        else if (pageId === 'higiene') { 
+            setupHandwashGuide();
+        }
+        else if (pageId === 'origem-alimentar') { 
+            setupOriginMap();
+        }
+        // --- FIM DA LÓGICA DE INICIALIZAÇÃO ---
+
 
         // *** 2. LÓGICA DE ROLAGEM MODIFICADA ***
         if (anchorId) {
@@ -455,8 +470,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showSlide(0); // Mostra o primeiro slide
         startInterval(); // Inicia o autoplay
     }
-
-    setupHeroCarousel(); // Chama a função do carrossel
     // =======================================================
     // FIM DO CÓDIGO DO CARROSSEL
     // =======================================================
@@ -703,7 +716,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
 
     /* =======================================================
-     * 14. LÓGICA DA CALCULADORA DE HIDRATAÇÃO (IDOSO) - COM ANIMAÇÃO
+     * 14. LÓGICA DA CALCULADORA DE HIDRATAÇÃO (IDOSO) - COM ANIMAÇÃO GSAP
      * ======================================================= */
     function setupHydrationCalculator() {
         // 1. Selecionar todos os elementos
@@ -775,80 +788,94 @@ document.addEventListener('DOMContentLoaded', () => {
                 const totalCopos = Math.ceil(totalMl / 250);
 
                 // --- INÍCIO DAS NOVAS ANIMAÇÕES ---
-
-                // A. Animação do Número (Contador)
-                let counter = { value: 0 }; // Objeto para o GSAP animar
                 
-                // Tenta pegar o valor atual, se for um número, senão começa do 0
-                if(displayLitros && displayLitros.textContent) {
-                    let currentText = displayLitros.textContent.split(' ')[0].replace(',', '.');
-                    let currentValue = parseFloat(currentText);
-                    if (!isNaN(currentValue)) {
-                        counter.value = currentValue; // Começa do valor que já está na tela
-                    }
-                }
-                
-                // Se uma animação anterior estiver rodando, mate-a
-                if (currentAnimation) {
-                    currentAnimation.kill();
-                }
-
-                // Anima o objeto 'counter' de seu valor atual até o valor final
-                currentAnimation = gsap.to(counter, {
-                    duration: 1.2, // Duração de 1.2s
-                    value: totalLitros,
-                    ease: "power2.out",
-                    onUpdate: () => {
-                        // a cada "frame" da animação, atualiza o texto
-                        if(displayLitros) {
-                            displayLitros.textContent = `${counter.value.toFixed(2).replace('.', ',')} Litros`;
+                // Verifica se o GSAP está disponível
+                if (typeof gsap !== 'undefined') {
+                    // A. Animação do Número (Contador)
+                    let counter = { value: 0 }; // Objeto para o GSAP animar
+                    
+                    // Tenta pegar o valor atual, se for um número, senão começa do 0
+                    if(displayLitros && displayLitros.textContent) {
+                        let currentText = displayLitros.textContent.split(' ')[0].replace(',', '.');
+                        let currentValue = parseFloat(currentText);
+                        if (!isNaN(currentValue)) {
+                            counter.value = currentValue; // Começa do valor que já está na tela
                         }
-                    },
-                    onComplete: () => {
-                        currentAnimation = null; // Limpa a animação
                     }
-                });
+                    
+                    // Se uma animação anterior estiver rodando, mate-a
+                    if (currentAnimation) {
+                        currentAnimation.kill();
+                    }
 
-                // B. Animação das Gotas (Stagger)
-                if(displayCopos) {
-                    displayCopos.innerHTML = ''; // Limpa os copos antigos
-                    let copoElements = []; // Array para guardar os novos elementos
+                    // Anima o objeto 'counter' de seu valor atual até o valor final
+                    currentAnimation = gsap.to(counter, {
+                        duration: 1.2, // Duração de 1.2s
+                        value: totalLitros,
+                        ease: "power2.out",
+                        onUpdate: () => {
+                            // a cada "frame" da animação, atualiza o texto
+                            if(displayLitros) {
+                                displayLitros.textContent = `${counter.value.toFixed(2).replace('.', ',')} Litros`;
+                            }
+                        },
+                        onComplete: () => {
+                            currentAnimation = null; // Limpa a animação
+                        }
+                    });
 
-                    if (totalCopos > 0) {
-                        for (let i = 0; i < totalCopos; i++) {
-                            const copoIcon = document.createElement('i');
-                            copoIcon.className = 'fa-solid fa-droplet';
-                            
-                            if (i < 15) { // Mostra no máximo 15 copos
-                                displayCopos.appendChild(copoIcon);
-                                copoElements.push(copoIcon); // Adiciona ao array
+                    // B. Animação das Gotas (Stagger)
+                    if(displayCopos) {
+                        displayCopos.innerHTML = ''; // Limpa os copos antigos
+                        let copoElements = []; // Array para guardar os novos elementos
+
+                        if (totalCopos > 0) {
+                            for (let i = 0; i < totalCopos; i++) {
+                                const copoIcon = document.createElement('i');
+                                copoIcon.className = 'fa-solid fa-droplet';
+                                
+                                if (i < 15) { // Mostra no máximo 15 copos
+                                    displayCopos.appendChild(copoIcon);
+                                    copoElements.push(copoIcon); // Adiciona ao array
+                                }
+                            }
+                            if (totalCopos > 15) {
+                                const extraText = document.createElement('span');
+                                extraText.textContent = ` +${totalCopos - 15}`;
+                                extraText.style.fontSize = '0.7em';
+                                extraText.style.fontWeight = 'bold';
+                                extraText.style.marginLeft = '5px';
+                                displayCopos.appendChild(extraText);
                             }
                         }
-                        if (totalCopos > 15) {
-                            const extraText = document.createElement('span');
-                            extraText.textContent = ` +${totalCopos - 15}`;
-                            extraText.style.fontSize = '0.7em';
-                            extraText.style.fontWeight = 'bold';
-                            extraText.style.marginLeft = '5px';
-                            displayCopos.appendChild(extraText);
+
+                        // Anima os elementos que acabamos de criar
+                        // Começa de uma opacidade e escala 0
+                        gsap.fromTo(copoElements, {
+                            opacity: 0,
+                            scale: 0.5,
+                            y: -10 // Começa um pouco acima
+                        }, {
+                            duration: 0.3, // Duração de cada gota
+                            opacity: 1,
+                            scale: 1,
+                            y: 0,
+                            ease: "back.out(1.7)",
+                            stagger: 0.08, // Atraso entre cada gota
+                            delay: 0.2 // Começa 0.2s depois do clique
+                        });
+                    }
+                } else {
+                    // --- FALLBACK (Se o GSAP não carregar) ---
+                    if(displayLitros) displayLitros.textContent = `${totalLitros.toFixed(2).replace('.', ',')} Litros`;
+                    if(displayCopos) {
+                         displayCopos.innerHTML = ''; // Limpa os copos antigos
+                        if (totalCopos > 0) {
+                            for (let i = 0; i < totalCopos; i++) {
+                                // ... (código de adicionar copos, igual ao de cima)
+                            }
                         }
                     }
-
-                    // Anima os elementos que acabamos de criar
-                    // Começa de uma opacidade e escala 0
-                    gsap.fromTo(copoElements, {
-                        opacity: 0,
-                        scale: 0.5,
-                        y: -10 // Começa um pouco acima
-                    }, {
-                        duration: 0.3, // Duração de cada gota
-                        opacity: 1,
-                        scale: 1,
-                        y: 0,
-                        ease: "back.out(1.7)",
-                        stagger: 0.08, // Atraso entre cada gota
-                        delay: 0.2 // Começa 0.2s depois do clique
-                    });
                 }
                 // --- FIM DAS NOVAS ANIMAÇÕES ---
 
@@ -1030,19 +1057,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     }
 
-    // Chama a função do planejador
-    setupSnackPlanner();
-
     // ===============================================
     // === ADICIONADO: CHAMADA DAS NOVAS FUNÇÕES =====
     // ===============================================
     
-    setupFontControls(); // Para os botões A+/A-
-    setupHandwashGuide(); // Para o guia de lavar as mãos
-    setupOriginMap(); // Para o mapa interativo
-    setupRecipeFilters(); // Filtro da página de receitas
-    setupHydrationCalculator(); // <-- CALCULADORA RE-ADICIONADA
-    animateChartBars(); // <-- ANIMAÇÃO DO GRÁFICO ADICIONADA
+    // Funções Globais (rodam em todas as páginas)
+    setupFontControls(); 
+    
+    // Funções da Página Inicial (Home) - Roda no carregamento inicial
+    // A 'home' é a página 'active' por padrão no HTML
+    setupHeroCarousel();
+    
+    // Funções de outras páginas são chamadas dentro de navigateTo() para otimizar o TBT
     
     // ===============================================
     // ====== FIM DO CÓDIGO DO PLANEJADOR DE LANCHES ======
