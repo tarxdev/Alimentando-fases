@@ -1320,7 +1320,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         async function fetchChatbotResponse(historyArray) {
-            const apiUrl = "https://alimentando-fases-backend.onrender.com/"; 
+            const apiUrlBase = "https://alimentando-fases-backend.onrender.com"; 
+const response = await fetch(`${apiUrlBase}/chat`, { 
+    method: 'POST',
+    // ...
+}); 
             
             let success = false; 
 
