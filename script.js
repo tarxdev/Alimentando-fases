@@ -356,6 +356,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeMenu(menuItem);
             });
         }
+
+        // ******** INÍCIO DA CORREÇÃO (DUPLA) ********
+        // Dá um pequeno tempo (10ms) para o DOM atualizar o display:block
+        // antes de forçar o ScrollTrigger a recalcular as posições.
+        if (typeof ScrollTrigger !== 'undefined') {
+            setTimeout(() => {
+                ScrollTrigger.refresh();
+            }, 10); 
+        }
+        // ******** FIM DA CORREÇÃO ********
     }
 
     // Listener antigo (para links de navegação principais)
@@ -546,19 +556,22 @@ document.addEventListener('DOMContentLoaded', () => {
             gsap.set(elem, { autoAlpha: 0 });
         }
 
+        // ******** INÍCIO DA CORREÇÃO DE ANIMAÇÃO ********
+        // A lógica de animação foi alterada para ser mais simples e
+        // evitar o bug de 'onLeave' que escondia o conteúdo.
         gsap.utils.toArray(".gs_reveal").forEach(function (elem) {
-            hide(elem); 
+            hide(elem); // Continuar começando escondido
 
             ScrollTrigger.create({
                 trigger: elem,
-                start: "top 85%",
-                end: "bottom 15%",
-                onEnter: () => animateFrom(elem),
-                onEnterBack: () => animateFrom(elem, -1),
-                onLeave: () => hide(elem),
-                markers: false
+                start: "top 85%", // Quando o topo do elemento estiver a 85% da altura da tela
+                once: true, // Executar a animação apenas UMA VEZ
+                onEnter: () => animateFrom(elem), // Apenas animar a entrada
+                // onLeave, onEnterBack removidos para evitar que o item suma
+                markers: false 
             });
         });
+        // ******** FIM DA CORREÇÃO DE ANIMAÇÃO ********
 
         const topicBlocks = gsap.utils.toArray('#adolescencia .topic-block');
         if (topicBlocks.length > 0) {
@@ -1069,11 +1082,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===============================================
-    // === ADICIONADO: CHAMADA DAS NOVAS FUNÇÕES =====
+    // ====== FIM DO CÓDIGO DO PLANEJADOR DE LANCHES ======
+    // ===============================================
+    
+    // ===============================================
+    // ==== INÍCIO DAS CHAMADAS DE FUNÇÕES =====
     // ===============================================
     
     // Funções Globais (rodam em todas as páginas)
-    setupFontControls(); 
+    // setupFontControls(); // Removido pois os botões não estão no HTML
     
     // Funções da Página Inicial (Home) - Roda no carregamento inicial
     // A 'home' é a página 'active' por padrão no HTML
@@ -1082,9 +1099,289 @@ document.addEventListener('DOMContentLoaded', () => {
     // Funções de outras páginas são chamadas dentro de navigateTo() para otimizar o TBT
     
     // ===============================================
-    // ====== FIM DO CÓDIGO DO PLANEJADOR DE LANCHES ======
+    // ====== FIM DAS CHAMADAS DE FUNÇÕES ======
     // ===============================================
     
+
+    // =======================================================
+    // 27. LÓGICA DO CHATBOT (NutriFases AI) - VERSÃO 7 (SCROLL INTELIGENTE)
+    // =======================================================
+    
+    const toggleBtn = document.getElementById('chatbot-toggle-btn');
+    const closeBtn = document.getElementById('chatbot-close-btn');
+    const sendBtn = document.getElementById('chatbot-send-btn');
+    const chatWindow = document.getElementById('chatbot-window');
+    const messageArea = document.getElementById('chatbot-messages');
+    const inputField = document.getElementById('chatbot-input');
+
+    if (toggleBtn && closeBtn && sendBtn && chatWindow && messageArea && inputField) {
+
+        let chatHistory = []; 
+        let ptBRVoice = null; 
+        
+        const welcomeMessageElement = messageArea.querySelector('.chat-message.bot');
+        let welcomeMessageText = "";
+        
+        if (welcomeMessageElement) {
+            welcomeMessageText = welcomeMessageElement.querySelector('p').textContent.trim();
+            messageArea.innerHTML = ""; 
+        }
+
+        let isFirstMessage = true; 
+
+        function loadBestVoice() {
+            const voices = window.speechSynthesis.getVoices();
+            ptBRVoice = voices.find(voice => 
+                voice.lang === 'pt-BR' && 
+                (voice.name.includes('Google') || voice.name.includes('Brazil') || voice.name.includes('Microsoft Maria'))
+            );
+            if (!ptBRVoice) {
+                ptBRVoice = voices.find(voice => voice.lang === 'pt-BR');
+            }
+        }
+        loadBestVoice();
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = loadBestVoice;
+        }
+
+        function openChat() {
+            chatWindow.classList.remove('hidden');
+            toggleBtn.classList.add('hidden');
+            inputField.focus();
+
+            if (isFirstMessage && welcomeMessageText) {
+                isFirstMessage = false;
+                showLoadingIndicator();
+                
+                setTimeout(() => {
+                    removeLoadingIndicator();
+                    addMessageToUI(welcomeMessageText, 'bot');
+                    chatHistory.push({ role: "model", parts: [{ text: welcomeMessageText }] });
+                }, 1000); 
+            }
+        }
+
+        function closeChat() {
+            chatWindow.classList.add('hidden');
+            toggleBtn.classList.remove('hidden');
+            window.speechSynthesis.cancel();
+        }
+
+        function sendMessage() {
+            const userMessage = inputField.value.trim();
+            if (userMessage === "") return;
+            
+            window.speechSynthesis.cancel();
+            inputField.value = "";
+            
+            addMessageToUI(userMessage, 'user');
+            chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
+            
+            showLoadingIndicator();
+            
+            fetchChatbotResponse(chatHistory);
+        }
+        
+        function formatMarkdown(text) {
+            let html = text;
+
+            // 1. Negrito (Já estava bom)
+            // Converte **negrito** para <b>negrito</b>
+            html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            
+            // 2. Listas (Processa blocos de lista PRIMEIRO)
+            // Procura por blocos de * ou 1.
+            html = html.replace(/((?:(?:^\* ?|^\d+\. ?).*?$(\n|$))+)/gm, (match) => {
+                // Este é um bloco de lista
+                const items = match.trim().split('\n');
+                const listItems = items.map(item => {
+                    // Remove o marcador (* ou 1.)
+                    let content = item.replace(/^\* ?/, '').replace(/^\d+\. ?/, '');
+                    // (NOVO!) Re-aplica o negrito que pode ter se perdido
+                    content = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                    return `<li>${content.trim()}</li>`;
+                }).join('');
+                
+                // Decide se é <ul> (bullet) ou <ol> (números)
+                const listType = match.trim().startsWith('*') ? 'ul' : 'ol';
+                return `<${listType}>${listItems}</${listType}>`; 
+            });
+
+            // 3. Parágrafos (Processa o resto)
+            // Converte as quebras de linha restantes em <p>
+            html = html.split('\n').map(line => {
+                if (line.trim().startsWith('<ul') || line.trim().startsWith('<ol')) {
+                    return line; // Deixa a lista em paz
+                }
+                if (line.trim() === '') {
+                    return ''; // Ignora linhas vazias
+                }
+                return `<p>${line}</p>`; // Envolve parágrafos normais em <p>
+            }).join('');
+
+            // Limpa tags <p> vazias que possam ter sido criadas
+            html = html.replace(/<p><\/p>/g, '');
+            // Limpa <p> ao redor de listas
+            html = html.replace(/<p>(<(ul|ol)>.*<\/(ul|ol)>)<\/p>/g, '$1');
+
+            return html;
+        }
+
+        // =======================================================
+        // (FUNÇÃO ATUALIZADA) COM LÓGICA DE SCROLL INTELIGENTE
+        // =======================================================
+        function addMessageToUI(message, sender, isError = false) {
+            
+            // --- (A CORREÇÃO!) ---
+            // 1. Verifica se o usuário está no final ANTES de adicionar a nova mensagem.
+            const isScrolledToBottom = messageArea.scrollHeight - messageArea.clientHeight <= messageArea.scrollTop + 50;
+            
+            // --- Fim da Correção ---
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}`;
+            
+            const textP = document.createElement('p');
+            
+            if (sender === 'bot' && !isError) {
+                // Se for o bot, "traduz" o Markdown para HTML
+                textP.innerHTML = formatMarkdown(message);
+            } else {
+                // Se for o usuário (ou erro), só mostra o texto
+                textP.textContent = message;
+            }
+            
+            messageDiv.appendChild(textP);
+
+            if (sender === 'bot' && !isError) {
+                const speakBtn = document.createElement('button');
+                speakBtn.className = 'chatbot-speak-btn';
+                speakBtn.setAttribute('aria-label', 'Ouvir resposta');
+                speakBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+                
+                speakBtn.addEventListener('click', () => {
+                    speakText(message);
+                });
+                
+                messageDiv.appendChild(speakBtn);
+            }
+            
+            messageArea.appendChild(messageDiv);
+            
+            // --- (A CORREÇÃO!) ---
+            // 2. Só rola para o final se o usuário JÁ ESTAVA no final.
+            if (isScrolledToBottom) {
+                messageArea.scrollTop = messageArea.scrollHeight;
+            }
+            // --- Fim da Correção ---
+        }
+        
+        function showLoadingIndicator() {
+            // (A CORREÇÃO!) Também checa o scroll antes de mostrar o "digitando"
+            const isScrolledToBottom = messageArea.scrollHeight - messageArea.clientHeight <= messageArea.scrollTop + 50;
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'chat-message bot loading';
+            loadingDiv.id = 'bot-loading';
+            loadingDiv.innerHTML = `<p><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></p>`;
+            messageArea.appendChild(loadingDiv);
+            
+            if (isScrolledToBottom) {
+                messageArea.scrollTop = messageArea.scrollHeight;
+            }
+        }
+
+        function removeLoadingIndicator() {
+            const loadingDiv = document.getElementById('bot-loading');
+            if (loadingDiv) {
+                loadingDiv.remove();
+            }
+        }
+
+        // (FUNÇÃO ATUALIZADA) Agora limpa EMOJIS!
+        function speakText(text) {
+            window.speechSynthesis.cancel(); 
+
+            // 1. Limpa o Markdown (negrito, listas)
+            let cleanText = text.replace(/\*\*/g, '').replace(/\*/g, '').replace(/^\d+\. ?/gm, '');
+            
+            // 2. (A NOVA CORREÇÃO) Remove os Emojis
+            const emojiRegex = /([\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}])/gu;
+            cleanText = cleanText.replace(emojiRegex, '');
+            
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            
+            if (ptBRVoice) {
+                utterance.voice = ptBRVoice;
+            } else {
+                 utterance.lang = 'pt-BR';
+            }
+            window.speechSynthesis.speak(utterance);
+        }
+
+        async function fetchChatbotResponse(historyArray) {
+            const apiUrl = "http://127.0.0.1:5000/chat"; 
+            
+            let success = false; 
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ history: historyArray }),
+                });
+
+                const data = await response.json();
+                removeLoadingIndicator();
+
+                if (response.ok) {
+                    success = true; 
+
+                    if (data.action && data.action.type === 'navigate') {
+                        const botMessage = data.text || "Ok, navegando...";
+                        addMessageToUI(botMessage, 'bot');
+                        chatHistory.push({ role: "model", parts: [{ text: botMessage }] });
+                        
+                        navigateTo(data.action.pageId); 
+                        setTimeout(closeChat, 1000); 
+
+                    } else {
+                        const botMessage = data.response;
+                        addMessageToUI(botMessage, 'bot');
+                        chatHistory.push({ role: "model", parts: [{ text: botMessage }] });
+                    }
+                    
+                } else {
+                    addMessageToUI(`😥 Desculpe, tive um erro: ${data.error}. Tente novamente.`, 'bot', true);
+                }
+
+            } catch (error) {
+                removeLoadingIndicator();
+                
+                if (!success) {
+                    console.error("Erro ao conectar com o chatbot:", error);
+                    addMessageToUI('😥 Ops! Não consegui me conectar ao meu cérebro. (Verifique se a API está rodando).', 'bot', true);
+                }
+            }
+        }
+
+        // --- Conectando os Botões ---
+        toggleBtn.addEventListener('click', openChat);
+        closeBtn.addEventListener('click', closeChat);
+        sendBtn.addEventListener('click', sendMessage);
+        
+        inputField.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    
+    } // <-- Fim da verificação 'if (toggleBtn...)'
+
+    // --- FIM DO CÓDIGO DO CHATBOT ---
+
 
 }); // --- FIM DO DOMContentLoaded ---
 
@@ -1157,7 +1454,7 @@ const EmbeddedClassifyGame = {
         // A verificação !this.winModal foi REMOVIDA
         if (!this.gameArea || !this.foodBank || !this.dropZones || !this.scoreDisplay) {
             console.error("Elementos do DOM do Jogo de Classificar EMBUTIDO não encontrados.");
-            return; // O script para aqui se não encontrar os elementos ESSENCIAIS
+            return; // O script para aqui se não encontrar os elementos ESSENCIAIA
         }
         // --- FIM DA CORREÇÃO ---
 
@@ -1372,7 +1669,7 @@ function setupHandwashGuide() {
         }
     ];
 
-    // 2. Seleção dos Elementos do DOM
+    // 2. Seleção dos ElementOS do DOM
     const guide = document.querySelector('.handwash-guide');
     if (!guide) return; // Se o guia não estiver na página, não faz nada
 
@@ -1530,6 +1827,9 @@ function setupOriginMap() {
     // === ANIMAÇÃO DE ENTRADA (GSAP) ===
     // ===================================================
     if (typeof gsap !== 'undefined' && hotspots.length > 0) {
+        // Define o estado inicial (invisível e pequeno)
+        gsap.set(hotspots, { opacity: 0, scale: 0.5 });
+        
         gsap.to(hotspots, {
             duration: 0.8, // Duração da animação de cada botão
             opacity: 1,
@@ -1571,6 +1871,7 @@ function setupOriginMap() {
         }
     });
 }
+
 
 /* =======================================================
  * 23. LÓGICA DO FILTRO DA PÁGINA DE RECEITAS

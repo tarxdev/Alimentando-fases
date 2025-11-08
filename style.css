@@ -3930,3 +3930,379 @@ body.game-modal-open div[vw-access-button] {
         width: 0;
     }
 }
+/* =======================================================
+ * 24. COMPONENTES DIDÁTICOS (ROTULAGEM)
+ * ======================================================= */
+
+.topic-content .sub-topic-title {
+    font-family: var(--font-heading);
+    color: var(--color-secondary);
+    font-weight: 700;
+    font-size: 1.25em;
+    margin-top: 1.8em;
+    margin-bottom: 0.8em;
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: 5px;
+}
+
+.comparison-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.comparison-box {
+    border-radius: 8px;
+    border: 2px solid #ddd;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.comparison-header {
+    padding: 12px 15px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.1em;
+    text-align: center;
+    color: white;
+}
+
+.comparison-box.old-label .comparison-header {
+    background-color: #d97706; /* Laranja (Aviso) */
+}
+
+.comparison-box.new-label .comparison-header {
+    background-color: var(--color-primary); /* Verde (Correto) */
+}
+
+.comparison-box .comparison-body {
+    padding: 15px;
+    background-color: #fff;
+    border-bottom: 1px dashed #eee;
+}
+
+.comparison-box .comparison-body p {
+    margin: 0 0 5px 0;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+.comparison-box .comparison-body p:last-child {
+    margin-bottom: 0;
+}
+
+.comparison-box .comparison-body strong {
+    font-family: var(--font-heading);
+    color: var(--color-secondary);
+    font-size: 1.1em;
+}
+
+.comparison-box .comparison-footer {
+    padding: 12px 15px;
+    font-weight: 700;
+    font-style: italic;
+    text-align: center;
+    background-color: var(--color-background);
+    color: var(--color-secondary);
+    font-size: 0.9em;
+}
+
+/* Regra de alinhamento para o semáforo de %VD */
+.do-dont-container .do-list li,
+.do-dont-container .dont-list li {
+    padding-left: 0;
+    text-align: center;
+}
+.do-dont-container .do-list li::before,
+.do-dont-container .dont-list li::before {
+    content: none; /* Remove o ícone de check/x padrão */
+}
+
+@media (min-width: 768px) {
+    .comparison-container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+/* =======================================================
+ * 26. ESTILOS DO CHATBOT
+ * ======================================================= */
+
+.chatbot-container {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 9990; /* Abaixo dos menus e VLibras */
+}
+
+/* --- O ÍCONE FLUTUANTE --- */
+.chatbot-fab {
+    background-color: var(--color-primary);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    font-size: 1.8em;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chatbot-fab:hover {
+    transform: scale(1.1) rotate(10deg);
+}
+
+/* Esconde o ícone quando a janela está aberta */
+.chatbot-fab.hidden {
+    transform: scale(0);
+    opacity: 0;
+}
+
+/* --- A JANELA DO CHAT --- */
+.chatbot-window {
+    width: 350px;
+    max-width: 90vw;
+    height: 500px;
+    max-height: 80vh;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    
+    /* Animação de entrada */
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.4s ease-out;
+}
+
+/* Esconde a janela */
+.chatbot-window.hidden {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    pointer-events: none;
+}
+
+/* --- Cabeçalho --- */
+.chatbot-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    background-color: var(--color-background);
+    border-bottom: 1px solid #eee;
+}
+.chatbot-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #fff;
+    padding: 2px;
+    border: 1px solid var(--color-primary);
+}
+.chatbot-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.chatbot-title {
+    flex-grow: 1;
+}
+.chatbot-title h5 {
+    margin: 0;
+    font-family: var(--font-heading);
+    color: var(--color-primary);
+    font-size: 1.1em;
+}
+.chatbot-title span {
+    font-size: 0.8em;
+    color: #777;
+}
+.chatbot-close-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.2em;
+    color: #aaa;
+    cursor: pointer;
+}
+.chatbot-close-btn:hover {
+    color: var(--color-secondary);
+}
+
+/* --- Área de Mensagens --- */
+.chatbot-messages {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.chat-message {
+    max-width: 85%;
+    padding: 10px 15px;
+    border-radius: 18px;
+    line-height: 1.6;
+    font-size: 0.95em;
+}
+.chat-message p {
+    margin: 0;
+}
+/* Mensagem do BOT */
+.chat-message.bot {
+    background-color: #f1f0f0;
+    color: #333;
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+}
+/* Mensagem do USUÁRIO */
+.chat-message.user {
+    background-color: var(--color-secondary);
+    color: white;
+    border-bottom-right-radius: 4px;
+    align-self: flex-end;
+}
+/* Efeito "digitando" */
+.chat-message.bot.loading p {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #aaa;
+    border-radius: 50%;
+    animation: typing-bounce 1.2s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-4px); }
+}
+
+/* --- Área de Input --- */
+.chatbot-input-area {
+    display: flex;
+    border-top: 1px solid #eee;
+    padding: 15px;
+    gap: 10px;
+}
+#chatbot-input {
+    flex-grow: 1;
+    border: 1px solid #ddd;
+    border-radius: 50px;
+    padding: 10px 15px;
+    font-size: 0.9em;
+}
+#chatbot-input:focus-visible {
+    outline: 2px solid var(--color-secondary);
+}
+#chatbot-send-btn {
+    flex-shrink: 0;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--color-secondary);
+    color: white;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+#chatbot-send-btn:hover {
+    background-color: #a06e49;
+}
+
+/* Responsividade: em telas pequenas, o ícone sobe */
+@media (max-width: 480px) {
+    .chatbot-container {
+        bottom: 15px;
+        right: 15px;
+    }
+}
+
+/* Esconde o chatbot quando um modal de jogo está aberto */
+body.game-modal-open .chatbot-container {
+    display: none !important;
+}
+/* =======================================================
+ * 27. ESTILOS DO BOTÃO DE VOZ (CHATBOT)
+ * ======================================================= */
+
+.chat-message.bot {
+    position: relative;
+    padding-right: 40px; /* Dá espaço para o botão de voz */
+}
+
+.chatbot-speak-btn {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background-color: #e0e0e0;
+    color: #555;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.9em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.chatbot-speak-btn:hover {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.chatbot-speak-btn:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 1px;
+}
+/* =======================================================
+ * 28. MELHORIAS DE TEXTO DO CHATBOT (Listas e Parágrafos)
+ * ======================================================= */
+
+/* Garante que parágrafos dentro do chat tenham espaço */
+.chat-message.bot p {
+    margin-bottom: 10px;
+}
+.chat-message.bot p:last-child {
+    margin-bottom: 0;
+}
+
+/* Garante que listas <ul> e <ol> fiquem bem formatadas */
+.chat-message.bot ul, .chat-message.bot ol {
+    list-style-position: outside;
+    padding-left: 20px; /* Adiciona recuo para os bullets */
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.chat-message.bot li {
+    margin-bottom: 5px;
+}
+
+/* =======================================================
+ * 29. AJUSTE DE POSIÇÃO (VLIBRAS) - CORREÇÃO 2.0
+ * ======================================================= */
+
+/* Move o botão flutuante do VLibras para a esquerda */
+div[vw-access-button] {
+    right: auto !important;   /* Força o 'right' a ser automático */
+    left: 20px !important;    /* Define o 'left' */
+}
