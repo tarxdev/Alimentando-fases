@@ -1318,16 +1318,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             window.speechSynthesis.speak(utterance);
         }
-        // No seu script.js (repositório: Alimentando-fases):
-async function fetchChatbotResponse(historyArray) {
-    // COLOQUE O DOMÍNIO PRINCIPAL DO VERCEL
-    const apiUrlBase = "https://alimentando-fases-backend.vercel.app"; 
-
-    // A API COMPLETA é o domínio + /api/nome_do_arquivo
-    const apiUrl = `${apiUrlBase}/api/chat`; 
-
-    // ... (o restante do código)
-}
+        
             let success = false; 
 
             try {
