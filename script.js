@@ -1320,7 +1320,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         async function fetchChatbotResponse(historyArray) {
-            const apiUrl = "http://127.0.0.1:5000/chat"; 
+            const apiUrl = "https://alimentando-fases-backend.onrender.com/"; 
             
             let success = false; 
 
