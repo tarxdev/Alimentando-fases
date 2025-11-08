@@ -1102,11 +1102,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ====== FIM DAS CHAMADAS DE FUNÇÕES ======
     // ===============================================
 
-// ... (todas as suas funções setup, navigateTo, etc. vêm aqui) ...
-
-
-    // =======================================================
-    // 27. LÓGICA DO CHATBOT (NutriFases AI) - VERSÃO FINAL CORRIGIDA
+// =======================================================
+    // 27. LÓGICA DO CHATBOT (NutriFases AI) - VERSÃO FINAL E FUNCIONAL
     // =======================================================
 
     const toggleBtn = document.getElementById('chatbot-toggle-btn');
@@ -1374,7 +1371,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ... (O restante das suas funções setup que são definidas fora do DOMContentLoaded, como triggerConfetti, setupHandwashGuide, etc., devem vir aqui) ...
-
+    
 
 /* =======================================================
  * FUNÇÃO DE CONFETE
