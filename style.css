@@ -1821,7 +1821,7 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
     flex-direction: row;
     align-items: center;
     gap: 40px;
-    background-image: url('background.frutas.png');
+    background-image: url('Imagens/background.frutas.webp');
     background-size: cover;
     background-position: center;
     position: relative;
@@ -3640,7 +3640,7 @@ body.game-modal-open div[vw-access-button] {
     margin: 25px auto 0;
     aspect-ratio: 16 / 9; 
     background-color: #a7c7d0; 
-    background-image: url('origem-alimentar/mapa-mundi.jpg'); /* SEU MAPA NOVO */
+    background-image: url('Imagens/mapa-mundi.webp'); /* SEU MAPA NOVO */
     background-position: center;
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
@@ -4028,14 +4028,13 @@ body.game-modal-open div[vw-access-button] {
 /* =======================================================
  * 26. ESTILOS DO CHATBOT
  * ======================================================= */
-
 .chatbot-container {
     position: fixed;
     bottom: 25px;
-    right: 25px;
-    z-index: 9990; /* Abaixo dos menus e VLibras */
+    left: 25px; /* Define 25px de margem na esquerda */
+    right: auto; /* Remove a ancoragem da direita */
+    z-index: 9990; 
 }
-
 /* --- O ÍCONE FLUTUANTE --- */
 .chatbot-fab {
     background-color: var(--color-primary);
@@ -4077,7 +4076,7 @@ body.game-modal-open div[vw-access-button] {
     overflow: hidden;
     position: absolute;
     bottom: 0;
-    right: 0;
+    left: 0;
     
     /* Animação de entrada */
     opacity: 1;
@@ -4233,11 +4232,6 @@ body.game-modal-open div[vw-access-button] {
         right: 15px;
     }
 }
-
-/* Esconde o chatbot quando um modal de jogo está aberto */
-body.game-modal-open .chatbot-container {
-    display: none !important;
-}
 /* =======================================================
  * 27. ESTILOS DO BOTÃO DE VOZ (CHATBOT)
  * ======================================================= */
@@ -4296,13 +4290,274 @@ body.game-modal-open .chatbot-container {
 .chat-message.bot li {
     margin-bottom: 5px;
 }
-
 /* =======================================================
- * 29. AJUSTE DE POSIÇÃO (VLIBRAS) - CORREÇÃO 2.0
+ * 29. AJUSTE DE POSIÇÃO (VLIBRAS) - CORREÇÃO FINAL (DIREITA)
+ * Garante que o botão esteja ancorado de forma limpa no canto inferior direito.
  * ======================================================= */
 
-/* Move o botão flutuante do VLibras para a esquerda */
+/* 1. ANCORA O BOTÃO NA DIREITA */
 div[vw-access-button] {
-    right: auto !important;   /* Força o 'right' a ser automático */
-    left: 20px !important;    /* Define o 'left' */
+    /* Força a remoção de margens na esquerda */
+    left: auto !important; 
+    
+    /* Define a posição limpa na direita e na parte inferior */
+    right: 25px !important; /* Afasta 25px da borda direita */
+    bottom: 25px !important; /* Afasta 25px da borda inferior */
+    
+    /* Mantém o z-index alto, mas abaixo dos menus */
+    z-index: 9998 !important; 
+}
+
+/* 2. ANCORA A JANELA DE TRADUÇÃO NA DIREITA */
+div[vw-plugin-wrapper] {
+    /* Garante que a janela se alinhe ao canto inferior direito */
+    right: 25px !important;
+    left: auto !important;
+}
+
+/* Estilo da Imagem no Meio (agora dentro do topic-content) */
+.topic-content .about-simple-image {
+    width: 100%; 
+    max-width: 700px; /* Define um tamanho máximo para a imagem */
+    display: block; 
+    margin: 30px auto 30px; /* Centraliza e dá espaço acima/abaixo */
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+/* =======================================================
+ * 26. ESTILO ESPECIAL DA FOTO DA TURMA (MURAL) - FINAL
+ * ======================================================= */
+
+/* Wrapper que centraliza e enquadra a foto */
+.class-photo-wrapper {
+    width: 100%;
+    max-width: 800px;
+    margin: 30px auto 30px; 
+    padding: 0;
+    text-align: center;
+}
+
+/* Foto em si (Retangular, sem bordas, com sombra e zoom) */
+.class-photo-wrapper .about-simple-image {
+    width: 100%; 
+    max-width: 700px; 
+    display: block; 
+    margin: 0 auto;
+    border-radius: 8px; /* Mantém o arredondamento da imagem */
+    
+    /* CORREÇÃO: Removido clip-path e bordas. */
+    
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+    transform: scale(1);
+    z-index: 10;
+}
+
+/* Efeito de Zoom no Hover */
+.class-photo-wrapper .about-simple-image:hover {
+    transform: scale(1.02); 
+    box-shadow: 0 20px 45px rgba(0,0,0,0.4);
+}
+
+/* Caixa de Dedicatória (O Marrom) */
+.class-dedication-box {
+    background-color: var(--color-secondary); 
+    color: var(--color-text-light);
+    padding: 20px 30px;
+    
+    /* CORREÇÃO CHAVE: Arredonda SOMENTE embaixo */
+    border-radius: 0 0 8px 8px; 
+    
+    /* FORÇA A CAIXA A COLAR NA FOTO */
+    margin-top: -15px; /* Valor negativo que deve compensar a folga */
+    
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    width: 90%; 
+    max-width: 630px;
+    margin-left: auto;
+    margin-right: auto;
+    
+    /* Borda Dourada Separando da Imagem (Toque de celebração) */
+    border-top: 5px solid #FFD700; 
+    
+    cursor: pointer; 
+    transition: all 0.3s ease; 
+}
+
+/* Efeito de Brilho Dourado no Hover */
+.class-dedication-box:hover {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.7), 0 8px 20px rgba(0,0,0,0.2); 
+    border-color: #FFD700;
+    transform: translateY(-2px);
+}
+
+
+/* --- Estilos internos do texto da dedicatória --- */
+
+/* Ajusta o espaçamento interno do título da dedicatória */
+.class-dedication-box p:first-child {
+    font-family: var(--font-heading);
+    font-size: 1.2em;
+    font-weight: 700;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    /* Adiciona padding-top para centralizar o texto dentro do cabeçalho marrom */
+    padding-top: 5px; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.class-dedication-box p {
+    font-size: 1.0em;
+    line-height: 1.5;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.class-dedication-box cite {
+    display: block;
+    text-align: right;
+    font-style: normal;
+    font-size: 0.9em;
+    margin-top: 15px;
+    font-weight: 700;
+}
+/* =======================================================
+ * 30. COMPONENTE - AGENDA DE AÇÕES/EVENTOS
+ * ======================================================= */
+
+.event-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.event-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border-color: var(--color-primary);
+}
+
+.event-date-tag {
+    background-color: var(--color-primary); /* Verde */
+    color: var(--color-text-light);
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.1em;
+    padding: 10px 15px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.event-content {
+    padding: 25px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-content h4 {
+    font-family: var(--font-heading);
+    color: var(--color-secondary);
+    font-size: 1.4em;
+    margin-bottom: 10px;
+    min-height: 2.5em; /* Garante altura para títulos de duas linhas */
+}
+
+.event-content p {
+    font-size: 0.95em;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
+.event-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    font-size: 0.9em;
+    color: #777;
+}
+
+.event-meta i {
+    color: var(--color-primary);
+    margin-right: 5px;
+}
+
+.event-cta {
+    display: inline-block;
+    padding: 8px 15px;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.event-cta:hover {
+    background-color: var(--color-primary);
+    color: white;
+}
+/* =======================================================
+ * 31. DESTAQUE DO BOTÃO DE MENU "CONTATO"
+ * ======================================================= */
+
+/* --- Estilo Desktop (Pílula) --- */
+@media (min-width: 1025px) {
+    .main-header__list-item.menu-cta-button {
+        align-self: center;
+    }
+    .main-header__list-item.menu-cta-button > a {
+        background-color: var(--color-primary);
+        color: var(--color-text-light) !important;
+        border-radius: 50px;
+        padding: 10px 20px; 
+        margin-left: 10px; 
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .main-header__list-item.menu-cta-button > a:hover {
+        background-color: var(--color-secondary);
+        color: var(--color-text-light) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .main-header__list-item.menu-cta-button:hover > a {
+        color: var(--color-text-light) !important;
+    }
+}
+
+/* --- Estilo Mobile (Bloco) --- */
+@media (max-width: 1024px) {
+    .main-header__list-item.menu-cta-button > a {
+        background-color: var(--color-primary);
+        color: var(--color-text-light) !important;
+        border-radius: 8px; 
+        font-weight: 700;
+        width: 95%; 
+        margin: 5px auto; 
+    }
+
+    .main-header__list-item.menu-cta-button > a:hover {
+         background-color: var(--color-secondary);
+         color: var(--color-text-light) !important;
+    }
 }

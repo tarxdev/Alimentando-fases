@@ -1,10 +1,4 @@
-/* =======================================================
- * SCRIPT PRINCIPAL - ALIMENTANDO FASES (V29.0 - Otimização TBT)
- * OTIMIZADO: Funções de setup agora são chamadas dentro de navigateTo
- * para reduzir o Total Blocking Time (TBT) inicial.
- * ======================================================= */
-
-document.addEventListener('DOMContentLoaded', () => {
+// Seu script.js COMPLETO (com as correções e a lógica do Chatbot)
 
     // *** (V25.5) CORREÇÃO Scroll-on-Refresh ***
     if (history.scrollRestoration) {
@@ -137,16 +131,26 @@ document.addEventListener('DOMContentLoaded', () => {
             // LÓGICA DE HOVER (DESKTOP)
             subLink.addEventListener('mouseenter', handleSubmenuLinkHover);
 
-            // LÓGICA DE CLIQUE (MOBILE ACCORDION)
+            // LÓGICA DE CLIQUE (MOBILE ACORDEÃO)
             subLink.addEventListener('click', (e) => {
                 const burger = document.querySelector('.main-header__burger');
                 
                 // Só executa se o burger estiver visível (modo mobile)
                 if (getComputedStyle(burger).display !== 'flex') {
-                    return; // Deixa o link de desktop funcionar (que é o nav-link)
+                    // *** CORREÇÃO: FECHAR O MEGA-MENU NO DESKTOP ***
+                    
+                    // Encontra o item principal (o <li>.has-submenu)
+                    const mainMenuItem = subLink.closest('.main-header__list-item.has-submenu');
+                    
+                    // Fecha o menu principal
+                    if (mainMenuItem) {
+                        closeMenu(mainMenuItem);
+                    }
+                    
+                    return; // Sai daqui para que o link de desktop funcione
                 }
 
-                e.preventDefault(); // Impede o link '#' de pular
+                e.preventDefault(); // Impede o link '#' de pular (MOBILE ACORDEÃO)
 
                 const parentItem = subLink.parentElement; // O <li>
                 const submenuContent = parentItem.querySelector('.submenu-content'); // O L2
@@ -262,9 +266,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const appContainer = document.getElementById('app-container');
 
     // =======================================================
-    // ✅ FUNÇÃO navigateTo ATUALIZADA (com anchorId)
+    // ✅ FUNÇÃO navigateTo ATUALIZADA (com correção de scroll no início)
     // =======================================================
     function navigateTo(pageId, anchorId = null) { // <-- 1. PARÂMETRO ADICIONADO
+        
+        // ** CORREÇÃO CHAVE: Rola para o topo IMEDIATAMENTE antes de tudo. **
+        window.scrollTo({ top: 0, behavior: 'instant' }); 
+        
         // Esconde todas as páginas
         pages.forEach(page => page.classList.remove('active'));
 
@@ -350,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Fecha o menu mobile (já existia)
         closeMobileMenu();
 
-        // (V25.4) Fecha todos os mega-menus do desktop ao navegar
+        // (V25.4) Fechamento de mega-menus
         if (menuItems && typeof closeMenu === 'function') {
             menuItems.forEach(menuItem => {
                 closeMenu(menuItem);
@@ -368,11 +376,35 @@ document.addEventListener('DOMContentLoaded', () => {
         // ******** FIM DA CORREÇÃO ********
     }
 
+    // =======================================================
+    //   ✅ NOVO OUVINTE PARA O CHATBOT
+    // =======================================================
+    // Este ouvinte "escuta" o pedido de navegação vindo do
+    // arquivo 'gemini-chat.js' e chama a função navigateTo.
+    document.addEventListener('navigateRequest', (e) => {
+        const { pageId, anchorId } = e.detail;
+        if (pageId) {
+            navigateTo(pageId, anchorId);
+        }
+    });
+    // =======================================================
+    //   FIM DO NOVO OUVINTE
+    // =======================================================
+
+
     // Listener antigo (para links de navegação principais)
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             const pageId = link.dataset.page;
             if (pageId) {
+                
+                // Verifica se é um link com âncora antes de prosseguir
+                if (link.getAttribute('href') && link.getAttribute('href').startsWith('#')) {
+                    // Se for um link principal com âncora (como os da seção Ações), 
+                    // ele será tratado pelo 'scrollLinks' (próximo bloco).
+                    return; 
+                }
+
                 e.preventDefault();
                 // Chama a navegação sem âncora (rola para o topo)
                 navigateTo(pageId); 
@@ -384,9 +416,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- FIM DO BLOCO MOVIDO ---
 
     // =======================================================
-    // ✅ NOVO LISTENER PARA OS LINKS DE ROLAGEM (DESTAQUES)
+    // ✅ NOVO LISTENER PARA LINKS COM ROLAGEM E TROCA DE PÁGINA
+    // (Captura os links do MegaMenu e os links da seção Ações)
     // =======================================================
-    const scrollLinks = document.querySelectorAll('.submenu-link-scroll');
+    // O novo seletor pega links do MegaMenu E links da seção Ações (nav-link com href # e data-page)
+    const scrollLinks = document.querySelectorAll('.submenu-link-scroll, a.nav-link[href^="#"][data-page]');
 
     scrollLinks.forEach(link => {
         link.addEventListener('click', (e) => {
@@ -401,6 +435,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Fecha menus (código de conveniência)
             closeMobileMenu();
+            
+            // ** Fechamento de mega-menus **
             if (menuItems && typeof closeMenu === 'function') {
                 menuItems.forEach(menuItem => {
                     closeMenu(menuItem);
@@ -556,23 +592,49 @@ document.addEventListener('DOMContentLoaded', () => {
             gsap.set(elem, { autoAlpha: 0 });
         }
 
-        // ******** INÍCIO DA CORREÇÃO DE ANIMAÇÃO ********
-        // A lógica de animação foi alterada para ser mais simples e
-        // evitar o bug de 'onLeave' que escondia o conteúdo.
-        gsap.utils.toArray(".gs_reveal").forEach(function (elem) {
-            hide(elem); // Continuar começando escondido
+        // *** MELHORIA SCROLL REVEAL (Vem de Baixo/Esquerda/Direita) ***
 
+        gsap.utils.toArray(".gs_reveal").forEach(function (elem) {
+            hide(elem); // Começa escondido
+
+            let direction = 1; // Padrão: Vir de baixo (y: 50)
+            let distance = 50;
+
+            // Animação para X (Esquerda/Direita)
+            if (elem.classList.contains('gs_reveal_fromLeft') || elem.classList.contains('gs_reveal_fromRight')) {
+                
+                const xDistance = elem.classList.contains('gs_reveal_fromLeft') ? -100 : 100;
+                
+                // Cria uma animação específica para vir da lateral (X)
+                ScrollTrigger.create({
+                    trigger: elem,
+                    start: "top 85%",
+                    once: true,
+                    onEnter: () => {
+                        gsap.fromTo(elem, { x: xDistance, autoAlpha: 0 }, {
+                            duration: 1.25,
+                            x: 0,
+                            autoAlpha: 1,
+                            ease: "expo.out",
+                            overwrite: "auto"
+                        });
+                    }
+                });
+                return; // Pula o ScrollTrigger padrão
+            }
+            
+            // ScrollTrigger Padrão (Vem de baixo - Y)
             ScrollTrigger.create({
                 trigger: elem,
-                start: "top 85%", // Quando o topo do elemento estiver a 85% da altura da tela
-                once: true, // Executar a animação apenas UMA VEZ
-                onEnter: () => animateFrom(elem), // Apenas animar a entrada
-                // onLeave, onEnterBack removidos para evitar que o item suma
+                start: "top 85%", 
+                once: true, 
+                onEnter: () => animateFrom(elem, direction, distance), 
                 markers: false 
             });
         });
-        // ******** FIM DA CORREÇÃO DE ANIMAÇÃO ********
 
+        // *** FIM DA MELHORIA SCROLL REVEAL ***
+        
         const topicBlocks = gsap.utils.toArray('#adolescencia .topic-block');
         if (topicBlocks.length > 0) {
              gsap.set(topicBlocks, { autoAlpha: 0, y: 50 });
@@ -1044,7 +1106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         currentDayElement.querySelector('.planner-choice i').style.display = 'none';
 
                     } else if (choiceText) {
-                        // 2. Estado de LANCHE
+                        // 2. Estado de LANCE
                         choiceSpan.textContent = choiceText;
                         currentDayElement.classList.add('filled');
                         currentDayElement.querySelector('.planner-choice i').style.display = 'none';
@@ -1093,7 +1155,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // setupFontControls(); // Removido pois os botões não estão no HTML
     
     // Funções da Página Inicial (Home) - Roda no carregamento inicial
-    // A 'home' é a página 'active' por padrão no HTML
     setupHeroCarousel();
     
     // Funções de outras páginas são chamadas dentro de navigateTo() para otimizar o TBT
@@ -1102,272 +1163,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ====== FIM DAS CHAMADAS DE FUNÇÕES ======
     // ===============================================
 
-// =======================================================
-    // 27. LÓGICA DO CHATBOT (NutriFases AI) - VERSÃO FINAL E FUNCIONAL
-    // =======================================================
-
-    const toggleBtn = document.getElementById('chatbot-toggle-btn');
-    const closeBtn = document.getElementById('chatbot-close-btn');
-    const sendBtn = document.getElementById('chatbot-send-btn');
-    const chatWindow = document.getElementById('chatbot-window');
-    const messageArea = document.getElementById('chatbot-messages');
-    const inputField = document.getElementById('chatbot-input');
-
-    if (toggleBtn && closeBtn && sendBtn && chatWindow && messageArea && inputField) {
-
-        let chatHistory = [];
-        let ptBRVoice = null;
-
-        const welcomeMessageElement = messageArea.querySelector('.chat-message.bot');
-        let welcomeMessageText = "";
-
-        if (welcomeMessageElement) {
-            welcomeMessageText = welcomeMessageElement.querySelector('p').textContent.trim();
-            messageArea.innerHTML = "";
-        }
-
-        let isFirstMessage = true;
-
-        function loadBestVoice() {
-            const voices = window.speechSynthesis.getVoices();
-            ptBRVoice = voices.find(voice =>
-                voice.lang === 'pt-BR' &&
-                (voice.name.includes('Google') || voice.name.includes('Brazil') || voice.name.includes('Microsoft Maria'))
-            );
-            if (!ptBRVoice) {
-                ptBRVoice = voices.find(voice => voice.lang === 'pt-BR');
-            }
-        }
-        loadBestVoice();
-        if (window.speechSynthesis.onvoiceschanged !== undefined) {
-            window.speechSynthesis.onvoiceschanged = loadBestVoice;
-        }
-
-        function openChat() {
-            chatWindow.classList.remove('hidden');
-            toggleBtn.classList.add('hidden');
-            inputField.focus();
-
-            if (isFirstMessage && welcomeMessageText) {
-                isFirstMessage = false;
-                showLoadingIndicator();
-
-                setTimeout(() => {
-                    removeLoadingIndicator();
-                    addMessageToUI(welcomeMessageText, 'bot');
-                    chatHistory.push({ role: "model", parts: [{ text: welcomeMessageText }] });
-                }, 1000);
-            }
-        }
-
-        function closeChat() {
-            chatWindow.classList.add('hidden');
-            toggleBtn.classList.remove('hidden');
-            window.speechSynthesis.cancel();
-        }
-
-        function sendMessage() {
-            const userMessage = inputField.value.trim();
-            if (userMessage === "") return;
-
-            window.speechSynthesis.cancel();
-            inputField.value = "";
-
-            addMessageToUI(userMessage, 'user');
-            chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
-
-            showLoadingIndicator();
-
-            fetchChatbotResponse(chatHistory);
-        }
-
-        function formatMarkdown(text) {
-            let html = text;
-            html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-
-            html = html.replace(/((?:(?:^\* ?|^\d+\. ?).*?$(\n|$))+)/gm, (match) => {
-                const items = match.trim().split('\n');
-                const listItems = items.map(item => {
-                    let content = item.replace(/^\* ?/, '').replace(/^\d+\. ?/, '');
-                    content = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-                    return `<li>${content.trim()}</li>`;
-                }).join('');
-
-                const listType = match.trim().startsWith('*') ? 'ul' : 'ol';
-                return `<${listType}>${listItems}</${listType}>`;
-            });
-
-            html = html.split('\n').map(line => {
-                if (line.trim().startsWith('<ul') || line.trim().startsWith('<ol')) {
-                    return line;
-                }
-                if (line.trim() === '') {
-                    return '';
-                }
-                return `<p>${line}</p>`;
-            }).join('');
-
-            html = html.replace(/<p><\/p>/g, '');
-            html = html.replace(/<p>(<(ul|ol)>.*<\/(ul|ol)>)<\/p>/g, '$1');
-            return html;
-        }
-
-
-        function addMessageToUI(message, sender, isError = false) {
-
-            const isScrolledToBottom = messageArea.scrollHeight - messageArea.clientHeight <= messageArea.scrollTop + 50;
-
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `chat-message ${sender}`;
-
-            const textP = document.createElement('p');
-
-            if (sender === 'bot' && !isError) {
-                textP.innerHTML = formatMarkdown(message);
-            } else {
-                textP.textContent = message;
-            }
-
-            messageDiv.appendChild(textP);
-
-            if (sender === 'bot' && !isError) {
-                const speakBtn = document.createElement('button');
-                speakBtn.className = 'chatbot-speak-btn';
-                speakBtn.setAttribute('aria-label', 'Ouvir resposta');
-                speakBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-
-                speakBtn.addEventListener('click', () => {
-                    speakText(message);
-                });
-
-                messageDiv.appendChild(speakBtn);
-            }
-
-            messageArea.appendChild(messageDiv);
-
-            if (isScrolledToBottom) {
-                messageArea.scrollTop = messageArea.scrollHeight;
-            }
-        }
-
-        function showLoadingIndicator() {
-            const isScrolledToBottom = messageArea.scrollHeight - messageArea.clientHeight <= messageArea.scrollTop + 50;
-
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'chat-message bot loading';
-            loadingDiv.id = 'bot-loading';
-            loadingDiv.innerHTML = `<p><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></p>`;
-            messageArea.appendChild(loadingDiv);
-
-            if (isScrolledToBottom) {
-                messageArea.scrollTop = messageArea.scrollHeight;
-            }
-        }
-
-        function removeLoadingIndicator() {
-            const loadingDiv = document.getElementById('bot-loading');
-            if (loadingDiv) {
-                loadingDiv.remove();
-            }
-        }
-
-        function speakText(text) {
-            window.speechSynthesis.cancel();
-
-            let cleanText = text.replace(/\*\*/g, '').replace(/\*/g, '').replace(/^\d+\. ?/gm, '');
-
-            const emojiRegex = /([\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}])/gu;
-            cleanText = cleanText.replace(emojiRegex, '');
-
-            const utterance = new SpeechSynthesisUtterance(cleanText);
-
-            if (ptBRVoice) {
-                utterance.voice = ptBRVoice;
-            } else {
-                 utterance.lang = 'pt-BR';
-            }
-            window.speechSynthesis.speak(utterance);
-        }
-
-        // =======================================================
-        // FUNÇÃO ASYNC QUE FAZ A CONEXÃO COM O BACKEND (CORRIGIDA)
-        // =======================================================
-        async function fetchChatbotResponse(historyArray) {
-            // URL FINAL E CORRETA DO VERCEL
-            const apiUrl = "https://alimentando-fases-backend.vercel.app/api/chat";
-
-            let success = false;
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ history: historyArray }),
-                });
-
-                const data = await response.json();
-                removeLoadingIndicator();
-
-                if (response.ok) {
-                    success = true;
-
-                    // LÓGICA DE NAVEGAÇÃO
-                    if (data.action && data.action.path) {
-                        const botMessage = data.text || `Ok, navegando para a seção: ${data.action.path.replace('#', '')}`;
-                        addMessageToUI(botMessage, 'bot');
-                        chatHistory.push({ role: "model", parts: [{ text: botMessage }] });
-
-                        const anchorId = data.action.path;
-                        const pageId = data.action.pageId || anchorId.replace('#', '');
-
-                        if (typeof navigateTo === 'function') {
-                            navigateTo(pageId, anchorId);
-                            setTimeout(closeChat, 1000);
-                        }
-
-                    } else {
-                        // RESPOSTA DE CHAT NORMAL
-                        const botMessage = data.response;
-                        addMessageToUI(botMessage, 'bot');
-                        chatHistory.push({ role: "model", parts: [{ text: botMessage }] });
-                    }
-
-                } else {
-                    // Erro retornado pelo servidor (ex: API Key ausente)
-                    addMessageToUI(`😥 Desculpe, tive um erro: ${data.error}. Tente novamente.`, 'bot', true);
-                }
-
-            } catch (error) {
-                removeLoadingIndicator();
-
-                if (!success) {
-                    console.error("Erro ao conectar com o chatbot:", error);
-                    // Erro de rede/timeout
-                    addMessageToUI('😥 Ops! Não consegui me conectar ao meu cérebro. (Verifique se a API está rodando).', 'bot', true);
-                }
-            }
-        }
-
-
-        // --- Conectando os Botões (Event Listeners) ---
-        toggleBtn.addEventListener('click', openChat);
-        closeBtn.addEventListener('click', closeChat);
-        sendBtn.addEventListener('click', sendMessage);
-
-        inputField.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-    } // <-- Fim da verificação 'if (toggleBtn...)'
-
-    // --- FIM DO CÓDIGO DO CHATBOT ---
-
-
-}); // <-- CHAVE DE FECHAMENTO DO document.addEventListener('DOMContentLoaded', ...)
+    
+    // A LÓGICA DO CHATBOT FOI MOVIDA PARA 'gemini-chat.js'
 
 
 // ... (O restante das suas funções setup que são definidas fora do DOMContentLoaded, como triggerConfetti, setupHandwashGuide, etc., devem vir aqui) ...
@@ -1411,16 +1208,16 @@ function triggerConfetti(modalElement) {
 
 const EmbeddedClassifyGame = {
     foodItemsData: [
-        { name: 'Maçã', imageSrc: 'jogo-caminho/maca.png', category: 'natura' },
-        { name: 'Brócolis', imageSrc: 'jogo-caminho/brocolis.png', category: 'natura' },
-        { name: 'Arroz', imageSrc: 'jogo-caminho/arroz.png', category: 'natura' },
-        { name: 'Pão Francês', imageSrc: 'jogo-caminho/pao.png', category: 'processado' }, // Corrigido de "pao.png"
-        { name: 'Queijo', imageSrc: 'jogo-caminho/queijo.png', category: 'processado' },
-        { name: 'Geleia', imageSrc: 'jogo-caminho/geleia.png', category: 'processado' },
-        { name: 'Salgadinho', imageSrc: 'jogo-caminho/salgadinho.png', category: 'ultra' },
-        { name: 'Refrigerante', imageSrc: 'jogo-caminho/refri.png', category: 'ultra' },
-        { name: 'Bolacha Recheada', imageSrc: 'jogo-caminho/bolacha.png', category: 'ultra' },
-        { name: 'Nuggets', imageSrc: 'jogo-caminho/nuggets.png', category: 'ultra' },
+        { name: 'Maçã', imageSrc: 'Imagens/maca.webp', category: 'natura' },
+        { name: 'Brócolis', imageSrc: 'Imagens/brocolis.webp', category: 'natura' },
+        { name: 'Arroz', imageSrc: 'Imagens/arroz.webp', category: 'natura' },
+        { name: 'Pão Francês', imageSrc: 'Imagens/pao.webp', category: 'processado' }, // Corrigido de "pao.png"
+        { name: 'Queijo', imageSrc: 'Imagens/queijo.webp', category: 'processado' },
+        { name: 'Geleia', imageSrc: 'Imagens/geleia.webp', category: 'processado' },
+        { name: 'Salgadinho', imageSrc: 'Imagens/salgadinho.webp', category: 'ultra' },
+        { name: 'Refrigerante', imageSrc: 'Imagens/refri.webp', category: 'ultra' },
+        { name: 'Bolacha Recheada', imageSrc: 'Imagens/bolacha.webp', category: 'ultra' },
+        { name: 'Nuggets', imageSrc: 'Imagens/nuggets.webp', category: 'ultra' },
     ],
     gameArea: null,
     foodBank: null,
@@ -1441,7 +1238,7 @@ const EmbeddedClassifyGame = {
         // A verificação !this.winModal foi REMOVIDA
         if (!this.gameArea || !this.foodBank || !this.dropZones || !this.scoreDisplay) {
             console.error("Elementos do DOM do Jogo de Classificar EMBUTIDO não encontrados.");
-            return; // O script para aqui se não encontrar os elementos ESSENCIAIA
+            return; // O script para aqui se não encontrar os elementos ESSENCIAIS
         }
         // --- FIM DA CORREÇÃO ---
 
@@ -1723,7 +1520,7 @@ function setupHandwashGuide() {
 const originMapData = {
     'indigena': {
         title: 'Matriz Indígena',
-        imageSrc: 'origem-alimentar/icone-indigena.png', 
+        imageSrc: 'Imagens/icone-indigena.webp', 
         altText: 'Ícone da Matriz Indígena',
         color: 'var(--color-primary)', // Verde
         bgColor: '#f0fdf4', // Verde claro
@@ -1736,7 +1533,7 @@ const originMapData = {
     },
     'portuguesa': {
         title: 'Matriz Portuguesa',
-        imageSrc: 'origem-alimentar/icone-portuguesa.png', 
+        imageSrc: 'Imagens/icone-portuguesa.webp', 
         altText: 'Ícone da Matriz Portuguesa',
         color: 'var(--color-secondary)', // Marrom
         bgColor: 'var(--color-background)', // Bege
@@ -1749,7 +1546,7 @@ const originMapData = {
     },
     'africana': {
         title: 'Matriz Africana',
-        imageSrc: 'origem-alimentar/icone-africana.png', 
+        imageSrc: 'Imagens/icone-africana.webp', 
         altText: 'Ícone da Matriz Africana',
         color: '#d97706', // Laranja
         bgColor: '#fffbeb', // Laranja claro
@@ -1852,7 +1649,7 @@ function setupOriginMap() {
     // Listeners para fechar o modal
     closeBtn.addEventListener('click', closeOriginModal);
     modal.addEventListener('click', (e) => {
-        // Fecha se clicar no fundo (overlay)
+        // Fechar se clicar no fundo (overlay)
         if (e.target === modal) {
             closeOriginModal();
         }
@@ -1914,3 +1711,88 @@ function setupRecipeFilters() {
         performFilter('todos');
     }
 }
+// --- 7. LÓGICA DE CELEBRAÇÃO DA DEDICATÓRIA (FORMATURA) ---
+    const dedicationBox = document.getElementById('class-dedication');
+    
+    // Variável para evitar disparar confetes a cada milissegundo.
+    let confettiTimer = null; 
+
+    if (dedicationBox && typeof triggerConfetti !== 'undefined') {
+        
+        // Dispara o confete APENAS ao passar o mouse (hover)
+        dedicationBox.addEventListener('mouseenter', () => {
+             // Checa se já existe um timer rodando para não sobrecarregar
+             if (confettiTimer) {
+                 return;
+             }
+             
+             // Dispara o confete
+             triggerConfetti(dedicationBox);
+
+             // Define um novo timer para impedir um novo disparo por 2 segundos
+             confettiTimer = setTimeout(() => {
+                 confettiTimer = null;
+             }, 2000); 
+        });
+        
+        // O CÓDIGO DE DISPARO INICIAL FOI REMOVIDO DAQUI.
+    }
+    
+    /* =======================================================
+     * LÓGICA CHATBOT (IMPLEMENTAÇÃO COMPLETA)
+     * ======================================================= */
+    
+    function setupChatbotToggle() {
+        const toggleBtn = document.getElementById('chatbot-toggle-btn');
+        const closeBtn = document.getElementById('chatbot-close-btn');
+        const chatWindow = document.getElementById('chatbot-window');
+        
+        // ⚠️ Adicionado console.error para debugging, caso não encontre um elemento
+        if (!toggleBtn || !chatWindow || !closeBtn) {
+             console.error("ERRO: Elementos do Chatbot (toggleBtn, chatWindow, closeBtn) não foram encontrados no DOM.");
+             return; 
+        }
+
+        function toggleChatbot() {
+            const isHidden = chatWindow.classList.contains('hidden');
+            
+            // 1. Alterna a visibilidade da janela e do FAB
+            chatWindow.classList.toggle('hidden');
+            toggleBtn.classList.toggle('hidden');
+            
+            // 2. Controla o scroll do body (trava a rolagem)
+            document.body.classList.toggle('game-modal-open', isHidden);
+            
+            // 3. Foca no input ao abrir
+            if (isHidden) {
+                const input = document.getElementById('chatbot-input');
+                if (input) {
+                    // Timeout para garantir que o foco seja aplicado após a animação de abertura
+                    setTimeout(() => input.focus(), 400); 
+                }
+            }
+        }
+
+        // Event listeners
+        toggleBtn.addEventListener('click', toggleChatbot);
+        closeBtn.addEventListener('click', toggleChatbot);
+    }
+    
+    // O restante da lógica de chat (envio de mensagem, gemini-chat.js, etc.) 
+    // deve ser implementado no arquivo correspondente.
+
+
+/* =======================================================
+ * CHAMADAS GERAIS (Roda APÓS A DEFINIÇÃO das funções)
+ * ======================================================= */
+    
+    // Funções da Página Inicial (Home) - Roda no carregamento inicial
+    setupHeroCarousel();
+    
+    // Garante que o Chatbot e outras inicializações rodem *depois* do DOM
+    // O DOMContentLoaded garante que todos os elementos HTML (como o botão) 
+    // existam antes de tentarmos anexar o listener.
+    document.addEventListener('DOMContentLoaded', () => {
+        // Funções que devem rodar no carregamento inicial da página, independente da seção ativa:
+        setupChatbotToggle(); 
+    });
