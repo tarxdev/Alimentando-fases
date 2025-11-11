@@ -4771,3 +4771,43 @@ div[vw-plugin-wrapper] {
 /* =======================================================
  * FIM DA CORREÇÃO DEFINITIVA
  * ======================================================= */
+ /* =======================================================
+ * CORREÇÃO: Força 1 coluna nos pilares (Sustentabilidade)
+ * ======================================================= */
+
+/* * Esta regra força o grid de 3 colunas 
+ * (Agricultura, Identidade, Sustentabilidade) 
+ * a ter apenas 1 coluna em telas de smartphone (abaixo de 600px).
+*/
+@media (max-width: 600px) {
+    #origem-alimentar .pilares-grid-container {
+        grid-template-columns: 1fr;
+    }
+}
+/* =======================================================
+ * CORREÇÃO: Grid 2x2 para Nutrientes (Adolescência)
+ * ======================================================= */
+
+/*
+ * Força o grid de nutrientes (Cálcio, Ferro, etc.)
+ * a ter 2 colunas em telas de smartphone (abaixo de 767px).
+*/
+@media (max-width: 767px) {
+    #adolescencia .content-wrapper {
+        /* A MÁGICA: Força 2 colunas */
+        grid-template-columns: repeat(2, 1fr);
+        
+        /* Reduz o gap para caber melhor */
+        gap: 1rem; /* 16px */
+    }
+
+    /* Ajusta a altura dos cards no mobile */
+    #adolescencia .news-card {
+        height: 15rem; /* Um valor intermediário */
+    }
+    
+    /* Ajusta o texto para caber no card menor */
+    #adolescencia .news-card__title {
+        font-size: 1.5em; /* Um pouco menor */
+    }
+}
