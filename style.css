@@ -161,9 +161,7 @@ a:hover {
     margin-top: 20px;
 }
 
-/* =======================================================
- * 3. HEADER & MEGA MENU (REVISADO E CORRIGIDO)
- * ======================================================= */
+/* === 3. HEADER & MEGA MENU (REVISADO E CORRIGIDO) === */
 
 .main-header {
     --color-primary-hover: var(--color-primary);
@@ -281,7 +279,7 @@ a:hover {
     pointer-events: none;
     transition: opacity 0.5s, visibility 0.5s;
     transition: all 0.35s ease;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
     border-top: 1px solid rgba(0,0,0,0.08);
     z-index: 9999; /* Z-index alto para ficar sobre o conteúdo */
 }
@@ -642,8 +640,6 @@ a.submenu-list__item-wrapper > svg {
 .social a:focus-visible::after {
     inset-block-start: 0;
 }
-
-
 /* === 5. COMPONENTES GERAIS (Cards, Botões, etc.) === */
 
 /* --- Botões --- */
@@ -951,7 +947,7 @@ a.submenu-list__item-wrapper > svg {
     text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 .card-cta:hover {
     background-color: var(--color-secondary);
@@ -1352,7 +1348,7 @@ hr {
     font-weight: 700;
     color: var(--color-secondary); 
 }
-.card_text .nutrition-list-inline {
+.recipe-list .nutrition-list-inline {
     list-style: none; 
     padding: 0;       
     margin: 0 0 24px; 
@@ -1646,6 +1642,7 @@ hr {
 .topic-block {
     border-radius: 8px;
     padding: 0;
+    box-sizing: border-box; /* Adicionada a regra de segurança Box-Sizing */
 }
 .topic-header {
     display: flex;
@@ -2092,8 +2089,6 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
     visibility: visible;
     transform: translateX(-50%) translateY(-0px);
 }
-
-
 /* === 7. JOGOS === */
 .classify-dropzones { 
     display: grid; 
@@ -2550,6 +2545,8 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
 
 /* === 9. RESPONSIVIDADE GERAL === */
 
+/* --- Regra Antiga de 600px (Substituída ou movida para o bloco 970px) --- */
+/* Esta regra abaixo foi integrada no bloco de 970px, mas mantida aqui por segurança se o arquivo original a tiver */
 @media (max-width: 600px) {
     /* --- Correção da Seção "Origem Alimentar" no Mobile --- */
     section#origem-alimentar .pilares-grid-container {
@@ -2558,6 +2555,7 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
         grid-template-columns: 1fr;
     }
 }
+/* --- FIM Regra Antiga --- */
 
 @media (min-width: 600px) {
     .classify-dropzones { grid-template-columns: repeat(3, 1fr); }
@@ -2604,33 +2602,50 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
     }
 }
 
-@media (max-width: 768px) {
+/* === BLOCO DE CORREÇÃO CRÍTICA DO ALINHAMENTO LATERAL (TOPIC BLOCKS) === */
+@media (max-width: 970px) {
     .content-section { 
         padding: 40px 5%; 
     }
-    #home .hero-section { 
-        min-height: 80vh; 
+    
+    .topic-container {
+        max-width: 970px;
+        /* CORRIGIDO: Garante a centralização e padding lateral */
+        margin: 40px auto 0; 
+        padding: 0 5%; 
+        gap: 40px; 
     }
-    .grid-container, .submenu-content__list { 
-        grid-template-columns: 1fr; 
-    }
+
     .topic-block {
         padding: 0;
     }
+    
     .topic-header {
         gap: 15px;
+        /* CORRIGIDO: Adiciona o respiro lateral (20px) no cabeçalho */
         padding: 0 20px 10px 20px;
         margin-bottom: 20px;
     }
     .topic-header h4 {
         font-size: 1.3em;
     }
+    
     .topic-content {
-        padding: 0 20px 20px 20px;
+        /* CORRIGIDO: Zera o padding horizontal (lateral) para evitar estouro */
+        padding: 0 0 20px 0; 
+        /* Regra de segurança extra para evitar estouro */
+        max-width: 100%;
+        overflow-x: hidden; 
     }
-    .topic-container {
-        gap: 40px;
+    
+    /* --- Correção Específica para Origem Alimentar (Smartphones) --- */
+    @media (max-width: 600px) {
+        section#origem-alimentar .pilares-grid-container {
+            grid-template-columns: 1fr;
+        }
     }
+    
+    /* --- Outras Regras de Responsividade (Mantidas) --- */
     .section-intro-image {
         margin-bottom: 40px;
     }
@@ -2646,7 +2661,9 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
     .ebook-cta-content p {
         font-size: 1em;
     }
-}
+} /* Fim do bloco @media (max-width: 970px) */
+/* === FIM DO BLOCO DE CORREÇÃO CRÍTICA === */
+
 
 @media (min-width: 40rem) { /* 640px */
  .cards_item {
