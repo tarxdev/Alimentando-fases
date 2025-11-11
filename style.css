@@ -1,5 +1,5 @@
 /* =======================================================
- * CSS PRINCIPAL - ALIMENTANDO FASES (CORREÇÃO COMPLETA)
+ * CSS PRINCIPAL - ALIMENTANDO FASES (PRIMEIRA PARTE: GERAL, HEADER, FOOTER)
  * ======================================================= */
 
 /* === 1. GERAL & SETUP === */
@@ -169,13 +169,8 @@ a:hover {
     font-family: var(--font-body);
     
     /* --- CORREÇÃO DO BUG DE FUNDO --- */
-    /* Garantimos que o fundo sólido seja aplicado */
     background-color: var(--color-background); 
     
-    /* As linhas de backdrop-filter que causam o bug de empilhamento permanecem comentadas */
-    /* -webkit-backdrop-filter: blur(15px); */
-    /* backdrop-filter: blur(15px); */
-
     padding: 5px 2%;
     position: sticky;
     top: 0;
@@ -281,7 +276,7 @@ a:hover {
     transition: all 0.35s ease;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
     border-top: 1px solid rgba(0,0,0,0.08);
-    z-index: 9999; /* Z-index alto para ficar sobre o conteúdo */
+    z-index: 9999; /* Contexto de empilhamento principal */
 }
 
 .submenu-list__wrapper {
@@ -428,7 +423,7 @@ a.submenu-list__item-wrapper > svg {
 .main-header__burger.active i:nth-child(3) { transform: rotate(-45deg) translate(4px, -5px); }
 
 
-/* --- LÓGICA CORRIGIDA DE CLICK/HOVER (V25.6) --- */
+/* --- LÓGICA CORRIGIDA DE CLICK/HOVER (DESKTOP) --- */
 @media (hover: hover) and (pointer: fine) {
     
     /* 1. ATIVA o hover nos links principais com submenu (sem abrir) */
@@ -485,11 +480,12 @@ a.submenu-list__item-wrapper > svg {
     }
 }
 
-/* --- RESPONSIVIDADE DO MENU --- */
+/* --- RESPONSIVIDADE DO MENU (AJUSTES GERAIS) --- */
 @media screen and (max-width: 1200px) {
     .main-header__logo .site-title-wrapper { display: none; }
 }
 
+/* --- CORREÇÃO DO MENU MOBILE (ACORDEÃO ANINHADO) --- */
 @media (max-width: 1024px) {
     .main-header {
     transform: none;
@@ -500,8 +496,10 @@ a.submenu-list__item-wrapper > svg {
         left: 0; padding: 20px; opacity: 0; visibility: hidden; transition: var(--transition);
         width: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
         
-        /* --- CORREÇÃO DO BUG DE FUNDO (Mobile) --- */
-        /* Garante que o menu mobile também tenha o fundo sólido */
+        /* --- CORREÇÃO DE ALTURA (CRÍTICA) --- */
+        height: 100vh; /* Garante que o menu ocupe toda a tela no mobile */
+        overflow-y: auto; /* Permite rolar o menu se for muito longo */
+        -webkit-overflow-scrolling: touch; /* Melhora o scroll em iOS */
         background-color: var(--color-background);
         z-index: 100;
     }
@@ -512,28 +510,52 @@ a.submenu-list__item-wrapper > svg {
     .main-header__list-item > a { padding: 15px; width: 100%; justify-content: center; }
     .main-header__list-item.active > a, .main-header__list-item.active > a svg path { fill: var(--color-primary-hover) !important; color: var(--color-primary-hover) !important; }
 
+    /* --- LÓGICA DO ACORDEÃO NÍVEL 1 (MENU PRINCIPAL) --- */
     .main-header__list-item .submenu-wrapper {
         position: static; padding: 0; opacity: 1; visibility: visible;
+        /* Comportamento de Acordeão: Altura controlada por JS */
         max-height: 0; overflow: hidden; transition: max-height var(--transition);
         box-shadow: none; border: none; background-color: transparent !important;
         pointer-events: auto !important;
         left: auto; transform: none; max-width: none;
+        border-top: 1px solid rgba(0, 0, 0, 0.1); /* Separador visual */
+        margin-top: -1px; /* Cola no item de menu */
     }
+    .main-header__list-item.js-hover .submenu-wrapper {
+        /* A altura final é definida pelo JS (scrollHeight) */
+        max-height: 2000px; /* Valor alto para iniciar a transição com segurança */
+    }
+
+    /* --- CORREÇÕES CRÍTICAS PARA O ACORDEÃO ANINHADO (NÍVEL 2) --- */
+    /* Garante que os containers internos se alinhem verticalmente */
     .submenu-list__wrapper {
-        position: static; width: auto; display: block; margin-top: 10px;
+        position: static; width: auto; display: flex;
+        flex-direction: column; /* CRÍTICO: layout vertical */
+        margin-top: 10px;
         background: rgba(0,0,0,0.02); border-radius: 10px; padding: 10px;
-        flex-direction: column;
+        gap: 10px; /* Espaçamento entre os itens principais (Infância, Adolescência) */
+    }
+    
+    .submenu-content__column { 
+        /* CRÍTICO: Faz a coluna de conteúdo existir para que o JS possa medir o scrollHeight */
+        display: block !important; 
+        width: 100% !important; 
+        padding: 0; 
     }
     .submenu-list { width: 100%; max-width: 100%; gap: 5px; }
     .submenu-list__item { width: 100%; padding: 0; margin: 0; }
-    .submenu-list__item:active a.submenu-list__item-wrapper { background-color: rgba(0, 0, 0, 0.04) !important; }
-    .submenu-list__item:active a.submenu-list__item-wrapper > svg { opacity: 1; visibility: visible; }
 
-    .submenu-content__column { display: none; }
     .submenu-list__item.has-submenu > .submenu-content {
+        /* O CONTEÚDO REAL QUE DEVE SER UM ACORDEÃO NO NÍVEL 2 */
         display: block; position: static; width: 100%; opacity: 1; visibility: visible;
-        pointer-events: auto; padding: 10px 0 0 15px; max-height: 0; overflow: hidden;
-        transition: max-height 0.4s ease-in-out;
+        pointer-events: auto; 
+        
+        /* Comportamento de Acordeão: max-height controlado por JS */
+        max-height: 0; 
+        overflow: hidden;
+        transition: max-height 0.4s ease-in-out; 
+        
+        padding: 10px 0 0 15px; 
     }
     .submenu-content__title { display: none; }
     .submenu-content__list { grid-template-columns: 1fr; gap: 15px; }
@@ -640,6 +662,12 @@ a.submenu-list__item-wrapper > svg {
 .social a:focus-visible::after {
     inset-block-start: 0;
 }
+/* =======================================================
+ * CSS PRINCIPAL - ALIMENTANDO FASES (SEGUNDA PARTE: COMPONENTES & CARDS)
+ * ======================================================= */
+
+/* ... (continua da Parte 1) ... */
+
 /* === 5. COMPONENTES GERAIS (Cards, Botões, etc.) === */
 
 /* --- Botões --- */
@@ -1459,7 +1487,11 @@ hr {
     margin-bottom: 5px;
     display: block;
 }
+/* =======================================================
+ * CSS PRINCIPAL - ALIMENTANDO FASES (TERCEIRA PARTE: CONTEÚDO, JOGOS & RESPONSIVIDADE)
+ * ======================================================= */
 
+/* ... (continua da Parte 2) ... */
 
 /* === 6. CONTEÚDO PÁGINA ESPECÍFICA === */
 
@@ -2638,11 +2670,10 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
         overflow-x: hidden; 
     }
     
-    /* --- Correção Específica para Origem Alimentar (Smartphones) --- */
-    @media (max-width: 600px) {
-        section#origem-alimentar .pilares-grid-container {
-            grid-template-columns: repeat(2, 1fr);
-        }
+    /* --- Correção Específica para Origem Alimentar (Tablets/Phablets) --- */
+    section#origem-alimentar .pilares-grid-container {
+        /* NOVO AJUSTE: Garante 2 colunas para telas de tablet */
+        grid-template-columns: repeat(2, 1fr);
     }
     
     /* --- Outras Regras de Responsividade (Mantidas) --- */
@@ -2677,11 +2708,30 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
  }
 }
 
+/* === REGRAS FINAIS DE COMPRESSÃO E 1 COLUNA (SMARTPHONE) === */
 @media (max-width: 600px) {
+    /* CORREÇÃO FINAL: Garante 1 coluna para TODOS os grids de pilares */
     .pilares-grid-container {
         grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    /* CORREÇÃO DE COMPRESSÃO */
+    .pilar-card {
+        padding: 15px 10px; /* Reduz o padding interno do card */
+    }
+    
+    .pilar-card h5 {
+        font-size: 1.05em; /* Reduz o tamanho do título */
+        min-height: 2.2em;
+        margin-bottom: 8px;
+    }
+    
+    .pilar-card p {
+        font-size: 0.9em; /* Reduz o tamanho do parágrafo para caber */
     }
 }
+/* === FIM DAS REGRAS FINAIS === */
 
 @media (max-width: 480px) {
     .cta-button { 
@@ -2859,7 +2909,6 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
         font-size: 0.9em;
     }
 }
-
 /* =======================================================
  * 11. FERRAMENTA PLANEJADOR DE LANCHES (ADULTO)
  * ======================================================= */
@@ -4557,12 +4606,19 @@ div[vw-plugin-wrapper] {
     line-height: 1.6;
     margin-bottom: 15px;
     flex-grow: 1; /* <--- CHAVE: Faz o parágrafo de descrição expandir para ocupar todo o espaço restante */
+    padding: 0 25px; 
+    margin-bottom: 15px;
 }
+
+.event-content p:last-of-type {
+    margin-bottom: 25px; /* <--- Aumente a margem inferior do último parágrafo */
+}
+
 .event-meta {
     /* 1. Alinhamento e Estrutura */
     display: flex;
     justify-content: space-between;
-    align-items: flex-end; /* ALINHA O BOTÃO NA PARTE DE BAIXO */
+    align-items: flex-start; /* Mantém o alinhamento base no topo */
     flex-wrap: wrap; 
     
     /* 2. Estilo de Linha */
@@ -4571,39 +4627,58 @@ div[vw-plugin-wrapper] {
     font-size: 0.9em;
     color: #777;
     
+    /* 3. ESPAÇAMENTO VERTICAL (A CORREÇÃO) */
+    margin-top: 15px; /* <--- ADICIONA O ESPAÇAMENTO EXTRA ABAIXO DA DESCRIÇÃO */
     
+    /* 4. PADDING HORIZONTAL (O que alinha o ícone e o botão nas laterais) */
     padding: 15px 25px 0 25px; 
     
     min-height: 50px; 
     margin: 0 -25px; 
 }
 
-.event-content p {
-    padding: 0 25px; 
-    margin-bottom: 15px;
-    flex-grow: 1; 
-}
-
 .event-meta i {
     color: var(--color-primary);
     margin-right: 5px;
 }
+.event-meta span {
+    flex-basis: 60%; 
+    flex-grow: 1; 
+    line-height: 1.4;
+    padding-top: 5px; 
+    margin-top: 5px; /* Garantir respiro */
+}
 
-.event-cta {
+.event-meta .event-cta {
     display: inline-block;
-    padding: 8px 15px;
+    padding: 6px 15px; /* Ajuste para caber melhor */
     border: 2px solid var(--color-primary);
     color: var(--color-primary);
     border-radius: 50px;
     text-decoration: none;
     font-weight: 700;
     transition: all 0.3s ease;
+    
+    /* Novas regras para alinhamento */
+    width: auto;
+    min-width: 90px; 
+    flex-shrink: 0; 
+    text-align: center;
 }
 
-.event-cta:hover {
+.event-meta .event-cta:hover {
     background-color: var(--color-primary);
     color: white;
 }
+
+/* Força o alinhamento ao fundo APENAS em telas maiores (Desktop/Tablet) */
+@media (min-width: 769px) {
+    .event-meta {
+        align-items: flex-end; /* <--- FORÇA O ALINHAMENTO DO BOTÃO PARA O FUNDO */
+    }
+}
+
+
 /* =======================================================
  * 31. DESTAQUE DO BOTÃO DE MENU "CONTATO"
  * ======================================================= */
@@ -4672,118 +4747,4 @@ div[vw-plugin-wrapper] {
     left: 0;
     width: 100%;
     height: 100%;
-}
-/* =======================================================
- * 34. CORREÇÃO DE ALINHAMENTO E ESTILO FINAL DO CARD DE AÇÕES
- * (Regras específicas para forçar o alinhamento no fundo)
- * ======================================================= */
-
-.event-meta {
-    /* Regras base do event-meta */
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start; /* Mantém o alinhamento base no topo */
-    flex-wrap: wrap; 
-    border-top: 1px solid #eee;
-    padding-top: 15px;
-    font-size: 0.9em;
-    color: #777;
-    min-height: 50px; 
-}
-
-/* Força o alinhamento ao fundo APENAS em telas maiores (Desktop/Tablet) */
-@media (min-width: 769px) {
-    .event-meta {
-        align-items: flex-end; /* <--- FORÇA O ALINHAMENTO DO BOTÃO PARA O FUNDO */
-    }
-}
-
-.event-meta span {
-    flex-basis: 60%; 
-    flex-grow: 1; 
-    line-height: 1.4;
-    padding-top: 5px; 
-}
-
-.event-meta .event-cta {
-    width: auto;
-    min-width: 90px; 
-    padding: 6px 15px; 
-    flex-shrink: 0; 
-    text-align: center;
-    border-width: 2px; 
-}/* =======================================================
- * 34. CORREÇÃO DE ALINHAMENTO E ESTILO FINAL DO CARD DE AÇÕES
- * (Regras específicas para forçar o alinhamento no fundo)
- * ======================================================= */
-
-.event-meta {
-    /* Regras base do event-meta */
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start; /* Mantém o alinhamento base no topo */
-    flex-wrap: wrap; 
-    border-top: 1px solid #eee;
-    padding-top: 15px;
-    font-size: 0.9em;
-    color: #777;
-    min-height: 50px; 
-}
-
-/* Força o alinhamento ao fundo APENAS em telas maiores (Desktop/Tablet) */
-@media (min-width: 769px) {
-    .event-meta {
-        align-items: flex-end; /* <--- FORÇA O ALINHAMENTO DO BOTÃO PARA O FUNDO */
-    }
-}
-
-.event-meta span {
-    flex-basis: 60%; 
-    flex-grow: 1; 
-    line-height: 1.4;
-    padding-top: 5px; 
-}
-
-.event-meta .event-cta {
-    width: auto;
-    min-width: 90px; 
-    padding: 6px 15px; 
-    flex-shrink: 0; 
-    text-align: center;
-    border-width: 2px; 
-}
-.event-meta {
-    /* 1. Alinhamento e Estrutura */
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end; /* Garante que o botão e o texto fiquem alinhados na base */
-    flex-wrap: wrap; 
-    
-    /* 2. Estilo de Linha */
-    border-top: 1px solid #eee;
-    padding-top: 15px;
-    font-size: 0.9em;
-    color: #777;
-    
-    /* 3. ESPAÇAMENTO VERTICAL (A CORREÇÃO) */
-    margin-top: 15px; /* <--- ADICIONA O ESPAÇAMENTO EXTRA ABAIXO DA DESCRIÇÃO */
-    
-    /* 4. PADDING HORIZONTAL (O que alinha o ícone e o botão nas laterais) */
-    padding-left: 25px;   
-    padding-right: 25px;  
-    
-    min-height: 50px; 
-}
-/* =======================================================
- * 36. FORÇA O ESPAÇAMENTO ENTRE DESCRIÇÃO E BOTÃO
- * ======================================================= */
-
-/* Altera a margem do ÚLTIMO parágrafo do conteúdo para criar espaço antes do .event-meta */
-.event-content p:last-of-type {
-    margin-bottom: 25px; /* <--- Aumente a margem inferior do último parágrafo */
-}
-
-/* Garante que o span de localização tenha um respiro extra superior se for necessário */
-.event-meta span {
-    margin-top: 5px;
 }

@@ -162,25 +162,38 @@
                 parentItem.parentElement.querySelectorAll('.submenu-list__item.has-submenu.active').forEach(openItem => {
                     if (openItem !== parentItem) {
                         openItem.classList.remove('active');
-                        openItem.querySelector('.submenu-content').style.maxHeight = null;
+                        // Garante que o max-height do conteúdo interno seja zerado
+                        openItem.querySelector('.submenu-content').style.maxHeight = null; 
                     }
                 });
 
                 // Abre/Fecha o L2 clicado
                 parentItem.classList.toggle('active');
                 if (parentItem.classList.contains('active')) {
+                    // Abre o conteúdo (L2) com a altura total
                     submenuContent.style.maxHeight = submenuContent.scrollHeight + "px";
                 } else {
+                    // Fecha o conteúdo (L2)
                     submenuContent.style.maxHeight = null;
                 }
 
-                // Reajusta a altura do L1 para acomodar a mudança
+                // --- CORREÇÃO CRÍTICA (RECALCULA ALTURA DO MENU PRINCIPAL) ---
                 if (mainWrapper) {
-                    // Usa scrollHeight para re-calcular a altura total
+                    // NOVO CÁLCULO: Usa um timeout menor (10ms) e recalcula
                     setTimeout(() => {
+                        // 1. Remove temporariamente a transição para evitar flash
+                        mainWrapper.style.transition = 'none'; 
+                        // 2. Recalcula a altura total e aplica
                         mainWrapper.style.maxHeight = mainWrapper.scrollHeight + "px";
-                    }, 410); // Espera a animação do L2 (0.4s)
+                        
+                        // 3. Reativa a transição após um micro-momento
+                        setTimeout(() => {
+                            mainWrapper.style.transition = 'max-height var(--transition)';
+                        }, 10);
+                        
+                    }, 5); // Timeout MÍNIMO para processar a mudança de altura do L2
                 }
+                // --- FIM DA CORREÇÃO CRÍTICA ---
             });
         });
         // --- FIM DA CORREÇÃO (NÍVEL 2) ---
