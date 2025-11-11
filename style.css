@@ -4871,3 +4871,32 @@ div[vw-plugin-wrapper] {
         display: none;
     }
 }
+/* =======================================================
+ * 36. CORREÇÃO: Força 3 colunas nos Ebooks (Mobile)
+ * ======================================================= */
+
+@media (max-width: 767px) {
+    
+    /* 1. Seleciona APENAS o grid da seção de materiais */
+    section#materiais-exclusivos-home .grid-container {
+        /* Força 3 colunas no mobile */
+        grid-template-columns: repeat(3, 1fr);
+        
+        /* Reduz o espaço entre os cards para caber */
+        gap: 15px;
+    }
+
+    /* 2. AJUSTE CRÍTICO: 
+       Redefine a altura dos cards (que era 450px) 
+       para um valor menor, senão eles ficam gigantescos. */
+    section#materiais-exclusivos-home {
+        --card-height: 280px; /* Você pode ajustar esse valor */
+    }
+
+    /* 3. Ajusta o botão "Baixar E-book" para caber */
+    section#materiais-exclusivos-home .card-cta {
+        font-size: 0.8em;
+        padding: 8px 10px;
+        margin-top: 10px;
+    }
+}
