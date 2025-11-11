@@ -4863,3 +4863,54 @@ div[vw-plugin-wrapper] {
         gap: 8px; /* Espaço entre o ícone e o texto */
     }
 }
+/* =======================================================
+ * 35. CORREÇÃO: Pilares 3D (Home) - Layout Mobile
+ * ======================================================= */
+@media (max-width: 767px) {
+    
+    /* 1. Transforma o container flex em um grid de 1 coluna */
+    .grid-container-3d {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px; /* Adiciona espaço vertical entre os cards */
+    }
+
+    /* 2. Ajusta o card-3d (que é o <li>) */
+    .grid-container-3d .card-3d {
+        width: 100%; /* Ocupa a largura total */
+        max-width: 350px; /* Define uma largura máxima */
+        height: auto; /* Deixa a altura ser automática */
+        margin: 0 auto; /* Centraliza o card */
+    }
+
+    /* 3. Reseta a posição de AMBAS as faces */
+    .grid-container-3d .card-3d .face {
+        position: static; /* Remove o 'position: relative' que bagunça o layout */
+        transform: none !important; /* Remove o translateY que causa a sobreposição */
+        width: 100%;
+        height: auto;
+    }
+
+    /* 4. Estiliza a Face 1 (Imagem) para mobile */
+    .grid-container-3d .card-3d .face.face1 {
+        height: 180px; /* Dá uma altura fixa para a imagem */
+        filter: grayscale(0%); /* Remove o efeito de hover */
+        border-radius: 8px 8px 0 0; /* Arredonda só os cantos de cima */
+        z-index: 1;
+        opacity: 1; /* Garante que esteja visível */
+    }
+    
+    /* 5. Estiliza a Face 2 (Texto) para mobile */
+    .grid-container-3d .card-3d .face.face2 {
+        opacity: 1 !important; /* Força a visibilidade */
+        border-radius: 0 0 8px 8px; /* Arredonda só os cantos de baixo */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Adiciona a sombra que estava no hover */
+        z-index: 0;
+    }
+
+    /* 6. Desativa os hovers do desktop */
+    .grid-container-3d .card-3d:hover .face.face1,
+    .grid-container-3d .card-3d:hover .face.face2 {
+        transform: none !important;
+    }
+}
