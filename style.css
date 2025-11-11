@@ -4798,13 +4798,13 @@ div[vw-plugin-wrapper] {
         grid-template-columns: 1fr;
     }
 }
-
 /*
  * 2. FORÇA o grid de nutrientes da Adolescência (Cálcio, Ferro, etc.)
  * a ter 2 COLUNAS em telas de 767px ou menos.
  * (Usamos 'body section#adolescencia' para ser mais específico)
 */
 @media (max-width: 767px) {
+    
     /* O Grid 2x2 */
     body section#adolescencia .content-wrapper {
         grid-template-columns: repeat(2, 1fr);
@@ -4816,7 +4816,7 @@ div[vw-plugin-wrapper] {
         height: auto; 
     }
 
-    /* 2. (NOVO) A IMAGEM ganha uma altura fixa e deixa de ser 100% */
+    /* 2. A IMAGEM ganha uma altura fixa */
     body section#adolescencia .news-card__image {
         height: 180px; /* Altura fixa para a imagem */
         width: 100%;
