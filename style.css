@@ -4748,3 +4748,26 @@ div[vw-plugin-wrapper] {
     width: 100%;
     height: 100%;
 }
+/* =======================================================
+ * CORREÇÃO DEFINITIVA DO MENU MOBILE (POPUP LIMPO)
+ * ======================================================= */
+@media (max-width: 1024px) {
+
+  /* 1. ESCONDE a coluna de "Destaques" no mobile */
+  .submenu-content__column {
+    display: none !important;
+  }
+
+  /* 2. Remove o fundo cinza de "aba ativa" (do seu CSS original) */
+  .submenu-list__item.has-submenu.active a.submenu-list__item-wrapper {
+    background-color: transparent !important; 
+  }
+
+  /* 3. Esconde a seta "->" desnecessária no mobile */
+  a.submenu-list__item-wrapper > svg {
+    display: none !important;
+  }
+}
+/* =======================================================
+ * FIM DA CORREÇÃO DEFINITIVA
+ * ======================================================= */

@@ -1,4 +1,4 @@
-// Seu script.js COMPLETO (com as correções e a lógica do Chatbot)
+// Seu script.js COMPLETO (com TODAS as correções de Menu e Navegação)
 
     // *** (V25.5) CORREÇÃO Scroll-on-Refresh ***
     if (history.scrollRestoration) {
@@ -79,125 +79,95 @@
         
         // --- FIM DA CORREÇÃO ---
     }
-
-    // Função para ABRIR um menu
+    
+    // Função para ABRIR um menu (VERSÃO CORRIGIDA)
     function openMenu(item) {
         // 2. Abre ESTE menu
         item.classList.remove('is-closing');
         item.classList.add('js-hover'); // Ativa a cor verde e a abertura (via CSS)
 
-        // --- INÍCIO DA CORREÇÃO (NÍVEL 1) ---
-        // Abre o acordeão no mobile
-        
-        // 👇 CORREÇÃO ADICIONADA: SÓ EXECUTA NO MOBILE 👇
+        // --- INÍCIO DA CORREÇÃO (LÓGICA DE ACORDEÃO L1 MOBILE) ---
+        // Abre o acordeão no mobile (L1)
         const burger = document.querySelector('.main-header__burger');
         if (burger && getComputedStyle(burger).display === 'flex') {
             const submenuWrapper = item.querySelector('.submenu-wrapper');
             if (submenuWrapper) {
                 // Usa scrollHeight para definir a altura exata do conteúdo
+                // (O CSS que adicionamos no Passo 1 garante que o scrollHeight seja o valor total)
                 submenuWrapper.style.maxHeight = submenuWrapper.scrollHeight + "px";
             }
-        } // 👈 FIM DA CONDIÇÃO
-
+        }
         // --- FIM DA CORREÇÃO ---
 
-        // 3. Lógica interna (ativar primeiro tab)
+        // 3. Lógica interna (ativar primeiro tab - APENAS DESKTOP)
         const submenuLinks = item.querySelectorAll('.submenu-list__item.has-submenu');
         const submenuContents = item.querySelectorAll('.submenu-content');
         
-        // --- INÍCIO DA CORREÇÃO (BUG DO PRIMEIRO CLIQUE) ---
-        // Atrasa a ativação do tab em 50ms para permitir que o layout do CSS se estabilize
-        setTimeout(() => {
-            submenuLinks.forEach(sl => sl.classList.remove('active'));
-            submenuContents.forEach(sc => sc.classList.remove('active'));
+        // 👇 CORREÇÃO ADICIONADA: SÓ EXECUTA NO DESKTOP 👇
+        // (Impede que a lógica de "abas" ative no mobile)
+        const burgerCheck = document.querySelector('.main-header__burger');
+        if (!burgerCheck || getComputedStyle(burgerCheck).display === 'none') {
+            setTimeout(() => {
+                submenuLinks.forEach(sl => sl.classList.remove('active'));
+                submenuContents.forEach(sc => sc.classList.remove('active'));
 
-            if (submenuLinks.length > 0) {
-                const firstSubLink = submenuLinks[0];
-                firstSubLink.classList.add('active');
-                const firstContentKeyElement = firstSubLink.querySelector('.submenu-list__item-title');
-                if (firstContentKeyElement) {
-                    const firstContentKey = firstContentKeyElement.textContent;
-                    const firstContent = item.querySelector(`.submenu-content[data-submenu-for="${firstContentKey}"]`);
-                    if(firstContent) firstContent.classList.add('active');
+                if (submenuLinks.length > 0) {
+                    const firstSubLink = submenuLinks[0];
+                    firstSubLink.classList.add('active');
+                    const firstContentKeyElement = firstSubLink.querySelector('.submenu-list__item-title');
+                    if (firstContentKeyElement) {
+                        const firstContentKey = firstContentKeyElement.textContent;
+                        const firstContent = item.querySelector(`.submenu-content[data-submenu-for="${firstContentKey}"]`);
+                        if(firstContent) firstContent.classList.add('active');
+                    }
                 }
-            }
-        }, 0);
+            }, 0); // Timeout 0
+        } // 👈 FIM DA CONDIÇÃO
 
-
-        // --- INÍCIO DA CORREÇÃO (NÍVEL 2) ---
         // 4. Adiciona listeners (separados para Desktop e Mobile)
         submenuLinks.forEach((subLink) => {
             
             // LÓGICA DE HOVER (DESKTOP)
+            // (A função 'handleSubmenuLinkHover' está definida fora, isso está correto)
             subLink.addEventListener('mouseenter', handleSubmenuLinkHover);
 
-            // LÓGICA DE CLIQUE (MOBILE ACORDEÃO)
+            // LÓGICA DE CLIQUE (AGORA SIMPLIFICADA)
             subLink.addEventListener('click', (e) => {
                 const burger = document.querySelector('.main-header__burger');
                 
-                // Só executa se o burger estiver visível (modo mobile)
-                if (getComputedStyle(burger).display !== 'flex') {
-                    // *** CORREÇÃO: FECHAR O MEGA-MENU NO DESKTOP ***
-                    
-                    // Encontra o item principal (o <li>.has-submenu)
+                // Checa se NÃO é mobile (desktop)
+                if (burger && getComputedStyle(burger).display !== 'flex') {
+                    // É DESKTOP: Apenas fecha o menu principal ao clicar
                     const mainMenuItem = subLink.closest('.main-header__list-item.has-submenu');
-                    
-                    // Fecha o menu principal
                     if (mainMenuItem) {
                         closeMenu(mainMenuItem);
                     }
-                    
-                    return; // Sai daqui para que o link de desktop funcione
+                    // Deixa o link navegar (não usa preventDefault)
+                    return; 
                 }
 
-                e.preventDefault(); // Impede o link '#' de pular (MOBILE ACORDEÃO)
-
-                const parentItem = subLink.parentElement; // O <li>
-                const submenuContent = parentItem.querySelector('.submenu-content'); // O L2
-                if (!submenuContent) return; // Sai se não houver L2
-
-                const mainWrapper = parentItem.closest('.submenu-wrapper'); // O L1
-
-                // Fecha outros L2 que possam estar abertos
-                parentItem.parentElement.querySelectorAll('.submenu-list__item.has-submenu.active').forEach(openItem => {
-                    if (openItem !== parentItem) {
-                        openItem.classList.remove('active');
-                        // Garante que o max-height do conteúdo interno seja zerado
-                        openItem.querySelector('.submenu-content').style.maxHeight = null; 
-                    }
-                });
-
-                // Abre/Fecha o L2 clicado
-                parentItem.classList.toggle('active');
-                if (parentItem.classList.contains('active')) {
-                    // Abre o conteúdo (L2) com a altura total
-                    submenuContent.style.maxHeight = submenuContent.scrollHeight + "px";
-                } else {
-                    // Fecha o conteúdo (L2)
-                    submenuContent.style.maxHeight = null;
+                // === INÍCIO DA CORREÇÃO MOBILE (SIMPLIFICAÇÃO) ===
+                // É MOBILE. O link <a> dentro deste <li> (subLink) 
+                // será pego pelo listener 'navLinks' (Lógica 1. SPA).
+                // Nós NÃO queremos e.preventDefault() no <li>.
+                // Nós NÃO queremos o L2 Accordion.
+                
+                // Apenas fechamos os menus. O clique no <a> interno
+                // (que é um nav-link) vai cuidar da navegação.
+                
+                // 1. Fecha o menu mobile principal (a gaveta)
+                closeMobileMenu(); 
+            
+                // 2. Fecha o L1 accordion (Fases da Vida)
+                const mainMenuItem = subLink.closest('.main-header__list-item.has-submenu');
+                if (mainMenuItem) {
+                    closeMenu(mainMenuItem);
                 }
-
-                // --- CORREÇÃO CRÍTICA (RECALCULA ALTURA DO MENU PRINCIPAL) ---
-                if (mainWrapper) {
-                    // NOVO CÁLCULO: Usa um timeout menor (10ms) e recalcula
-                    setTimeout(() => {
-                        // 1. Remove temporariamente a transição para evitar flash
-                        mainWrapper.style.transition = 'none'; 
-                        // 2. Recalcula a altura total e aplica
-                        mainWrapper.style.maxHeight = mainWrapper.scrollHeight + "px";
-                        
-                        // 3. Reativa a transição após um micro-momento
-                        setTimeout(() => {
-                            mainWrapper.style.transition = 'max-height var(--transition)';
-                        }, 10);
-                        
-                    }, 5); // Timeout MÍNIMO para processar a mudança de altura do L2
-                }
-                // --- FIM DA CORREÇÃO CRÍTICA ---
+                // === FIM DA CORREÇÃO MOBILE ===
             });
         });
-        // --- FIM DA CORREÇÃO (NÍVEL 2) ---
     }
+
 
     // --- Loop principal de setup do menu ---
     menuItems.forEach(item => {
@@ -207,7 +177,7 @@
         if (!link || !submenuWrapper) return;
 
         // ===============================================
-        // LÓGICA DE CLIQUE (V25.3 - Lógica de Toggle)
+        // LÓGICA DE CLIQUE (COM CORREÇÃO DE SCROLL)
         // ===============================================
         
         // 1. CLIQUE NO LINK PRINCIPAL (Ex: "Fases da Vida")
@@ -230,6 +200,27 @@
                 closeMenu(item); // Se estava aberto, fecha
             } else {
                 openMenu(item); // Se estava fechado, abre
+                
+                // --- INÍCIO DA CORREÇÃO DE SCROLL DO ACORDEÃO MOBILE ---
+                const burger = document.querySelector('.main-header__burger');
+                // Verifica se está no mobile e se o navWrapper existe (definido lá em cima)
+                if (navWrapper && burger && getComputedStyle(burger).display === 'flex') {
+                    // Espera a animação de max-height começar
+                    setTimeout(() => {
+                        // Calcula a posição do item (<li>) relativo ao topo do navWrapper
+                        const itemTop = item.offsetTop;
+                        // Pega o padding-top do navWrapper (definido no CSS como 20px)
+                        const containerPaddingTop = parseFloat(window.getComputedStyle(navWrapper).paddingTop) || 0;
+                        
+                        // Rola o navWrapper para que o topo do item
+                        // fique no topo do container (descontando o padding)
+                        navWrapper.scrollTo({
+                            top: itemTop - containerPaddingTop,
+                            behavior: 'smooth'
+                        });
+                    }, 50); // 50ms de delay
+                }
+                // --- FIM DA CORREÇÃO DE SCROLL ---
             }
         });
         
@@ -344,7 +335,7 @@
         // *** 2. LÓGICA DE ROLAGEM MODIFICADA ***
         if (anchorId) {
             // Se uma âncora foi fornecida (ex: #infancia-quiz)
-            const targetElement = document.querySelector(anchorId);
+            const targetElement = document.querySelector(anchorId); // <--- O BUG ACONTECIA AQUI
             if (targetElement) {
                 // Espera um instante para a página renderizar e rola suavemente
                 setTimeout(() => {
@@ -405,51 +396,35 @@
     // =======================================================
 
 
-    // Listener antigo (para links de navegação principais)
+    // =======================================================
+    // =======================================================
+    // INÍCIO DA CORREÇÃO DE NAVEGAÇÃO (ANTI-querySelector('#'))
+    // =======================================================
+    // =======================================================
+
+    // NOVO LISTENER COMBINADO para TODOS os .nav-link
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             const pageId = link.dataset.page;
-            if (pageId) {
-                
-                // Verifica se é um link com âncora antes de prosseguir
-                if (link.getAttribute('href') && link.getAttribute('href').startsWith('#')) {
-                    // Se for um link principal com âncora (como os da seção Ações), 
-                    // ele será tratado pelo 'scrollLinks' (próximo bloco).
-                    return; 
-                }
+            if (!pageId) return; // Se não tem data-page, não é um link de navegação SPA
 
-                e.preventDefault();
-                // Chama a navegação sem âncora (rola para o topo)
-                navigateTo(pageId); 
+            e.preventDefault(); // Previne a navegação padrão (ex: href="#")
+
+            const href = link.getAttribute('href');
+            let anchorId = null;
+
+            // Verifica se é um link de âncora VÁLIDO (começa com # e não é SÓ #)
+            if (href && href.startsWith('#') && href.length > 1) {
+                anchorId = href;
             }
-            // Links sem data-page (como "Fases da Vida") não chamam navigateTo
-            // e são tratados pela lógica do menu (Lógica 3)
-        });
-    });
-    // --- FIM DO BLOCO MOVIDO ---
 
-    // =======================================================
-    // ✅ NOVO LISTENER PARA LINKS COM ROLAGEM E TROCA DE PÁGINA
-    // (Captura os links do MegaMenu e os links da seção Ações)
-    // =======================================================
-    // O novo seletor pega links do MegaMenu E links da seção Ações (nav-link com href # e data-page)
-    const scrollLinks = document.querySelectorAll('.submenu-link-scroll, a.nav-link[href^="#"][data-page]');
-
-    scrollLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const pageId = link.dataset.page;
-            const anchorId = link.getAttribute('href'); // Pega o #infancia-quiz
-
-            if (pageId && anchorId) {
-                // Chama a navegação COM âncora
-                navigateTo(pageId, anchorId);
-            }
+            // Chama a navegação
+            navigateTo(pageId, anchorId); // Se for só "#", anchorId será null (correto)
             
             // Fecha menus (código de conveniência)
             closeMobileMenu();
-            
-            // ** Fechamento de mega-menus **
+
+            // (V25.4) Fechamento de mega-menus
             if (menuItems && typeof closeMenu === 'function') {
                 menuItems.forEach(menuItem => {
                     closeMenu(menuItem);
@@ -457,9 +432,16 @@
             }
         });
     });
+
+    // Os listeners antigos 'navLinks.forEach' e 'scrollLinks.forEach' foram
+    // substituídos pelo bloco único acima, corrigindo o bug do querySelector.
+
     // =======================================================
-    // FIM DO NOVO BLOCO
     // =======================================================
+    // FIM DA CORREÇÃO DE NAVEGAÇÃO
+    // =======================================================
+    // =======================================================
+
 
     // =======================================================
     // ✅ NOVA LÓGICA DO CARROSSEL DO HERO
@@ -1251,7 +1233,7 @@ const EmbeddedClassifyGame = {
         // A verificação !this.winModal foi REMOVIDA
         if (!this.gameArea || !this.foodBank || !this.dropZones || !this.scoreDisplay) {
             console.error("Elementos do DOM do Jogo de Classificar EMBUTIDO não encontrados.");
-            return; // O script para aqui se não encontrar os elementos ESSENCIAIS
+            return; // O script para aqui se não encontrar os elementos ESSENCIAIA
         }
         // --- FIM DA CORREÇÃO ---
 
