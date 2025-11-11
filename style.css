@@ -4785,16 +4785,28 @@ div[vw-plugin-wrapper] {
     }
 }
 /* =======================================================
- * CORREÇÃO: Grid 2x2 para Nutrientes (Adolescência)
+ * CORREÇÃO DEFINITIVA - LAYOUT MOBILE GRIDS (11/NOV)
  * ======================================================= */
 
 /*
- * Força o grid de nutrientes (Cálcio, Ferro, etc.)
- * a ter 2 colunas em telas de smartphone (abaixo de 767px).
+ * 1. FORÇA o grid de pilares (Agricultura, Identidade, Sustentabilidade)
+ * a ter 1 COLUNA em telas de 600px ou menos.
+ * (Esta regra é mais específica que a sua regra de 970px)
+*/
+@media (max-width: 600px) {
+    section#origem-alimentar .pilares-grid-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/*
+ * 2. FORÇA o grid de nutrientes da Adolescência (Cálcio, Ferro, etc.)
+ * a ter 2 COLUNAS em telas de 767px ou menos.
+ * (Usamos 'body section#adolescencia' para ser mais específico)
 */
 @media (max-width: 767px) {
-    #adolescencia .content-wrapper {
-        /* A MÁGICA: Força 2 colunas */
+    body section#adolescencia .content-wrapper {
+        /* Força 2 colunas */
         grid-template-columns: repeat(2, 1fr);
         
         /* Reduz o gap para caber melhor */
@@ -4802,12 +4814,12 @@ div[vw-plugin-wrapper] {
     }
 
     /* Ajusta a altura dos cards no mobile */
-    #adolescencia .news-card {
-        height: 15rem; /* Um valor intermediário */
+    body section#adolescencia .news-card {
+        height: 15rem; 
     }
     
     /* Ajusta o texto para caber no card menor */
-    #adolescencia .news-card__title {
-        font-size: 1.5em; /* Um pouco menor */
+    body section#adolescencia .news-card__title {
+        font-size: 1.5em; 
     }
 }
