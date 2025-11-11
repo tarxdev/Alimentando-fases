@@ -2641,7 +2641,7 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
     /* --- Correção Específica para Origem Alimentar (Smartphones) --- */
     @media (max-width: 600px) {
         section#origem-alimentar .pilares-grid-container {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, 1fr);
         }
     }
     
