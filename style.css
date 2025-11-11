@@ -684,39 +684,87 @@ a.submenu-list__item-wrapper > svg {
     background-color: var(--color-primary);
     color: var(--color-text-light);
 }
-
 /* --- Card Simples (Destaques Home) --- */
+
+/* MODIFICADO: Aplicando padding ao conteúdo de texto */
+.card-content {
+    padding: 25px; /* Aumenta o "respiro" do texto */
+    flex-grow: 1; /* Garante que o texto preencha o espaço */
+    display: flex; /* Permite alinhamento */
+    flex-direction: column; /* Organiza o texto verticalmente */
+}
+
+/* MODIFICADO: Estilo do Título (para ficar mais parecido com os cards de receita) */
 .card-content h4 {
     margin-bottom: 15px;
+    color: var(--color-secondary); /* Cor marrom */
+    font-weight: 700; /* Mais forte */
+    text-align: center; /* Centralizado */
+    font-size: 1.3em; /* Um pouco maior */
+    min-height: 2.6em; /* Espaço para 2 linhas de título */
 }
+
+/* MODIFICADO: Garante que o parágrafo cresça */
+.card-content p {
+    flex-grow: 1; /* Faz o parágrafo ocupar o espaço restante */
+}
+
+/* MODIFICADO: Centralizando a tag */
 .card-tag {
     display: block;
     font-size: 0.85em;
     color: #777;
     margin-bottom: 10px;
+    text-align: center; /* Centraliza a tag */
 }
-.card--has-image {
+
+/* * MODIFICADO: Aplicando sombra e o efeito 3D (perspective) 
+ * APENAS nos cards dentro de #conteudos-destaque 
+*/
+#conteudos-destaque .card--has-image {
     padding: 0;
     overflow: hidden;
+    background-color: #fff; /* Fundo branco */
+    border-radius: 8px; /* Borda arredondada */
+    box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.15); /* Sombra suave */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animação */
+    display: flex; /* Habilita flexbox para o link interno crescer */
+    height: 100%; /* Garante altura total */
+    perspective: 800px; /* <-- Perspectiva 3D (Alterada de 1000px) */
 }
+
+/* * MODIFICADO: Efeito de hover BEM MAIS FORTE
+ * APENAS nos cards dentro de #conteudos-destaque
+*/
+#conteudos-destaque .card--has-image:hover {
+    /* AGORA COMBINA SALTO, ZOOM E ROTAÇÃO 3D */
+    transform: translateY(-8px) scale(1.04) rotateY(10deg); 
+    
+    box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.3); /* Sombra mais forte */
+}
+
 .card-link-wrapper {
     text-decoration: none;
     color: inherit;
     display: flex;
     flex-direction: column;
     height: 100%;
+    width: 100%; /* Garante que o link ocupe todo o card */
 }
+
 .card-image-top {
     width: 100%;
     aspect-ratio: 16 / 10;
     object-fit: cover;
     transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+
 .card-link-wrapper:hover .card-image-top {
-    transform: scale(1.05);
+     /* transform: scale(1.05); */ /* <-- Zoom da imagem REMOVIDO */
 }
+
 .card-link-wrapper:hover h4 {
-    color: var(--color-primary);
+    /* color: var(--color-primary); */ /* <-- Mudança de cor REMOVIDA */
 }
 
 /* --- Cards 3D (Pilares Home) --- */
@@ -4560,4 +4608,26 @@ div[vw-plugin-wrapper] {
          background-color: var(--color-secondary);
          color: var(--color-text-light) !important;
     }
+}
+/* =======================================================
+ * 33. CSS DO MAPA INTERATIVO (AÇÕES)
+ * ======================================================= */
+.map-container {
+    position: relative;
+    padding-bottom: 56.25%; /* Proporção 16:9 */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 1px solid #eee;
+    margin-top: 25px;
+}
+
+.map-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
