@@ -1801,7 +1801,7 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
 }
 @media (max-width: 600px) {
     body section#infancia .grid-container {
-        grid-template-columns: repeat(2, 1fr) !important; 
+        grid-template-columns: 1fr !important;
         justify-content: initial !important; 
     }
 }
@@ -4804,23 +4804,43 @@ div[vw-plugin-wrapper] {
  * a ter 2 COLUNAS em telas de 767px ou menos.
  * (Usamos 'body section#adolescencia' para ser mais específico)
 */
+/*
+ * 2. FORÇA o grid de nutrientes da Adolescência (Cálcio, Ferro, etc.)
+ * a ter 2 COLUNAS em telas de 767px ou menos.
+ * (Usamos 'body section#adolescencia' para ser mais específico)
+*/
 @media (max-width: 767px) {
     body section#adolescencia .content-wrapper {
-        /* Força 2 colunas */
         grid-template-columns: repeat(2, 1fr);
-        
-        /* Reduz o gap para caber melhor */
-        gap: 1rem; /* 16px */
+        gap: 1rem; 
     }
 
-    /* Ajusta a altura dos cards no mobile */
+    /* 1. (CORRIGIDO) Reseta a altura do card para automática */
     body section#adolescencia .news-card {
-        height: 15rem; 
+        height: auto; 
     }
     
-    /* Ajusta o texto para caber no card menor */
+    /* 2. (NOVO E CRÍTICO) Tira o text-wrapper de 'position: absolute' */
+    body section#adolescencia .news-card__text-wrapper {
+        position: static; /* <-- ESTA É A MÁGICA */
+        background-color: rgba(0, 0, 0, 0.75); /* Fundo escuro permanente */
+    }
+
+    /* 3. Ajusta o texto do título */
     body section#adolescencia .news-card__title {
         font-size: 1.5em; 
+        color: var(--color-primary); /* Cor de destaque permanente */
+    }
+
+    /* 4. Força o texto de descrição a aparecer */
+    body section#adolescencia .news-card__details-wrapper {
+        max-height: 20rem; /* Permite expandir */
+        opacity: 1; /* Torna visível */
+    }
+
+    /* 5. Remove o '::before' que criava o degradê (não é mais necessário) */
+    body section#adolescencia .news-card::before {
+        display: none;
     }
 }
 /* =======================================================
