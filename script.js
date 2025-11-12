@@ -1,365 +1,427 @@
 // Seu script.js COMPLETO (com TODAS as correções de Menu e Navegação)
 
-    // *** (V25.5) CORREÇÃO Scroll-on-Refresh ***
-    if (history.scrollRestoration) {
-        history.scrollRestoration = 'manual';
-    }
-    // *** FIM DA CORREÇÃO ***
+// *** (V25.5) CORREÇÃO Scroll-on-Refresh ***
+if (history.scrollRestoration) {
+    history.scrollRestoration = 'manual';
+}
+// *** FIM DA CORREÇÃO ***
 
 
-    // --- 2. LÓGICA DO MENU MOBILE ---
-    const burger = document.querySelector('.main-header__burger');
-    const navWrapper = document.querySelector('.main-header__navigation-wrapper');
+// --- 2. LÓGICA DO MENU MOBILE ---
+const burger = document.querySelector('.main-header__burger');
+const navWrapper = document.querySelector('.main-header__navigation-wrapper');
 
-    function toggleMobileMenu() {
-        if (!burger || !navWrapper) return;
-        burger.classList.toggle('active');
-        navWrapper.classList.toggle('open');
-    }
+function toggleMobileMenu() {
+    if (!burger || !navWrapper) return;
+    burger.classList.toggle('active');
+    navWrapper.classList.toggle('open');
+}
 
-    function closeMobileMenu() {
-        if (!burger || !navWrapper) return;
-        burger.classList.remove('active');
-        navWrapper.classList.remove('open');
-    }
+function closeMobileMenu() {
+    if (!burger || !navWrapper) return;
+    burger.classList.remove('active');
+    navWrapper.classList.remove('open');
+}
 
-    if (burger) {
-        burger.addEventListener('click', toggleMobileMenu);
-    }
+if (burger) {
+    burger.addEventListener('click', toggleMobileMenu);
+}
 
 
-    // --- 3. LÓGICA DO MEGA MENU (Desktop) ---
-    // Este bloco agora vem ANTES da Lógica de Navegação
-    const menuItems = document.querySelectorAll('.main-header__list-item.has-submenu');
-    const mainHeader = document.querySelector('.main-header'); // Para "click outside"
+// --- 3. LÓGICA DO MEGA MENU (Desktop) ---
+// Este bloco agora vem ANTES da Lógica de Navegação
+const menuItems = document.querySelectorAll('.main-header__list-item.has-submenu');
+const mainHeader = document.querySelector('.main-header'); // Para "click outside"
 
-    // Função de hover para os TABS internos (Isso não muda)
-    const handleSubmenuLinkHover = (event) => {
-        const subLink = event.currentTarget;
-        const parentMenuItem = subLink.closest('.main-header__list-item.has-submenu');
-        if (!parentMenuItem) return;
+// Função de hover para os TABS internos (Isso não muda)
+const handleSubmenuLinkHover = (event) => {
+    const subLink = event.currentTarget;
+    const parentMenuItem = subLink.closest('.main-header__list-item.has-submenu');
+    if (!parentMenuItem) return;
 
-         const allSubmenuLinks = parentMenuItem.querySelectorAll('.submenu-list__item.has-submenu');
-         const allSubmenuContents = parentMenuItem.querySelectorAll('.submenu-content');
+    const allSubmenuLinks = parentMenuItem.querySelectorAll('.submenu-list__item.has-submenu');
+    const allSubmenuContents = parentMenuItem.querySelectorAll('.submenu-content');
 
-         allSubmenuLinks.forEach(sl => sl.classList.remove('active'));
-         allSubmenuContents.forEach(sc => sc.classList.remove('active'));
+    allSubmenuLinks.forEach(sl => sl.classList.remove('active'));
+    allSubmenuContents.forEach(sc => sc.classList.remove('active'));
 
-         subLink.classList.add('active');
-         const contentKeyElement = subLink.querySelector('.submenu-list__item-title');
-         if (contentKeyElement) {
-             const firstContentKey = contentKeyElement.textContent;
-             const targetContent = parentMenuItem.querySelector(`.submenu-content[data-submenu-for="${firstContentKey}"]`);
-             if (targetContent) {
-                 targetContent.classList.add('active');
-             }
-         }
-    };
-
-    // Função para FECHAR um menu
-    function closeMenu(item) {
-        item.classList.remove('js-hover'); // 'js-hover' é a nossa classe que significa "aberto"
-        item.classList.add('is-closing'); // Ativa a animação de fechamento
-        const submenuLinks = item.querySelectorAll('.submenu-list__item.has-submenu');
-        submenuLinks.forEach((subLink) => {
-            subLink.removeEventListener('mouseenter', handleSubmenuLinkHover);
-        });
-
-        // --- INÍCIO DA CORREÇÃO (NÍVEL 1) ---
-        // Fecha o acordeão no mobile
-        
-        // 👇 CORREÇÃO ADICIONADA: SÓ EXECUTA NO MOBILE 👇
-        const burger = document.querySelector('.main-header__burger');
-        if (burger && getComputedStyle(burger).display === 'flex') {
-            const submenuWrapper = item.querySelector('.submenu-wrapper');
-            if (submenuWrapper) {
-                submenuWrapper.style.maxHeight = null;
-            }
-        } // 👈 FIM DA CONDIÇÃO
-        
-        // --- FIM DA CORREÇÃO ---
-    }
-    
-    // Função para ABRIR um menu (VERSÃO CORRIGIDA)
-    function openMenu(item) {
-        // 2. Abre ESTE menu
-        item.classList.remove('is-closing');
-        item.classList.add('js-hover'); // Ativa a cor verde e a abertura (via CSS)
-
-        // --- INÍCIO DA CORREÇÃO (LÓGICA DE ACORDEÃO L1 MOBILE) ---
-        // Abre o acordeão no mobile (L1)
-        const burger = document.querySelector('.main-header__burger');
-        if (burger && getComputedStyle(burger).display === 'flex') {
-            const submenuWrapper = item.querySelector('.submenu-wrapper');
-            if (submenuWrapper) {
-                // Usa scrollHeight para definir a altura exata do conteúdo
-                // (O CSS que adicionamos no Passo 1 garante que o scrollHeight seja o valor total)
-                submenuWrapper.style.maxHeight = submenuWrapper.scrollHeight + "px";
-            }
+    subLink.classList.add('active');
+    const contentKeyElement = subLink.querySelector('.submenu-list__item-title');
+    if (contentKeyElement) {
+        const firstContentKey = contentKeyElement.textContent;
+        const targetContent = parentMenuItem.querySelector(`.submenu-content[data-submenu-for="${firstContentKey}"]`);
+        if (targetContent) {
+            targetContent.classList.add('active');
         }
-        // --- FIM DA CORREÇÃO ---
+    }
+};
 
-        // 3. Lógica interna (ativar primeiro tab - APENAS DESKTOP)
-        const submenuLinks = item.querySelectorAll('.submenu-list__item.has-submenu');
-        const submenuContents = item.querySelectorAll('.submenu-content');
-        
-        // 👇 CORREÇÃO ADICIONADA: SÓ EXECUTA NO DESKTOP 👇
-        // (Impede que a lógica de "abas" ative no mobile)
-        const burgerCheck = document.querySelector('.main-header__burger');
-        if (!burgerCheck || getComputedStyle(burgerCheck).display === 'none') {
-            setTimeout(() => {
-                submenuLinks.forEach(sl => sl.classList.remove('active'));
-                submenuContents.forEach(sc => sc.classList.remove('active'));
+// Função para FECHAR um menu
+function closeMenu(item) {
+    item.classList.remove('js-hover'); // 'js-hover' é a nossa classe que significa "aberto"
+    item.classList.add('is-closing'); // Ativa a animação de fechamento
+    const submenuLinks = item.querySelectorAll('.submenu-list__item.has-submenu');
+    submenuLinks.forEach((subLink) => {
+        subLink.removeEventListener('mouseenter', handleSubmenuLinkHover);
+    });
 
-                if (submenuLinks.length > 0) {
-                    const firstSubLink = submenuLinks[0];
-                    firstSubLink.classList.add('active');
-                    const firstContentKeyElement = firstSubLink.querySelector('.submenu-list__item-title');
-                    if (firstContentKeyElement) {
-                        const firstContentKey = firstContentKeyElement.textContent;
-                        const firstContent = item.querySelector(`.submenu-content[data-submenu-for="${firstContentKey}"]`);
-                        if(firstContent) firstContent.classList.add('active');
-                    }
+    // --- INÍCIO DA CORREÇÃO (NÍVEL 1) ---
+    // Fecha o acordeão no mobile
+
+    // 👇 CORREÇÃO ADICIONADA: SÓ EXECUTA NO MOBILE 👇
+    const burger = document.querySelector('.main-header__burger');
+    if (burger && getComputedStyle(burger).display === 'flex') {
+        const submenuWrapper = item.querySelector('.submenu-wrapper');
+        if (submenuWrapper) {
+            submenuWrapper.style.maxHeight = null;
+        }
+    } // 👈 FIM DA CONDIÇÃO
+
+    // --- FIM DA CORREÇÃO ---
+}
+
+// Função para ABRIR um menu (VERSÃO CORRIGIDA)
+function openMenu(item) {
+    // 2. Abre ESTE menu
+    item.classList.remove('is-closing');
+    item.classList.add('js-hover'); // Ativa a cor verde e a abertura (via CSS)
+
+    // --- INÍCIO DA CORREÇÃO (LÓGICA DE ACORDEÃO L1 MOBILE) ---
+    // Abre o acordeão no mobile (L1)
+    const burger = document.querySelector('.main-header__burger');
+    if (burger && getComputedStyle(burger).display === 'flex') {
+        const submenuWrapper = item.querySelector('.submenu-wrapper');
+        if (submenuWrapper) {
+            // Usa scrollHeight para definir a altura exata do conteúdo
+            // (O CSS que adicionamos no Passo 1 garante que o scrollHeight seja o valor total)
+            submenuWrapper.style.maxHeight = submenuWrapper.scrollHeight + "px";
+        }
+    }
+    // --- FIM DA CORREÇÃO ---
+
+    // 3. Lógica interna (ativar primeiro tab - APENAS DESKTOP)
+    const submenuLinks = item.querySelectorAll('.submenu-list__item.has-submenu');
+    const submenuContents = item.querySelectorAll('.submenu-content');
+
+    // 👇 CORREÇÃO ADICIONADA: SÓ EXECUTA NO DESKTOP 👇
+    // (Impede que a lógica de "abas" ative no mobile)
+    const burgerCheck = document.querySelector('.main-header__burger');
+    if (!burgerCheck || getComputedStyle(burgerCheck).display === 'none') {
+        setTimeout(() => {
+            submenuLinks.forEach(sl => sl.classList.remove('active'));
+            submenuContents.forEach(sc => sc.classList.remove('active'));
+
+            if (submenuLinks.length > 0) {
+                const firstSubLink = submenuLinks[0];
+                firstSubLink.classList.add('active');
+                const firstContentKeyElement = firstSubLink.querySelector('.submenu-list__item-title');
+                if (firstContentKeyElement) {
+                    const firstContentKey = firstContentKeyElement.textContent;
+                    const firstContent = item.querySelector(`.submenu-content[data-submenu-for="${firstContentKey}"]`);
+                    if (firstContent) firstContent.classList.add('active');
                 }
-            }, 0); // Timeout 0
-        } // 👈 FIM DA CONDIÇÃO
+            }
+        }, 0); // Timeout 0
+    } // 👈 FIM DA CONDIÇÃO
 
-        // 4. Adiciona listeners (separados para Desktop e Mobile)
-        submenuLinks.forEach((subLink) => {
-            
-            // LÓGICA DE HOVER (DESKTOP)
-            // (A função 'handleSubmenuLinkHover' está definida fora, isso está correto)
-            subLink.addEventListener('mouseenter', handleSubmenuLinkHover);
+    // 4. Adiciona listeners (separados para Desktop e Mobile)
+    submenuLinks.forEach((subLink) => {
 
-            // LÓGICA DE CLIQUE (AGORA SIMPLIFICADA)
-            subLink.addEventListener('click', (e) => {
-                const burger = document.querySelector('.main-header__burger');
-                
-                // Checa se NÃO é mobile (desktop)
-                if (burger && getComputedStyle(burger).display !== 'flex') {
-                    // É DESKTOP: Apenas fecha o menu principal ao clicar
-                    const mainMenuItem = subLink.closest('.main-header__list-item.has-submenu');
-                    if (mainMenuItem) {
-                        closeMenu(mainMenuItem);
-                    }
-                    // Deixa o link navegar (não usa preventDefault)
-                    return; 
-                }
+        // LÓGICA DE HOVER (DESKTOP)
+        // (A função 'handleSubmenuLinkHover' está definida fora, isso está correto)
+        subLink.addEventListener('mouseenter', handleSubmenuLinkHover);
 
-                // === INÍCIO DA CORREÇÃO MOBILE (SIMPLIFICAÇÃO) ===
-                // É MOBILE. O link <a> dentro deste <li> (subLink) 
-                // será pego pelo listener 'navLinks' (Lógica 1. SPA).
-                // Nós NÃO queremos e.preventDefault() no <li>.
-                // Nós NÃO queremos o L2 Accordion.
-                
-                // Apenas fechamos os menus. O clique no <a> interno
-                // (que é um nav-link) vai cuidar da navegação.
-                
-                // 1. Fecha o menu mobile principal (a gaveta)
-                closeMobileMenu(); 
-            
-                // 2. Fecha o L1 accordion (Fases da Vida)
+        // LÓGICA DE CLIQUE (AGORA SIMPLIFICADA)
+        subLink.addEventListener('click', (e) => {
+            const burger = document.querySelector('.main-header__burger');
+
+            // Checa se NÃO é mobile (desktop)
+            if (burger && getComputedStyle(burger).display !== 'flex') {
+                // É DESKTOP: Apenas fecha o menu principal ao clicar
                 const mainMenuItem = subLink.closest('.main-header__list-item.has-submenu');
                 if (mainMenuItem) {
                     closeMenu(mainMenuItem);
                 }
-                // === FIM DA CORREÇÃO MOBILE ===
-            });
+                // Deixa o link navegar (não usa preventDefault)
+                return;
+            }
+
+            // === INÍCIO DA CORREÇÃO MOBILE (SIMPLIFICAÇÃO) ===
+            // É MOBILE. O link <a> dentro deste <li> (subLink) 
+            // será pego pelo listener 'navLinks' (Lógica 1. SPA).
+            // Nós NÃO queremos e.preventDefault() no <li>.
+            // Nós NÃO queremos o L2 Accordion.
+
+            // Apenas fechamos os menus. O clique no <a> interno
+            // (que é um nav-link) vai cuidar da navegação.
+
+            // 1. Fecha o menu mobile principal (a gaveta)
+            closeMobileMenu();
+
+            // 2. Fecha o L1 accordion (Fases da Vida)
+            const mainMenuItem = subLink.closest('.main-header__list-item.has-submenu');
+            if (mainMenuItem) {
+                closeMenu(mainMenuItem);
+            }
+            // === FIM DA CORREÇÃO MOBILE ===
         });
-    }
+    });
+}
 
 
-    // --- Loop principal de setup do menu ---
-    menuItems.forEach(item => {
-        const link = item.querySelector(':scope > a');
-        const submenuWrapper = item.querySelector('.submenu-wrapper');
+// --- Loop principal de setup do menu ---
+menuItems.forEach(item => {
+    const link = item.querySelector(':scope > a');
+    const submenuWrapper = item.querySelector('.submenu-wrapper');
 
-        if (!link || !submenuWrapper) return;
+    if (!link || !submenuWrapper) return;
 
-        // ===============================================
-        // LÓGICA DE CLIQUE (COM CORREÇÃO DE SCROLL)
-        // ===============================================
-        
-        // 1. CLIQUE NO LINK PRINCIPAL (Ex: "Fases da Vida")
-        link.addEventListener('click', (e) => {
-            e.preventDefault(); // Impede o link de navegar (#)
-            e.stopPropagation(); // <-- Impede o clique de "vazar" para o document
-            
-            // Verifica o estado do item clicado
-            const wasOpen = item.classList.contains('js-hover');
+    // ===============================================
+    // LÓGICA DE CLIQUE (COM CORREÇÃO DE SCROLL)
+    // ===============================================
 
-            // 1. Fecha TODOS OS OUTROS menus
-            menuItems.forEach(otherItem => {
-                if (otherItem !== item) { // Só fecha os que NÃO são o item clicado
-                    closeMenu(otherItem);
-                }
-            });
+    // 1. CLIQUE NO LINK PRINCIPAL (Ex: "Fases da Vida")
+    link.addEventListener('click', (e) => {
+        e.preventDefault(); // Impede o link de navegar (#)
+        e.stopPropagation(); // <-- Impede o clique de "vazar" para o document
 
-            // 2. Faz o toggle no item clicado
-            if (wasOpen) {
-                closeMenu(item); // Se estava aberto, fecha
-            } else {
-                openMenu(item); // Se estava fechado, abre
-                
-                // --- INÍCIO DA CORREÇÃO DE SCROLL DO ACORDEÃO MOBILE ---
-                const burger = document.querySelector('.main-header__burger');
-                // Verifica se está no mobile e se o navWrapper existe (definido lá em cima)
-                if (navWrapper && burger && getComputedStyle(burger).display === 'flex') {
-                    // Espera a animação de max-height começar
-                    setTimeout(() => {
-                        // Calcula a posição do item (<li>) relativo ao topo do navWrapper
-                        const itemTop = item.offsetTop;
-                        // Pega o padding-top do navWrapper (definido no CSS como 20px)
-                        const containerPaddingTop = parseFloat(window.getComputedStyle(navWrapper).paddingTop) || 0;
-                        
-                        // Rola o navWrapper para que o topo do item
-                        // fique no topo do container (descontando o padding)
-                        navWrapper.scrollTo({
-                            top: itemTop - containerPaddingTop,
-                            behavior: 'smooth'
-                        });
-                    }, 50); // 50ms de delay
-                }
-                // --- FIM DA CORREÇÃO DE SCROLL ---
+        // Verifica o estado do item clicado
+        const wasOpen = item.classList.contains('js-hover');
+
+        // 1. Fecha TODOS OS OUTROS menus
+        menuItems.forEach(otherItem => {
+            if (otherItem !== item) { // Só fecha os que NÃO são o item clicado
+                closeMenu(otherItem);
             }
         });
-        
-        // 2. CLIQUE DENTRO DO PAINEL DO SUBMENU
-        submenuWrapper.addEventListener('click', (e) => {
-            e.stopPropagation(); // <-- Impede que cliques *dentro* do menu fechem ele.
-        });
-        
-        // ===============================================
-        // FIM DA CORREÇÃO
-        // ===============================================
 
-        // Lógica de acessibilidade (focus) - ainda útil
-        const focusableElements = Array.from(item.querySelectorAll('a, button'));
-        if (focusableElements.length > 0) {
-            const lastElement = focusableElements[focusableElements.length - 1];
-            const firstElement = focusableElements[0];
-            firstElement.addEventListener('keydown', (e) => {
-                if (e.shiftKey && e.key === 'Tab') {
-                     closeMenu(item);
-                }
-            });
-            lastElement.addEventListener('keydown', (e) => {
-                if (!e.shiftKey && e.key === 'Tab') {
-                    closeMenu(item);
-                }
-            });
-             item.addEventListener('focusout', (e) => {
-                 if (!item.contains(e.relatedTarget)) {
-                     closeMenu(item);
-                 }
-             });
+        // 2. Faz o toggle no item clicado
+        if (wasOpen) {
+            closeMenu(item); // Se estava aberto, fecha
+        } else {
+            openMenu(item); // Se estava fechado, abre
+
+            // --- INÍCIO DA CORREÇÃO DE SCROLL DO ACORDEÃO MOBILE ---
+            const burger = document.querySelector('.main-header__burger');
+            // Verifica se está no mobile e se o navWrapper existe (definido lá em cima)
+            if (navWrapper && burger && getComputedStyle(burger).display === 'flex') {
+                // Espera a animação de max-height começar
+                setTimeout(() => {
+                    // Calcula a posição do item (<li>) relativo ao topo do navWrapper
+                    const itemTop = item.offsetTop;
+                    // Pega o padding-top do navWrapper (definido no CSS como 20px)
+                    const containerPaddingTop = parseFloat(window.getComputedStyle(navWrapper).paddingTop) || 0;
+
+                    // Rola o navWrapper para que o topo do item
+                    // fique no topo do container (descontando o padding)
+                    navWrapper.scrollTo({
+                        top: itemTop - containerPaddingTop,
+                        behavior: 'smooth'
+                    });
+                }, 50); // 50ms de delay
+            }
+            // --- FIM DA CORREÇÃO DE SCROLL ---
         }
     });
 
-    // LÓGICA DE CLICAR FORA (Click Outside) - Mantida
-    document.addEventListener('click', (e) => {
+    // 2. CLIQUE DENTRO DO PAINEL DO SUBMENU
+    submenuWrapper.addEventListener('click', (e) => {
+        e.stopPropagation(); // <-- Impede que cliques *dentro* do menu fechem ele.
+    });
+
+    // ===============================================
+    // FIM DA CORREÇÃO
+    // ===============================================
+
+    // Lógica de acessibilidade (focus) - ainda útil
+    const focusableElements = Array.from(item.querySelectorAll('a, button'));
+    if (focusableElements.length > 0) {
+        const lastElement = focusableElements[focusableElements.length - 1];
+        const firstElement = focusableElements[0];
+        firstElement.addEventListener('keydown', (e) => {
+            if (e.shiftKey && e.key === 'Tab') {
+                closeMenu(item);
+            }
+        });
+        lastElement.addEventListener('keydown', (e) => {
+            if (!e.shiftKey && e.key === 'Tab') {
+                closeMenu(item);
+            }
+        });
+        item.addEventListener('focusout', (e) => {
+            if (!item.contains(e.relatedTarget)) {
+                closeMenu(item);
+            }
+        });
+    }
+});
+
+// LÓGICA DE CLICAR FORA (Click Outside) - Mantida
+document.addEventListener('click', (e) => {
+    menuItems.forEach(menuItem => {
+        closeMenu(menuItem);
+    });
+});
+
+
+// --- 1. LÓGICA DE NAVEGAÇÃO (SPA) ---
+const navLinks = document.querySelectorAll('.nav-link');
+const pages = document.querySelectorAll('.page-content');
+const appContainer = document.getElementById('app-container');
+
+// =======================================================
+// ✅ FUNÇÃO navigateTo ATUALIZADA (com correção de scroll no início)
+// =======================================================
+function navigateTo(pageId, anchorId = null) { // <-- 1. PARÂMETRO ADICIONADO
+
+    // ** CORREÇÃO CHAVE: Rola para o topo IMEDIATAMENTE antes de tudo. **
+    window.scrollTo({ top: 0, behavior: 'instant' });
+
+    // Esconde todas as páginas
+    pages.forEach(page => page.classList.remove('active'));
+
+    // Mostra a página correta
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.classList.add('active');
+    } else {
+        // Se não achar, volta pra home
+        pageId = 'home'; // Garante que o pageId seja 'home'
+        document.getElementById('home').classList.add('active');
+    }
+
+    // --- LÓGICA DE INICIALIZAÇÃO SOB DEMANDA (OTIMIZAÇÃO TBT) ---
+    // Esta lógica agora carrega os scripts APENAS da página que está sendo aberta.
+    if (pageId === 'home') {
+        setupHeroCarousel();
+    }
+    else if (pageId === 'adolescencia') {
+        if (typeof WordSearchGame !== 'undefined' && WordSearchGame.init) {
+            setTimeout(() => { WordSearchGame.init(); }, 100);
+        } else {
+            console.warn('WordSearchGame não está pronto para iniciar.');
+        }
+    }
+    else if (pageId === 'infancia') {
+        if (typeof EmbeddedClassifyGame !== 'undefined' && EmbeddedClassifyGame.init) {
+            setTimeout(() => { EmbeddedClassifyGame.init(); }, 100);
+        } else {
+            console.warn('EmbeddedClassifyGame não está pronto para iniciar.');
+        }
+    }
+    else if (pageId === 'receitas') {
+        if (typeof setupRecipeFilters !== 'undefined') {
+            setTimeout(() => { setupRecipeFilters(); }, 100);
+        } else {
+            console.warn('setupRecipeFilters não está pronto para iniciar.');
+        }
+    }
+    else if (pageId === 'adulto') {
+        setupSnackPlanner();
+        animateChartBars();
+    }
+    else if (pageId === 'idoso') {
+        setupHydrationCalculator();
+    }
+    else if (pageId === 'higiene') {
+        setupHandwashGuide();
+    }
+    else if (pageId === 'origem-alimentar') {
+        setupOriginMap();
+    }
+    // --- FIM DA LÓGICA DE INICIALIZAÇÃO ---
+
+
+    // *** 2. LÓGICA DE ROLAGEM MODIFICADA ***
+    if (anchorId) {
+        // Se uma âncora foi fornecida (ex: #infancia-quiz)
+        const targetElement = document.querySelector(anchorId); // <--- O BUG ACONTECIA AQUI
+        if (targetElement) {
+            // Espera um instante para a página renderizar e rola suavemente
+            setTimeout(() => {
+                // Ajuste de 90px para compensar o header fixo
+                const headerOffset = 90;
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+            }, 50); // 50ms é geralmente suficiente
+        } else {
+            // Se não achar a âncora, rola para o topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    } else {
+        // Comportamento padrão: rola para o topo
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    // *** FIM DA MODIFICAÇÃO DE ROLAGEM ***
+
+    // Fecha o menu mobile (já existia)
+    closeMobileMenu();
+
+    // (V25.4) Fechamento de mega-menus
+    if (menuItems && typeof closeMenu === 'function') {
         menuItems.forEach(menuItem => {
             closeMenu(menuItem);
         });
-    });
+    }
+
+    // ******** INÍCIO DA CORREÇÃO (DUPLA) ********
+    // Dá um pequeno tempo (10ms) para o DOM atualizar o display:block
+    // antes de forçar o ScrollTrigger a recalcular as posições.
+    if (typeof ScrollTrigger !== 'undefined') {
+        setTimeout(() => {
+            ScrollTrigger.refresh();
+        }, 10);
+    }
+    // ******** FIM DA CORREÇÃO ********
+}
+
+// =======================================================
+//   ✅ NOVO OUVINTE PARA O CHATBOT
+// =======================================================
+// Este ouvinte "escuta" o pedido de navegação vindo do
+// arquivo 'gemini-chat.js' e chama a função navigateTo.
+document.addEventListener('navigateRequest', (e) => {
+    const { pageId, anchorId } = e.detail;
+    if (pageId) {
+        navigateTo(pageId, anchorId);
+    }
+});
+// =======================================================
+//   FIM DO NOVO OUVINTE
+// =======================================================
 
 
-    // --- 1. LÓGICA DE NAVEGAÇÃO (SPA) ---
-    const navLinks = document.querySelectorAll('.nav-link');
-    const pages = document.querySelectorAll('.page-content');
-    const appContainer = document.getElementById('app-container');
+// =======================================================
+// =======================================================
+// INÍCIO DA CORREÇÃO DE NAVEGAÇÃO (ANTI-querySelector('#'))
+// =======================================================
+// =======================================================
 
-    // =======================================================
-    // ✅ FUNÇÃO navigateTo ATUALIZADA (com correção de scroll no início)
-    // =======================================================
-    function navigateTo(pageId, anchorId = null) { // <-- 1. PARÂMETRO ADICIONADO
-        
-        // ** CORREÇÃO CHAVE: Rola para o topo IMEDIATAMENTE antes de tudo. **
-        window.scrollTo({ top: 0, behavior: 'instant' }); 
-        
-        // Esconde todas as páginas
-        pages.forEach(page => page.classList.remove('active'));
+// NOVO LISTENER COMBINADO para TODOS os .nav-link
+navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+        const pageId = link.dataset.page;
+        if (!pageId) return; // Se não tem data-page, não é um link de navegação SPA
 
-        // Mostra a página correta
-        const targetPage = document.getElementById(pageId);
-        if (targetPage) {
-            targetPage.classList.add('active');
-        } else {
-            // Se não achar, volta pra home
-            pageId = 'home'; // Garante que o pageId seja 'home'
-            document.getElementById('home').classList.add('active');
+        e.preventDefault(); // Previne a navegação padrão (ex: href="#")
+
+        const href = link.getAttribute('href');
+        let anchorId = null;
+
+        // Verifica se é um link de âncora VÁLIDO (começa com # e não é SÓ #)
+        if (href && href.startsWith('#') && href.length > 1) {
+            anchorId = href;
         }
 
-        // --- LÓGICA DE INICIALIZAÇÃO SOB DEMANDA (OTIMIZAÇÃO TBT) ---
-        // Esta lógica agora carrega os scripts APENAS da página que está sendo aberta.
-        if (pageId === 'home') {
-            setupHeroCarousel(); 
-        }
-        else if (pageId === 'adolescencia') {
-            if (typeof WordSearchGame !== 'undefined' && WordSearchGame.init) {
-                setTimeout(() => { WordSearchGame.init(); }, 100);
-            } else {
-                console.warn('WordSearchGame não está pronto para iniciar.');
-            }
-        } 
-        else if (pageId === 'infancia') {
-             if (typeof EmbeddedClassifyGame !== 'undefined' && EmbeddedClassifyGame.init) {
-                setTimeout(() => { EmbeddedClassifyGame.init(); }, 100);
-            } else {
-                console.warn('EmbeddedClassifyGame não está pronto para iniciar.');
-            }
-        }
-        else if (pageId === 'receitas') {
-             if (typeof setupRecipeFilters !== 'undefined') {
-                setTimeout(() => { setupRecipeFilters(); }, 100);
-            } else {
-                console.warn('setupRecipeFilters não está pronto para iniciar.');
-            }
-        }
-        else if (pageId === 'adulto') { 
-            setupSnackPlanner();
-            animateChartBars();
-        }
-        else if (pageId === 'idoso') { 
-            setupHydrationCalculator();
-        }
-        else if (pageId === 'higiene') { 
-            setupHandwashGuide();
-        }
-        else if (pageId === 'origem-alimentar') { 
-            setupOriginMap();
-        }
-        // --- FIM DA LÓGICA DE INICIALIZAÇÃO ---
+        // Chama a navegação
+        navigateTo(pageId, anchorId); // Se for só "#", anchorId será null (correto)
 
-
-        // *** 2. LÓGICA DE ROLAGEM MODIFICADA ***
-        if (anchorId) {
-            // Se uma âncora foi fornecida (ex: #infancia-quiz)
-            const targetElement = document.querySelector(anchorId); // <--- O BUG ACONTECIA AQUI
-            if (targetElement) {
-                // Espera um instante para a página renderizar e rola suavemente
-                setTimeout(() => {
-                    // Ajuste de 90px para compensar o header fixo
-                    const headerOffset = 90; 
-                    const elementPosition = targetElement.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                  
-                    window.scrollTo({
-                         top: offsetPosition,
-                         behavior: "smooth"
-                    });
-                }, 50); // 50ms é geralmente suficiente
-            } else {
-                 // Se não achar a âncora, rola para o topo
-                 window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        } else {
-            // Comportamento padrão: rola para o topo
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        // *** FIM DA MODIFICAÇÃO DE ROLAGEM ***
-        
-        // Fecha o menu mobile (já existia)
+        // Fecha menus (código de conveniência)
         closeMobileMenu();
 
         // (V25.4) Fechamento de mega-menus
@@ -368,802 +430,740 @@
                 closeMenu(menuItem);
             });
         }
+    });
+});
 
-        // ******** INÍCIO DA CORREÇÃO (DUPLA) ********
-        // Dá um pequeno tempo (10ms) para o DOM atualizar o display:block
-        // antes de forçar o ScrollTrigger a recalcular as posições.
-        if (typeof ScrollTrigger !== 'undefined') {
-            setTimeout(() => {
-                ScrollTrigger.refresh();
-            }, 10); 
-        }
-        // ******** FIM DA CORREÇÃO ********
+// Os listeners antigos 'navLinks.forEach' e 'scrollLinks.forEach' foram
+// substituídos pelo bloco único acima, corrigindo o bug do querySelector.
+
+// =======================================================
+// =======================================================
+// FIM DA CORREÇÃO DE NAVEGAÇÃO
+// =======================================================
+// =======================================================
+
+
+// =======================================================
+// ✅ NOVA LÓGICA DO CARROSSEL DO HERO
+// =======================================================
+function setupHeroCarousel() {
+    const slides = document.querySelectorAll('.hero-slide');
+    const dots = document.querySelectorAll('.carousel-dots button');
+    const prevBtn = document.querySelector('.carousel-nav.prev');
+    const nextBtn = document.querySelector('.carousel-nav.next');
+
+    if (slides.length <= 1) { // Se não houver slides ou só 1, não faz nada
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        if (dots.length > 0) document.querySelector('.carousel-dots').style.display = 'none';
+        return;
     }
 
-    // =======================================================
-    //   ✅ NOVO OUVINTE PARA O CHATBOT
-    // =======================================================
-    // Este ouvinte "escuta" o pedido de navegação vindo do
-    // arquivo 'gemini-chat.js' e chama a função navigateTo.
-    document.addEventListener('navigateRequest', (e) => {
-        const { pageId, anchorId } = e.detail;
-        if (pageId) {
-            navigateTo(pageId, anchorId);
-        }
-    });
-    // =======================================================
-    //   FIM DO NOVO OUVINTE
-    // =======================================================
+    let currentSlide = 0;
+    let slideInterval;
 
+    function showSlide(n) {
+        // Ajusta o índice para loop
+        if (n >= slides.length) { n = 0; }
+        if (n < 0) { n = slides.length - 1; }
 
-    // =======================================================
-    // =======================================================
-    // INÍCIO DA CORREÇÃO DE NAVEGAÇÃO (ANTI-querySelector('#'))
-    // =======================================================
-    // =======================================================
+        // Remove 'active' de todos
+        slides.forEach(slide => slide.classList.remove('active'));
+        dots.forEach(dot => dot.classList.remove('active'));
 
-    // NOVO LISTENER COMBINADO para TODOS os .nav-link
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            const pageId = link.dataset.page;
-            if (!pageId) return; // Se não tem data-page, não é um link de navegação SPA
+        // Adiciona 'active' ao slide e dot corretos
+        slides[n].classList.add('active');
+        dots[n].classList.add('active');
 
-            e.preventDefault(); // Previne a navegação padrão (ex: href="#")
+        currentSlide = n;
+    }
 
-            const href = link.getAttribute('href');
-            let anchorId = null;
+    function nextSlide() {
+        showSlide(currentSlide + 1);
+    }
 
-            // Verifica se é um link de âncora VÁLIDO (começa com # e não é SÓ #)
-            if (href && href.startsWith('#') && href.length > 1) {
-                anchorId = href;
-            }
+    function prevSlide() {
+        showSlide(currentSlide - 1);
+    }
 
-            // Chama a navegação
-            navigateTo(pageId, anchorId); // Se for só "#", anchorId será null (correto)
-            
-            // Fecha menus (código de conveniência)
-            closeMobileMenu();
+    // Event Listeners para os botões
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            nextSlide();
+            resetInterval();
+        });
+    }
 
-            // (V25.4) Fechamento de mega-menus
-            if (menuItems && typeof closeMenu === 'function') {
-                menuItems.forEach(menuItem => {
-                    closeMenu(menuItem);
-                });
-            }
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            prevSlide();
+            resetInterval();
+        });
+    }
+
+    // Event Listeners para os pontos
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            showSlide(index);
+            resetInterval();
         });
     });
 
-    // Os listeners antigos 'navLinks.forEach' e 'scrollLinks.forEach' foram
-    // substituídos pelo bloco único acima, corrigindo o bug do querySelector.
+    // Autoplay
+    function startInterval() {
+        slideInterval = setInterval(nextSlide, 5000); // Muda de slide a cada 5 segundos
+    }
 
-    // =======================================================
-    // =======================================================
-    // FIM DA CORREÇÃO DE NAVEGAÇÃO
-    // =======================================================
-    // =======================================================
+    function resetInterval() {
+        clearInterval(slideInterval);
+        startInterval();
+    }
+
+    showSlide(0); // Mostra o primeiro slide
+    startInterval(); // Inicia o autoplay
+}
+// =======================================================
+// FIM DO CÓDIGO DO CARROSSEL
+// =======================================================
 
 
-    // =======================================================
-    // ✅ NOVA LÓGICA DO CARROSSEL DO HERO
-    // =======================================================
-    function setupHeroCarousel() {
-        const slides = document.querySelectorAll('.hero-slide');
-        const dots = document.querySelectorAll('.carousel-dots button');
-        const prevBtn = document.querySelector('.carousel-nav.prev');
-        const nextBtn = document.querySelector('.carousel-nav.next');
-        
-        if (slides.length <= 1) { // Se não houver slides ou só 1, não faz nada
-            if(prevBtn) prevBtn.style.display = 'none';
-            if(nextBtn) nextBtn.style.display = 'none';
-            if(dots.length > 0) document.querySelector('.carousel-dots').style.display = 'none';
+// =======================================================
+// GRÁFICO DE BARRAS (SEÇÃO ADULTO) - AGORA COM ANIMAÇÃO
+// =======================================================
+function animateChartBars() {
+    const charts = document.querySelectorAll('.interactive-chart');
+
+    charts.forEach(chart => {
+        const bars = chart.querySelectorAll('.chart-bar');
+
+        // 1. Define o estado inicial (largura 0)
+        if (typeof gsap !== 'undefined') {
+            gsap.set(bars, {
+                width: "0%",
+                autoAlpha: 1
+            });
+
+            // 2. Cria o gatilho (ScrollTrigger) para animar
+            ScrollTrigger.create({
+                trigger: chart, // O gatilho é o próprio gráfico
+                start: "top 80%", // Começa quando 80% do gráfico estiver visível
+                once: true, // Anima apenas uma vez
+                onEnter: () => {
+                    // Anima as barras para o valor final
+                    gsap.to(bars, {
+                        duration: 1.5, // Duração da animação
+                        width: (i, target) => target.dataset.value.replace(',', '.') + "%",
+                        ease: "power2.out", // Efeito de desaceleração
+                        stagger: 0.1 // Atraso entre cada barra
+                    });
+                }
+            });
+        } else {
+            // Fallback se o GSAP não carregar: apenas mostra as barras
+            bars.forEach(bar => {
+                bar.style.width = bar.dataset.value.replace(',', '.') + "%";
+            });
+        }
+    });
+}
+
+// --- 5. LÓGICA DE ANIMAÇÃO (GSAP) ---
+if (typeof gsap !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+    // A chamada da animação do gráfico foi movida para o final (DOMContentLoaded)
+
+    function animateFrom(elem, direction = 1, distance = 50) {
+        let y = direction * distance;
+        gsap.fromTo(elem, { y: y, autoAlpha: 0 }, {
+            duration: 1.25,
+            y: 0,
+            autoAlpha: 1,
+            ease: "expo.out",
+            overwrite: "auto"
+        });
+    }
+
+    function hide(elem) {
+        gsap.set(elem, { autoAlpha: 0 });
+    }
+
+    // *** MELHORIA SCROLL REVEAL (Vem de Baixo/Esquerda/Direita) ***
+
+    gsap.utils.toArray(".gs_reveal").forEach(function (elem) {
+        hide(elem); // Começa escondido
+
+        let direction = 1; // Padrão: Vir de baixo (y: 50)
+        let distance = 50;
+
+        // Animação para X (Esquerda/Direita)
+        if (elem.classList.contains('gs_reveal_fromLeft') || elem.classList.contains('gs_reveal_fromRight')) {
+
+            const xDistance = elem.classList.contains('gs_reveal_fromLeft') ? -100 : 100;
+
+            // Cria uma animação específica para vir da lateral (X)
+            ScrollTrigger.create({
+                trigger: elem,
+                start: "top 85%",
+                once: true,
+                onEnter: () => {
+                    gsap.fromTo(elem, { x: xDistance, autoAlpha: 0 }, {
+                        duration: 1.25,
+                        x: 0,
+                        autoAlpha: 1,
+                        ease: "expo.out",
+                        overwrite: "auto"
+                    });
+                }
+            });
+            return; // Pula o ScrollTrigger padrão
+        }
+
+        // ScrollTrigger Padrão (Vem de baixo - Y)
+        ScrollTrigger.create({
+            trigger: elem,
+            start: "top 85%",
+            once: true,
+            onEnter: () => animateFrom(elem, direction, distance),
+            markers: false
+        });
+    });
+
+    // *** FIM DA MELHORIA SCROLL REVEAL ***
+
+    const topicBlocks = gsap.utils.toArray('#adolescencia .topic-block');
+    if (topicBlocks.length > 0) {
+        gsap.set(topicBlocks, { autoAlpha: 0, y: 50 });
+
+        ScrollTrigger.create({
+            trigger: "#adolescencia .topic-container",
+            start: "top 75%",
+            end: "bottom 25%",
+            markers: false,
+            onEnter: () => {
+                gsap.to(topicBlocks, {
+                    duration: 0.8,
+                    autoAlpha: 1,
+                    y: 0,
+                    stagger: 0.15,
+                    ease: "power2.out",
+                    overwrite: "auto"
+                });
+            },
+            onLeaveBack: () => {
+                gsap.set(topicBlocks, { autoAlpha: 0, y: 50 });
+            }
+        });
+    }
+
+}
+
+// --- 6. LÓGICA DO CARROSSEL 3D (NUTRIENTES) ---
+const carouselWrapperNutrients = document.querySelector('#adolescencia .carousel-wrapper');
+const gridNutrients = document.querySelector('#adolescencia .grid-nutrients');
+const cardsNutrients = document.querySelectorAll('#adolescencia .flip-card');
+const prevButtonNutrients = document.querySelector('#adolescencia .prev-card');
+const nextButtonNutrients = document.querySelector('#adolescencia .next-card');
+
+if (carouselWrapperNutrients && gridNutrients && cardsNutrients.length > 0 && prevButtonNutrients && nextButtonNutrients) {
+    let currentIndexNutrients = 0;
+    const totalCardsNutrients = cardsNutrients.length;
+    const gapNutrients = parseFloat(window.getComputedStyle(gridNutrients).gap) || 30;
+
+    function getCardWidth() {
+        if (cardsNutrients.length > 0) {
+            return cardsNutrients[0].offsetWidth;
+        }
+        return 0;
+    }
+
+    function updateNutrientsCarousel() {
+        const cardWidth = getCardWidth();
+        if (cardWidth === 0) {
+            setTimeout(updateNutrientsCarousel, 100);
             return;
         }
 
-        let currentSlide = 0;
-        let slideInterval;
+        const wrapperWidth = carouselWrapperNutrients.clientWidth;
+        const visibleCards = Math.max(1, Math.floor((wrapperWidth + gapNutrients) / (cardWidth + gapNutrients)));
+        const maxIndex = Math.max(0, totalCardsNutrients - visibleCards);
 
-        function showSlide(n) {
-            // Ajusta o índice para loop
-            if (n >= slides.length) { n = 0; }
-            if (n < 0) { n = slides.length - 1; }
-            
-            // Remove 'active' de todos
-            slides.forEach(slide => slide.classList.remove('active'));
-            dots.forEach(dot => dot.classList.remove('active'));
-
-            // Adiciona 'active' ao slide e dot corretos
-            slides[n].classList.add('active');
-            dots[n].classList.add('active');
-            
-            currentSlide = n;
+        if (currentIndexNutrients > maxIndex) {
+            currentIndexNutrients = maxIndex;
         }
 
-        function nextSlide() {
-            showSlide(currentSlide + 1);
+        const totalGridWidth = (cardWidth * totalCardsNutrients) + (gapNutrients * (totalCardsNutrients - 1));
+        const maxScroll = Math.max(0, totalGridWidth - wrapperWidth);
+        let targetOffset = currentIndexNutrients * (cardWidth + gapNutrients);
+
+        if (targetOffset > maxScroll) {
+            targetOffset = maxScroll;
         }
 
-        function prevSlide() {
-            showSlide(currentSlide - 1);
-        }
+        gridNutrients.style.transform = `translateX(-${targetOffset}px)`;
+        gridNutrients.style.transition = 'transform 0.5s ease-out';
 
-        // Event Listeners para os botões
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                nextSlide();
-                resetInterval();
-            });
-        }
-        
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                prevSlide();
-                resetInterval();
-            });
-        }
-
-        // Event Listeners para os pontos
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                showSlide(index);
-                resetInterval();
-            });
-        });
-
-        // Autoplay
-        function startInterval() {
-            slideInterval = setInterval(nextSlide, 5000); // Muda de slide a cada 5 segundos
-        }
-
-        function resetInterval() {
-            clearInterval(slideInterval);
-            startInterval();
-        }
-
-        showSlide(0); // Mostra o primeiro slide
-        startInterval(); // Inicia o autoplay
-    }
-    // =======================================================
-    // FIM DO CÓDIGO DO CARROSSEL
-    // =======================================================
-
-
-    // =======================================================
-    // GRÁFICO DE BARRAS (SEÇÃO ADULTO) - AGORA COM ANIMAÇÃO
-    // =======================================================
-    function animateChartBars() {
-        const charts = document.querySelectorAll('.interactive-chart');
-    
-        charts.forEach(chart => {
-            const bars = chart.querySelectorAll('.chart-bar');
-            
-            // 1. Define o estado inicial (largura 0)
-            if (typeof gsap !== 'undefined') {
-                gsap.set(bars, {
-                    width: "0%",
-                    autoAlpha: 1
-                });
-        
-                // 2. Cria o gatilho (ScrollTrigger) para animar
-                ScrollTrigger.create({
-                    trigger: chart, // O gatilho é o próprio gráfico
-                    start: "top 80%", // Começa quando 80% do gráfico estiver visível
-                    once: true, // Anima apenas uma vez
-                    onEnter: () => {
-                        // Anima as barras para o valor final
-                        gsap.to(bars, {
-                            duration: 1.5, // Duração da animação
-                            width: (i, target) => target.dataset.value.replace(',', '.') + "%",
-                            ease: "power2.out", // Efeito de desaceleração
-                            stagger: 0.1 // Atraso entre cada barra
-                        });
-                    }
-                });
-            } else {
-                // Fallback se o GSAP não carregar: apenas mostra as barras
-                bars.forEach(bar => {
-                    bar.style.width = bar.dataset.value.replace(',', '.') + "%";
-                });
-            }
-        });
+        prevButtonNutrients.disabled = currentIndexNutrients === 0;
+        nextButtonNutrients.disabled = targetOffset >= (maxScroll - 1);
     }
 
-    // --- 5. LÓGICA DE ANIMAÇÃO (GSAP) ---
-    if (typeof gsap !== 'undefined') {
-        gsap.registerPlugin(ScrollTrigger);
-        // A chamada da animação do gráfico foi movida para o final (DOMContentLoaded)
-
-        function animateFrom(elem, direction = 1, distance = 50) {
-            let y = direction * distance;
-            gsap.fromTo(elem, { y: y, autoAlpha: 0 }, {
-                duration: 1.25,
-                y: 0,
-                autoAlpha: 1,
-                ease: "expo.out",
-                overwrite: "auto"
-            });
-        }
-
-        function hide(elem) {
-            gsap.set(elem, { autoAlpha: 0 });
-        }
-
-        // *** MELHORIA SCROLL REVEAL (Vem de Baixo/Esquerda/Direita) ***
-
-        gsap.utils.toArray(".gs_reveal").forEach(function (elem) {
-            hide(elem); // Começa escondido
-
-            let direction = 1; // Padrão: Vir de baixo (y: 50)
-            let distance = 50;
-
-            // Animação para X (Esquerda/Direita)
-            if (elem.classList.contains('gs_reveal_fromLeft') || elem.classList.contains('gs_reveal_fromRight')) {
-                
-                const xDistance = elem.classList.contains('gs_reveal_fromLeft') ? -100 : 100;
-                
-                // Cria uma animação específica para vir da lateral (X)
-                ScrollTrigger.create({
-                    trigger: elem,
-                    start: "top 85%",
-                    once: true,
-                    onEnter: () => {
-                        gsap.fromTo(elem, { x: xDistance, autoAlpha: 0 }, {
-                            duration: 1.25,
-                            x: 0,
-                            autoAlpha: 1,
-                            ease: "expo.out",
-                            overwrite: "auto"
-                        });
-                    }
-                });
-                return; // Pula o ScrollTrigger padrão
-            }
-            
-            // ScrollTrigger Padrão (Vem de baixo - Y)
-            ScrollTrigger.create({
-                trigger: elem,
-                start: "top 85%", 
-                once: true, 
-                onEnter: () => animateFrom(elem, direction, distance), 
-                markers: false 
-            });
-        });
-
-        // *** FIM DA MELHORIA SCROLL REVEAL ***
-        
-        const topicBlocks = gsap.utils.toArray('#adolescencia .topic-block');
-        if (topicBlocks.length > 0) {
-             gsap.set(topicBlocks, { autoAlpha: 0, y: 50 });
-
-            ScrollTrigger.create({
-                trigger: "#adolescencia .topic-container",
-                start: "top 75%",
-                end: "bottom 25%",
-                markers: false,
-                onEnter: () => {
-                    gsap.to(topicBlocks, {
-                        duration: 0.8,
-                        autoAlpha: 1,
-                        y: 0,
-                        stagger: 0.15,
-                        ease: "power2.out",
-                        overwrite: "auto"
-                    });
-                },
-                onLeaveBack: () => {
-                     gsap.set(topicBlocks, { autoAlpha: 0, y: 50 });
-                }
-            });
-        }
-
-    } 
-
-    // --- 6. LÓGICA DO CARROSSEL 3D (NUTRIENTES) ---
-    const carouselWrapperNutrients = document.querySelector('#adolescencia .carousel-wrapper'); 
-    const gridNutrients = document.querySelector('#adolescencia .grid-nutrients');
-    const cardsNutrients = document.querySelectorAll('#adolescencia .flip-card');
-    const prevButtonNutrients = document.querySelector('#adolescencia .prev-card');
-    const nextButtonNutrients = document.querySelector('#adolescencia .next-card');
-
-    if (carouselWrapperNutrients && gridNutrients && cardsNutrients.length > 0 && prevButtonNutrients && nextButtonNutrients) { 
-        let currentIndexNutrients = 0;
-        const totalCardsNutrients = cardsNutrients.length;
-        const gapNutrients = parseFloat(window.getComputedStyle(gridNutrients).gap) || 30; 
-
-        function getCardWidth() {
-            if (cardsNutrients.length > 0) {
-                return cardsNutrients[0].offsetWidth; 
-            }
-            return 0;
-        }
-
-        function updateNutrientsCarousel() {
-            const cardWidth = getCardWidth();
-            if (cardWidth === 0) { 
-                 setTimeout(updateNutrientsCarousel, 100); 
-                 return;
-            }
-            
-            const wrapperWidth = carouselWrapperNutrients.clientWidth;
-            const visibleCards = Math.max(1, Math.floor((wrapperWidth + gapNutrients) / (cardWidth + gapNutrients)));
-            const maxIndex = Math.max(0, totalCardsNutrients - visibleCards);
-            
-            if (currentIndexNutrients > maxIndex) {
-                 currentIndexNutrients = maxIndex;
-            }
-
-            const totalGridWidth = (cardWidth * totalCardsNutrients) + (gapNutrients * (totalCardsNutrients - 1));
-            const maxScroll = Math.max(0, totalGridWidth - wrapperWidth);
-            let targetOffset = currentIndexNutrients * (cardWidth + gapNutrients);
-
-            if (targetOffset > maxScroll) {
-                targetOffset = maxScroll;
-            }
-
-            gridNutrients.style.transform = `translateX(-${targetOffset}px)`;
-            gridNutrients.style.transition = 'transform 0.5s ease-out';
-
-            prevButtonNutrients.disabled = currentIndexNutrients === 0;
-            nextButtonNutrients.disabled = targetOffset >= (maxScroll - 1);
-        }
-
-        prevButtonNutrients.addEventListener('click', () => {
-            if (currentIndexNutrients > 0) {
-                currentIndexNutrients--;
-                updateNutrientsCarousel();
-            }
-        });
-
-        nextButtonNutrients.addEventListener('click', () => {
-            if (!nextButtonNutrients.disabled) {
-                currentIndexNutrients++;
-                updateNutrientsCarousel();
-            }
-        });
-
-        window.addEventListener('resize', () => {
-            gridNutrients.style.transition = 'none'; 
+    prevButtonNutrients.addEventListener('click', () => {
+        if (currentIndexNutrients > 0) {
+            currentIndexNutrients--;
             updateNutrientsCarousel();
-        });
-
-        setTimeout(updateNutrientsCarousel, 50);
-
-    } else if (prevButtonNutrients && nextButtonNutrients) {
-        prevButtonNutrients.style.display = 'none';
-        nextButtonNutrients.style.display = 'none';
-    }
-
-
-    /* =======================================================
-     * CONTROLE GERAL DOS JOGOS
-     * ======================================================= */
-
-    function showGameCover() {
-        document.body.classList.remove('game-modal-open');
-        document.querySelectorAll('.game-container-wrapper').forEach(container => {
-            container.classList.remove('active');
-        });
-        document.querySelectorAll('.game-modal-overlay').forEach(modal => {
-            modal.classList.remove('active');
-        });
-    }
-
-    function launchGame(containerId, gameInitializerFunction) {
-        document.body.classList.add('game-modal-open');
-
-        document.querySelectorAll('.game-container-wrapper').forEach(container => {
-            if (container.id !== containerId) {
-                container.classList.remove('active');
-            }
-        });
-
-        const gameContainer = document.getElementById(containerId);
-        if (gameContainer) {
-            gameContainer.classList.add('active');
-
-            const gameArea = gameContainer.querySelector('.game-area');
-            if (gameArea) {
-                gameArea.classList.add('active');
-            } else {
-                 console.warn(`Área de jogo não encontrada dentro de #${containerId}`);
-            }
-
-            if (gameInitializerFunction && typeof gameInitializerFunction === 'function') {
-                try {
-                    gameInitializerFunction();
-                } catch (error) {
-                    console.error(`Erro ao inicializar o jogo ${containerId}:`, error);
-                     showGameCover();
-                }
-            } else {
-                 console.warn(`Função de inicialização para ${containerId} não fornecida ou inválida.`);
-            }
-
-        } else {
-            console.error(`Container do jogo "${containerId}" não encontrado.`);
-             document.body.classList.remove('game-modal-open');
         }
-    }
-
-    // --- Anexando os Event Listeners ---
-
-    // Jogo de Classificar (Embutido na página Infância)
-    document.querySelector('#classify-game-area-embedded .game-restart-btn')?.addEventListener('click', () => {
-         if (typeof EmbeddedClassifyGame !== 'undefined' && EmbeddedClassifyGame.init) EmbeddedClassifyGame.init();
     });
 
+    nextButtonNutrients.addEventListener('click', () => {
+        if (!nextButtonNutrients.disabled) {
+            currentIndexNutrients++;
+            updateNutrientsCarousel();
+        }
+    });
 
-    // ===============================================
-    // ==== ✂️ LÓGICA DA CALCULADORA REINSERIDA ✂️ =====
-    // ===============================================
+    window.addEventListener('resize', () => {
+        gridNutrients.style.transition = 'none';
+        updateNutrientsCarousel();
+    });
 
-    /* =======================================================
-     * 14. LÓGICA DA CALCULADORA DE HIDRATAÇÃO (IDOSO) - COM ANIMAÇÃO GSAP
-     * ======================================================= */
-    function setupHydrationCalculator() {
-        // 1. Selecionar todos os elementos
-        const calcContainer = document.getElementById('hydration-calculator');
-        if (!calcContainer) return; // Se não estiver na página, sai
+    setTimeout(updateNutrientsCarousel, 50);
 
-        const btnMenos = document.getElementById('btn-peso-menos');
-        const btnMais = document.getElementById('btn-peso-mais');
-        const displayPeso = document.getElementById('display-peso');
-        
-        const ageButtons = document.querySelectorAll('.age-button');
-        const btnCalcular = document.getElementById('calcHidratacaoBtn');
-        
-        const displayLitros = document.getElementById('calcLitros');
-        const displayCopos = document.getElementById('calcCopos');
-        const displayDisclaimer = document.getElementById('calc-disclaimer');
-        
-        // 2. Definir valores iniciais
-        let currentPeso = 70;
-        let currentMlPorKg = 30; // Padrão para "Adultos (55-65)" que está ativo no HTML
-        let currentAnimation = null; // Para controlar a animação do número
+} else if (prevButtonNutrients && nextButtonNutrients) {
+    prevButtonNutrients.style.display = 'none';
+    nextButtonNutrients.style.display = 'none';
+}
 
-        // 3. Funções de Lógica
-        
-        // Atualiza o peso na tela
-        function updatePesoDisplay() {
-            if(displayPeso) displayPeso.textContent = currentPeso;
+
+/* =======================================================
+ * CONTROLE GERAL DOS JOGOS
+ * ======================================================= */
+
+function showGameCover() {
+    document.body.classList.remove('game-modal-open');
+    document.querySelectorAll('.game-container-wrapper').forEach(container => {
+        container.classList.remove('active');
+    });
+    document.querySelectorAll('.game-modal-overlay').forEach(modal => {
+        modal.classList.remove('active');
+    });
+}
+
+function launchGame(containerId, gameInitializerFunction) {
+    document.body.classList.add('game-modal-open');
+
+    document.querySelectorAll('.game-container-wrapper').forEach(container => {
+        if (container.id !== containerId) {
+            container.classList.remove('active');
+        }
+    });
+
+    const gameContainer = document.getElementById(containerId);
+    if (gameContainer) {
+        gameContainer.classList.add('active');
+
+        const gameArea = gameContainer.querySelector('.game-area');
+        if (gameArea) {
+            gameArea.classList.add('active');
+        } else {
+            console.warn(`Área de jogo não encontrada dentro de #${containerId}`);
         }
 
-        // Lógica dos botões de peso
-        if(btnMenos) {
-            btnMenos.addEventListener('click', () => {
-                if (currentPeso > 20) { // Limite mínimo
-                    currentPeso--;
-                    updatePesoDisplay();
-                }
-            });
+        if (gameInitializerFunction && typeof gameInitializerFunction === 'function') {
+            try {
+                gameInitializerFunction();
+            } catch (error) {
+                console.error(`Erro ao inicializar o jogo ${containerId}:`, error);
+                showGameCover();
+            }
+        } else {
+            console.warn(`Função de inicialização para ${containerId} não fornecida ou inválida.`);
         }
 
-        if(btnMais) {
-            btnMais.addEventListener('click', () => {
-                if (currentPeso < 200) { // Limite máximo
-                    currentPeso++;
-                    updatePesoDisplay();
-                }
-            });
-        }
+    } else {
+        console.error(`Container do jogo "${containerId}" não encontrado.`);
+        document.body.classList.remove('game-modal-open');
+    }
+}
 
-        // Lógica dos botões de idade
-        ageButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Remove 'active' de todos
-                ageButtons.forEach(btn => btn.classList.remove('active'));
-                // Adiciona 'active' ao clicado
-                button.classList.add('active');
-                // Atualiza o multiplicador
-                currentMlPorKg = parseInt(button.dataset.value, 10);
-            });
+// --- Anexando os Event Listeners ---
+
+// Jogo de Classificar (Embutido na página Infância)
+document.querySelector('#classify-game-area-embedded .game-restart-btn')?.addEventListener('click', () => {
+    if (typeof EmbeddedClassifyGame !== 'undefined' && EmbeddedClassifyGame.init) EmbeddedClassifyGame.init();
+});
+
+
+// ===============================================
+// ==== ✂️ LÓGICA DA CALCULADORA REINSERIDA ✂️ =====
+// ===============================================
+
+/* =======================================================
+ * 14. LÓGICA DA CALCULADORA DE HIDRATAÇÃO (IDOSO) - COM ANIMAÇÃO GSAP
+ * ======================================================= */
+function setupHydrationCalculator() {
+    // 1. Selecionar todos os elementos
+    const calcContainer = document.getElementById('hydration-calculator');
+    if (!calcContainer) return; // Se não estiver na página, sai
+
+    const btnMenos = document.getElementById('btn-peso-menos');
+    const btnMais = document.getElementById('btn-peso-mais');
+    const displayPeso = document.getElementById('display-peso');
+
+    const ageButtons = document.querySelectorAll('.age-button');
+    const btnCalcular = document.getElementById('calcHidratacaoBtn');
+
+    const displayLitros = document.getElementById('calcLitros');
+    const displayCopos = document.getElementById('calcCopos');
+    const displayDisclaimer = document.getElementById('calc-disclaimer');
+
+    // 2. Definir valores iniciais
+    let currentPeso = 70;
+    let currentMlPorKg = 30; // Padrão para "Adultos (55-65)" que está ativo no HTML
+    let currentAnimation = null; // Para controlar a animação do número
+
+    // 3. Funções de Lógica
+
+    // Atualiza o peso na tela
+    function updatePesoDisplay() {
+        if (displayPeso) displayPeso.textContent = currentPeso;
+    }
+
+    // Lógica dos botões de peso
+    if (btnMenos) {
+        btnMenos.addEventListener('click', () => {
+            if (currentPeso > 20) { // Limite mínimo
+                currentPeso--;
+                updatePesoDisplay();
+            }
         });
+    }
 
-        // Lógica do botão CALCULAR
-        if(btnCalcular) {
-            btnCalcular.addEventListener('click', () => {
-                // 1. Fazer o cálculo
-                const totalMl = currentPeso * currentMlPorKg;
-                const totalLitros = (totalMl / 1000); // Valor numérico, ex: 2.1
-                
-                // 2. Calcular copos (250ml por copo, arredondando para cima)
-                const totalCopos = Math.ceil(totalMl / 250);
+    if (btnMais) {
+        btnMais.addEventListener('click', () => {
+            if (currentPeso < 200) { // Limite máximo
+                currentPeso++;
+                updatePesoDisplay();
+            }
+        });
+    }
 
-                // --- INÍCIO DAS NOVAS ANIMAÇÕES ---
-                
-                // Verifica se o GSAP está disponível
-                if (typeof gsap !== 'undefined') {
-                    // A. Animação do Número (Contador)
-                    let counter = { value: 0 }; // Objeto para o GSAP animar
-                    
-                    // Tenta pegar o valor atual, se for um número, senão começa do 0
-                    if(displayLitros && displayLitros.textContent) {
-                        let currentText = displayLitros.textContent.split(' ')[0].replace(',', '.');
-                        let currentValue = parseFloat(currentText);
-                        if (!isNaN(currentValue)) {
-                            counter.value = currentValue; // Começa do valor que já está na tela
+    // Lógica dos botões de idade
+    ageButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove 'active' de todos
+            ageButtons.forEach(btn => btn.classList.remove('active'));
+            // Adiciona 'active' ao clicado
+            button.classList.add('active');
+            // Atualiza o multiplicador
+            currentMlPorKg = parseInt(button.dataset.value, 10);
+        });
+    });
+
+    // Lógica do botão CALCULAR
+    if (btnCalcular) {
+        btnCalcular.addEventListener('click', () => {
+            // 1. Fazer o cálculo
+            const totalMl = currentPeso * currentMlPorKg;
+            const totalLitros = (totalMl / 1000); // Valor numérico, ex: 2.1
+
+            // 2. Calcular copos (250ml por copo, arredondando para cima)
+            const totalCopos = Math.ceil(totalMl / 250);
+
+            // --- INÍCIO DAS NOVAS ANIMAÇÕES ---
+
+            // Verifica se o GSAP está disponível
+            if (typeof gsap !== 'undefined') {
+                // A. Animação do Número (Contador)
+                let counter = { value: 0 }; // Objeto para o GSAP animar
+
+                // Tenta pegar o valor atual, se for um número, senão começa do 0
+                if (displayLitros && displayLitros.textContent) {
+                    let currentText = displayLitros.textContent.split(' ')[0].replace(',', '.');
+                    let currentValue = parseFloat(currentText);
+                    if (!isNaN(currentValue)) {
+                        counter.value = currentValue; // Começa do valor que já está na tela
+                    }
+                }
+
+                // Se uma animação anterior estiver rodando, mate-a
+                if (currentAnimation) {
+                    currentAnimation.kill();
+                }
+
+                // Anima o objeto 'counter' de seu valor atual até o valor final
+                currentAnimation = gsap.to(counter, {
+                    duration: 1.2, // Duração de 1.2s
+                    value: totalLitros,
+                    ease: "power2.out",
+                    onUpdate: () => {
+                        // a cada "frame" da animação, atualiza o texto
+                        if (displayLitros) {
+                            displayLitros.textContent = `${counter.value.toFixed(2).replace('.', ',')} Litros`;
                         }
+                    },
+                    onComplete: () => {
+                        currentAnimation = null; // Limpa a animação
                     }
-                    
-                    // Se uma animação anterior estiver rodando, mate-a
-                    if (currentAnimation) {
-                        currentAnimation.kill();
-                    }
+                });
 
-                    // Anima o objeto 'counter' de seu valor atual até o valor final
-                    currentAnimation = gsap.to(counter, {
-                        duration: 1.2, // Duração de 1.2s
-                        value: totalLitros,
-                        ease: "power2.out",
-                        onUpdate: () => {
-                            // a cada "frame" da animação, atualiza o texto
-                            if(displayLitros) {
-                                displayLitros.textContent = `${counter.value.toFixed(2).replace('.', ',')} Litros`;
+                // B. Animação das Gotas (Stagger)
+                if (displayCopos) {
+                    displayCopos.innerHTML = ''; // Limpa os copos antigos
+                    let copoElements = []; // Array para guardar os novos elementos
+
+                    if (totalCopos > 0) {
+                        for (let i = 0; i < totalCopos; i++) {
+                            const copoIcon = document.createElement('i');
+                            copoIcon.className = 'fa-solid fa-droplet';
+
+                            if (i < 15) { // Mostra no máximo 15 copos
+                                displayCopos.appendChild(copoIcon);
+                                copoElements.push(copoIcon); // Adiciona ao array
                             }
-                        },
-                        onComplete: () => {
-                            currentAnimation = null; // Limpa a animação
                         }
+                        if (totalCopos > 15) {
+                            const extraText = document.createElement('span');
+                            extraText.textContent = ` +${totalCopos - 15}`;
+                            extraText.style.fontSize = '0.7em';
+                            extraText.style.fontWeight = 'bold';
+                            extraText.style.marginLeft = '5px';
+                            displayCopos.appendChild(extraText);
+                        }
+                    }
+
+                    // Anima os elementos que acabamos de criar
+                    // Começa de uma opacidade e escala 0
+                    gsap.fromTo(copoElements, {
+                        opacity: 0,
+                        scale: 0.5,
+                        y: -10 // Começa um pouco acima
+                    }, {
+                        duration: 0.3, // Duração de cada gota
+                        opacity: 1,
+                        scale: 1,
+                        y: 0,
+                        ease: "back.out(1.7)",
+                        stagger: 0.08, // Atraso entre cada gota
+                        delay: 0.2 // Começa 0.2s depois do clique
                     });
-
-                    // B. Animação das Gotas (Stagger)
-                    if(displayCopos) {
-                        displayCopos.innerHTML = ''; // Limpa os copos antigos
-                        let copoElements = []; // Array para guardar os novos elementos
-
-                        if (totalCopos > 0) {
-                            for (let i = 0; i < totalCopos; i++) {
-                                const copoIcon = document.createElement('i');
-                                copoIcon.className = 'fa-solid fa-droplet';
-                                
-                                if (i < 15) { // Mostra no máximo 15 copos
-                                    displayCopos.appendChild(copoIcon);
-                                    copoElements.push(copoIcon); // Adiciona ao array
-                                }
-                            }
-                            if (totalCopos > 15) {
-                                const extraText = document.createElement('span');
-                                extraText.textContent = ` +${totalCopos - 15}`;
-                                extraText.style.fontSize = '0.7em';
-                                extraText.style.fontWeight = 'bold';
-                                extraText.style.marginLeft = '5px';
-                                displayCopos.appendChild(extraText);
-                            }
-                        }
-
-                        // Anima os elementos que acabamos de criar
-                        // Começa de uma opacidade e escala 0
-                        gsap.fromTo(copoElements, {
-                            opacity: 0,
-                            scale: 0.5,
-                            y: -10 // Começa um pouco acima
-                        }, {
-                            duration: 0.3, // Duração de cada gota
-                            opacity: 1,
-                            scale: 1,
-                            y: 0,
-                            ease: "back.out(1.7)",
-                            stagger: 0.08, // Atraso entre cada gota
-                            delay: 0.2 // Começa 0.2s depois do clique
-                        });
-                    }
-                } else {
-                    // --- FALLBACK (Se o GSAP não carregar) ---
-                    if(displayLitros) displayLitros.textContent = `${totalLitros.toFixed(2).replace('.', ',')} Litros`;
-                    if(displayCopos) {
-                         displayCopos.innerHTML = ''; // Limpa os copos antigos
-                        if (totalCopos > 0) {
-                            for (let i = 0; i < totalCopos; i++) {
-                                // ... (código de adicionar copos, igual ao de cima)
-                            }
+                }
+            } else {
+                // --- FALLBACK (Se o GSAP não carregar) ---
+                if (displayLitros) displayLitros.textContent = `${totalLitros.toFixed(2).replace('.', ',')} Litros`;
+                if (displayCopos) {
+                    displayCopos.innerHTML = ''; // Limpa os copos antigos
+                    if (totalCopos > 0) {
+                        for (let i = 0; i < totalCopos; i++) {
+                            // ... (código de adicionar copos, igual ao de cima)
                         }
                     }
                 }
-                // --- FIM DAS NOVAS ANIMAÇÕES ---
-
-                // 5. Esconder o aviso
-                if (displayDisclaimer) {
-                    displayDisclaimer.style.display = 'none';
-                }
-            });
-        }
-
-        // 6. Inicializar o display
-        updatePesoDisplay();
-    }
-    // --- FIM DA LÓGICA DA CALCULADORA ---
-
-    
-    // ===============================================
-    // ==== INÍCIO DO CÓDIGO DO PLANEJADOR DE LANCHES (ADULTO) =====
-    // ===============================================
-
-    function setupSnackPlanner() {
-        const plannerDays = document.querySelectorAll('.planner-day');
-        const modal = document.getElementById('snack-selector-modal');
-        const modalTitle = document.getElementById('snack-modal-title');
-        const optionButtons = document.querySelectorAll('.snack-option-btn');
-        const closeModalBtn = document.querySelector('#snack-selector-modal .game-close-btn');
-        const resetBtn = document.getElementById('planner-reset-btn');
-        const downloadBtn = document.getElementById('planner-download-btn'); // NOVO: Botão de Download
-
-        if (plannerDays.length === 0 || !modal || optionButtons.length === 0 || !resetBtn || !downloadBtn) {
-            return; // Sai se os elementos não forem encontrados
-        }
-
-        let currentDayElement = null;
-        const weekDayNames = {
-            seg: 'Segunda-feira',
-            ter: 'Terça-feira',
-            qua: 'Quarta-feira',
-            qui: 'Quinta-feira',
-            sex: 'Sexta-feira',
-            sab: 'Sábado', 
-            dom: 'Domingo'  
-        };
-
-        // Função para abrir o modal
-        function openModal(dayElement) {
-            currentDayElement = dayElement;
-            const dayKey = currentDayElement.dataset.day;
-            modalTitle.textContent = `Escolha seu lanche para: ${weekDayNames[dayKey]}`;
-            
-            // Abre o modal e trava o body (o CSS agora o torna fixo e centralizado)
-            modal.classList.add('active');
-            document.body.classList.add('game-modal-open');
-        }
-
-        // Função para fechar o modal
-        function closeModal() {
-            modal.classList.remove('active');
-            document.body.classList.remove('game-modal-open');
-            currentDayElement = null;
-        }
-        
-        // ===================================================
-        // FUNÇÃO PRINCIPAL: GERAR O ARQUIVO DE TEXTO
-        // ===================================================
-        function generateDownload() {
-            const date = new Date().toLocaleDateString('pt-BR');
-            let content = "=== Meu Plano Semanal de Lanches (Alimentando Fases) ===\n";
-            content += `Gerado em: ${date}\n\n`;
-            
-            let allEmpty = true;
-
-            plannerDays.forEach(day => {
-                const dayName = day.querySelector('h5').textContent;
-                const choice = day.querySelector('.planner-choice span').textContent;
-                
-                let line = `${dayName}: `;
-                
-                if (day.classList.contains('filled')) {
-                    line += choice + " (Lanche Inteligente)";
-                    allEmpty = false;
-                } else if (day.classList.contains('off-day')) {
-                    line += choice + " (Dia de Descanso)";
-                    allEmpty = false;
-                } else {
-                    line += "Não Planejado";
-                }
-                content += line + "\n";
-            });
-            
-            if (allEmpty) {
-                alert("O plano está vazio! Escolha suas opções antes de baixar.");
-                return;
             }
+            // --- FIM DAS NOVAS ANIMAÇÕES ---
 
-            content += "\n========================================================\n";
-            content += "Lembre-se: Hidratação e planejamento são a chave para o sucesso na rotina adulta!";
+            // 5. Esconder o aviso
+            if (displayDisclaimer) {
+                displayDisclaimer.style.display = 'none';
+            }
+        });
+    }
 
-            // Cria um BLOB (objeto de dados) e um link de download
-            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Plano_Lanches_Semana_${date.replace(/\//g, '-')}.txt`;
-            
-            // Simula o clique para iniciar o download
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url); // Libera o objeto
-        }
-        // ===================================================
-        // FIM: GERAR O ARQUIVO DE TEXTO
-        // ===================================================
+    // 6. Inicializar o display
+    updatePesoDisplay();
+}
+// --- FIM DA LÓGICA DA CALCULADORA ---
 
 
-        // ADICIONA EVENT LISTENERS
-        
-        // 1. Botões dos Dias
+// ===============================================
+// ==== INÍCIO DO CÓDIGO DO PLANEJADOR DE LANCHES (ADULTO) =====
+// ===============================================
+
+function setupSnackPlanner() {
+    const plannerDays = document.querySelectorAll('.planner-day');
+    const modal = document.getElementById('snack-selector-modal');
+    const modalTitle = document.getElementById('snack-modal-title');
+    const optionButtons = document.querySelectorAll('.snack-option-btn');
+    const closeModalBtn = document.querySelector('#snack-selector-modal .game-close-btn');
+    const resetBtn = document.getElementById('planner-reset-btn');
+    const downloadBtn = document.getElementById('planner-download-btn'); // NOVO: Botão de Download
+
+    if (plannerDays.length === 0 || !modal || optionButtons.length === 0 || !resetBtn || !downloadBtn) {
+        return; // Sai se os elementos não forem encontrados
+    }
+
+    let currentDayElement = null;
+    const weekDayNames = {
+        seg: 'Segunda-feira',
+        ter: 'Terça-feira',
+        qua: 'Quarta-feira',
+        qui: 'Quinta-feira',
+        sex: 'Sexta-feira',
+        sab: 'Sábado',
+        dom: 'Domingo'
+    };
+
+    // Função para abrir o modal
+    function openModal(dayElement) {
+        currentDayElement = dayElement;
+        const dayKey = currentDayElement.dataset.day;
+        modalTitle.textContent = `Escolha seu lanche para: ${weekDayNames[dayKey]}`;
+
+        // Abre o modal e trava o body (o CSS agora o torna fixo e centralizado)
+        modal.classList.add('active');
+        document.body.classList.add('game-modal-open');
+    }
+
+    // Função para fechar o modal
+    function closeModal() {
+        modal.classList.remove('active');
+        document.body.classList.remove('game-modal-open');
+        currentDayElement = null;
+    }
+
+    // ===================================================
+    // FUNÇÃO PRINCIPAL: GERAR O ARQUIVO DE TEXTO
+    // ===================================================
+    function generateDownload() {
+        const date = new Date().toLocaleDateString('pt-BR');
+        let content = "=== Meu Plano Semanal de Lanches (Alimentando Fases) ===\n";
+        content += `Gerado em: ${date}\n\n`;
+
+        let allEmpty = true;
+
         plannerDays.forEach(day => {
-            day.addEventListener('click', () => {
-                openModal(day);
-            });
-        });
+            const dayName = day.querySelector('h5').textContent;
+            const choice = day.querySelector('.planner-choice span').textContent;
 
-        // 2. Opções de Lanche (Lógica de 3 estados: Lanche, Folga, Limpar)
-        optionButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                if (currentDayElement) {
-                    const choiceText = button.dataset.snack;
-                    const choiceSpan = currentDayElement.querySelector('.planner-choice span');
-                    
-                    // Limpa todos os estados anteriores
-                    currentDayElement.classList.remove('filled', 'off-day');
-                    currentDayElement.querySelector('.planner-choice i').style.display = 'block';
+            let line = `${dayName}: `;
 
-                    if (choiceText === "Folga") {
-                        // 1. Estado de FOLGA
-                        choiceSpan.textContent = choiceText;
-                        currentDayElement.classList.add('off-day');
-                        currentDayElement.querySelector('.planner-choice i').style.display = 'none';
-
-                    } else if (choiceText) {
-                        // 2. Estado de LANCE
-                        choiceSpan.textContent = choiceText;
-                        currentDayElement.classList.add('filled');
-                        currentDayElement.querySelector('.planner-choice i').style.display = 'none';
-
-                    } else {
-                        // 3. Estado de LIMPAR (Nenhum)
-                        choiceSpan.textContent = 'Clique para escolher';
-                    }
-                }
-                closeModal();
-            });
-        });
-
-        // 3. Eventos para fechar o modal
-        closeModalBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            // Fecha se clicar no overlay (fundo)
-            if (e.target === modal) {
-                closeModal();
+            if (day.classList.contains('filled')) {
+                line += choice + " (Lanche Inteligente)";
+                allEmpty = false;
+            } else if (day.classList.contains('off-day')) {
+                line += choice + " (Dia de Descanso)";
+                allEmpty = false;
+            } else {
+                line += "Não Planejado";
             }
+            content += line + "\n";
         });
-        
-        // 4. Evento do botão de Resetar
-        resetBtn.addEventListener('click', () => {
-            plannerDays.forEach(day => {
-                day.querySelector('.planner-choice span').textContent = 'Clique para escolher';
-                day.querySelector('.planner-choice i').style.display = 'block';
-                day.classList.remove('filled', 'off-day'); 
-            });
-        });
-        
-        // 5. Evento do botão de Download (NOVO)
-        downloadBtn.addEventListener('click', generateDownload);
 
+        if (allEmpty) {
+            alert("O plano está vazio! Escolha suas opções antes de baixar.");
+            return;
+        }
+
+        content += "\n========================================================\n";
+        content += "Lembre-se: Hidratação e planejamento são a chave para o sucesso na rotina adulta!";
+
+        // Cria um BLOB (objeto de dados) e um link de download
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Plano_Lanches_Semana_${date.replace(/\//g, '-')}.txt`;
+
+        // Simula o clique para iniciar o download
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url); // Libera o objeto
     }
+    // ===================================================
+    // FIM: GERAR O ARQUIVO DE TEXTO
+    // ===================================================
 
-    // ===============================================
-    // ====== FIM DO CÓDIGO DO PLANEJADOR DE LANCHES ======
-    // ===============================================
-    
-    // ===============================================
-    // ==== INÍCIO DAS CHAMADAS DE FUNÇÕES =====
-    // ===============================================
-    
-    // Funções Globais (rodam em todas as páginas)
-    // setupFontControls(); // Removido pois os botões não estão no HTML
-    
-    // Funções da Página Inicial (Home) - Roda no carregamento inicial
-    setupHeroCarousel();
-    
-    // Funções de outras páginas são chamadas dentro de navigateTo() para otimizar o TBT
-    
-    // ===============================================
-    // ====== FIM DAS CHAMADAS DE FUNÇÕES ======
-    // ===============================================
 
-    
-    // A LÓGICA DO CHATBOT FOI MOVIDA PARA 'gemini-chat.js'
+    // ADICIONA EVENT LISTENERS
+
+    // 1. Botões dos Dias
+    plannerDays.forEach(day => {
+        day.addEventListener('click', () => {
+            openModal(day);
+        });
+    });
+
+    // 2. Opções de Lanche (Lógica de 3 estados: Lanche, Folga, Limpar)
+    optionButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            if (currentDayElement) {
+                const choiceText = button.dataset.snack;
+                const choiceSpan = currentDayElement.querySelector('.planner-choice span');
+
+                // Limpa todos os estados anteriores
+                currentDayElement.classList.remove('filled', 'off-day');
+                currentDayElement.querySelector('.planner-choice i').style.display = 'block';
+
+                if (choiceText === "Folga") {
+                    // 1. Estado de FOLGA
+                    choiceSpan.textContent = choiceText;
+                    currentDayElement.classList.add('off-day');
+                    currentDayElement.querySelector('.planner-choice i').style.display = 'none';
+
+                } else if (choiceText) {
+                    // 2. Estado de LANCE
+                    choiceSpan.textContent = choiceText;
+                    currentDayElement.classList.add('filled');
+                    currentDayElement.querySelector('.planner-choice i').style.display = 'none';
+
+                } else {
+                    // 3. Estado de LIMPAR (Nenhum)
+                    choiceSpan.textContent = 'Clique para escolher';
+                }
+            }
+            closeModal();
+        });
+    });
+
+    // 3. Eventos para fechar o modal
+    closeModalBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        // Fecha se clicar no overlay (fundo)
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // 4. Evento do botão de Resetar
+    resetBtn.addEventListener('click', () => {
+        plannerDays.forEach(day => {
+            day.querySelector('.planner-choice span').textContent = 'Clique para escolher';
+            day.querySelector('.planner-choice i').style.display = 'block';
+            day.classList.remove('filled', 'off-day');
+        });
+    });
+
+    // 5. Evento do botão de Download (NOVO)
+    downloadBtn.addEventListener('click', generateDownload);
+
+}
+
+// ===============================================
+// ====== FIM DO CÓDIGO DO PLANEJADOR DE LANCHES ======
+// ===============================================
+
+// ===============================================
+// ==== INÍCIO DAS CHAMADAS DE FUNÇÕES =====
+// ===============================================
+
+// Funções Globais (rodam em todas as páginas)
+// setupFontControls(); // Removido pois os botões não estão no HTML
+
+// Funções da Página Inicial (Home) - Roda no carregamento inicial
+setupHeroCarousel();
+
+// Funções de outras páginas são chamadas dentro de navigateTo() para otimizar o TBT
+
+// ===============================================
+// ====== FIM DAS CHAMADAS DE FUNÇÕES ======
+// ===============================================
+
+
+// A LÓGICA DO CHATBOT FOI MOVIDA PARA 'gemini-chat.js'
 
 
 // ... (O restante das suas funções setup que são definidas fora do DOMContentLoaded, como triggerConfetti, setupHandwashGuide, etc., devem vir aqui) ...
-    
+
 
 /* =======================================================
  * FUNÇÃO DE CONFETE
@@ -1176,15 +1176,15 @@ function triggerConfetti(modalElement) {
 
     const icon = modalElement.querySelector('.win-icon');
     setTimeout(() => {
-        let origin = { y: 0.6, x: 0.5 }; 
+        let origin = { y: 0.6, x: 0.5 };
         if (icon) {
             const rect = icon.getBoundingClientRect();
-             if (rect.width > 0 && rect.height > 0) { 
-                 origin = {
-                     x: (rect.left + rect.width / 2) / window.innerWidth,
-                     y: (rect.top + rect.height / 2) / window.innerHeight
-                 };
-             }
+            if (rect.width > 0 && rect.height > 0) {
+                origin = {
+                    x: (rect.left + rect.width / 2) / window.innerWidth,
+                    y: (rect.top + rect.height / 2) / window.innerHeight
+                };
+            }
         }
         confetti({
             particleCount: 150,
@@ -1193,7 +1193,7 @@ function triggerConfetti(modalElement) {
             colors: ['#53954a', '#6e513d', '#f9efd4', '#FFFFFF'],
             zIndex: 3000
         });
-    }, 450); 
+    }, 450);
 }
 
 
@@ -1222,7 +1222,7 @@ const EmbeddedClassifyGame = {
     remainingItems: 0,
     draggedItemElement: null,
 
-    init: function() {
+    init: function () {
         this.gameArea = document.getElementById('classify-game-area-embedded');
         this.foodBank = this.gameArea?.querySelector('.classify-food-bank');
         this.dropZones = this.gameArea?.querySelectorAll('.classify-zone');
@@ -1244,9 +1244,9 @@ const EmbeddedClassifyGame = {
         this.foodBank.innerHTML = '';
         this.dropZones.forEach(zone => {
             zone.classList.remove('correct', 'incorrect', 'over');
-             zone.removeEventListener('dragover', this.handleDragOver.bind(this));
-             zone.removeEventListener('dragleave', this.handleDragLeave.bind(this));
-             zone.removeEventListener('drop', this.handleDrop.bind(this));
+            zone.removeEventListener('dragover', this.handleDragOver.bind(this));
+            zone.removeEventListener('dragleave', this.handleDragLeave.bind(this));
+            zone.removeEventListener('drop', this.handleDrop.bind(this));
         });
 
         const shuffledItems = this.shuffleArray([...this.foodItemsData]);
@@ -1258,24 +1258,24 @@ const EmbeddedClassifyGame = {
         this.updateScore();
 
         this.dropZones.forEach(zone => {
-             zone.addEventListener('dragover', this.handleDragOver.bind(this));
-             zone.removeEventListener('dragleave', this.handleDragLeave.bind(this));
-             zone.addEventListener('drop', this.handleDrop.bind(this));
+            zone.addEventListener('dragover', this.handleDragOver.bind(this));
+            zone.removeEventListener('dragleave', this.handleDragLeave.bind(this));
+            zone.addEventListener('drop', this.handleDrop.bind(this));
         });
     },
 
-    createFoodItemElement: function(itemData) {
+    createFoodItemElement: function (itemData) {
         const item = document.createElement('div');
         item.classList.add('classify-food-item');
         item.draggable = true;
         item.dataset.name = itemData.name;
         item.innerHTML = `<img src="${itemData.imageSrc}" alt="${itemData.name}">`;
-         item.addEventListener('dragstart', this.handleDragStart.bind(this));
-         item.addEventListener('dragend', this.handleDragEnd.bind(this));
+        item.addEventListener('dragstart', this.handleDragStart.bind(this));
+        item.addEventListener('dragend', this.handleDragEnd.bind(this));
         return item;
     },
 
-    handleDragStart: function(event) {
+    handleDragStart: function (event) {
         const targetItem = event.target.closest('.classify-food-item');
         if (!targetItem) return;
         this.draggedItemElement = targetItem;
@@ -1283,29 +1283,29 @@ const EmbeddedClassifyGame = {
         setTimeout(() => targetItem.classList.add('dragging'), 0);
     },
 
-    handleDragEnd: function(event) {
+    handleDragEnd: function (event) {
         const targetItem = event.target.closest('.classify-food-item');
         if (!targetItem) return;
         targetItem.classList.remove('dragging');
         this.draggedItemElement = null;
     },
 
-    handleDragOver: function(event) {
+    handleDragOver: function (event) {
         event.preventDefault();
         const zone = event.target.closest('.classify-zone');
-         if (zone) {
+        if (zone) {
             zone.classList.add('over');
         }
     },
 
-     handleDragLeave: function(event) {
-         const zone = event.target.closest('.classify-zone');
-         if (zone) {
-             zone.classList.remove('over');
-         }
-     },
+    handleDragLeave: function (event) {
+        const zone = event.target.closest('.classify-zone');
+        if (zone) {
+            zone.classList.remove('over');
+        }
+    },
 
-    handleDrop: function(event) {
+    handleDrop: function (event) {
         event.preventDefault();
         const zone = event.target.closest('.classify-zone');
         if (!zone || !this.draggedItemElement) return;
@@ -1331,19 +1331,19 @@ const EmbeddedClassifyGame = {
         this.draggedItemElement = null;
     },
 
-    updateScore: function() {
+    updateScore: function () {
         if (this.scoreDisplay) {
             this.scoreDisplay.textContent = `Itens restantes: ${this.remainingItems}`;
         }
     },
 
-    checkWinCondition: function() {
+    checkWinCondition: function () {
         if (this.remainingItems === 0) {
             this.showWinModal();
         }
     },
 
-    showWinModal: function() {
+    showWinModal: function () {
         // Esta função já é segura, pois só tenta usar o modal se ele foi encontrado
         if (this.winModal) {
             this.winModal.classList.add('active');
@@ -1351,15 +1351,15 @@ const EmbeddedClassifyGame = {
         }
     },
 
-    resetGame: function() {
+    resetGame: function () {
         this.remainingItems = 0;
         this.draggedItemElement = null;
-         if (this.dropZones) {
-             this.dropZones.forEach(zone => zone.classList.remove('correct', 'incorrect', 'over'));
-         }
+        if (this.dropZones) {
+            this.dropZones.forEach(zone => zone.classList.remove('correct', 'incorrect', 'over'));
+        }
     },
 
-    shuffleArray: function(array) {
+    shuffleArray: function (array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
@@ -1455,11 +1455,11 @@ function setupHandwashGuide() {
     const prevBtn = document.getElementById('btn-prev-step');
     const nextBtn = document.getElementById('btn-next-step');
     const stepCounter = document.getElementById('step-counter');
-    
+
     const iconEl = guide.querySelector('.guide-icon i');
     const titleEl = guide.querySelector('.guide-step-title');
     const textEl = guide.querySelector('.guide-step-text');
-    
+
     let currentStep = 0;
 
     // 3. Função para Atualizar a Tela
@@ -1480,7 +1480,7 @@ function setupHandwashGuide() {
             // Controla os botões
             prevBtn.disabled = (stepIndex === 0);
             nextBtn.disabled = (stepIndex === handWashSteps.length - 1);
-            
+
             // Remove classe para animação de fade-in
             textEl.classList.remove('fade-out');
             iconEl.classList.remove('fade-out');
@@ -1515,7 +1515,7 @@ function setupHandwashGuide() {
 const originMapData = {
     'indigena': {
         title: 'Matriz Indígena',
-        imageSrc: 'Imagens/icone-indigena.webp', 
+        imageSrc: 'Imagens/icone-indigena.webp',
         altText: 'Ícone da Matriz Indígena',
         color: 'var(--color-primary)', // Verde
         bgColor: '#f0fdf4', // Verde claro
@@ -1528,7 +1528,7 @@ const originMapData = {
     },
     'portuguesa': {
         title: 'Matriz Portuguesa',
-        imageSrc: 'Imagens/icone-portuguesa.webp', 
+        imageSrc: 'Imagens/icone-portuguesa.webp',
         altText: 'Ícone da Matriz Portuguesa',
         color: 'var(--color-secondary)', // Marrom
         bgColor: 'var(--color-background)', // Bege
@@ -1541,7 +1541,7 @@ const originMapData = {
     },
     'africana': {
         title: 'Matriz Africana',
-        imageSrc: 'Imagens/icone-africana.webp', 
+        imageSrc: 'Imagens/icone-africana.webp',
         altText: 'Ícone da Matriz Africana',
         color: '#d97706', // Laranja
         bgColor: '#fffbeb', // Laranja claro
@@ -1567,7 +1567,7 @@ function closeOriginModal() {
 function populateOriginModal(data) {
     const modal = document.getElementById('origin-modal');
     if (!modal) return;
-    
+
     const modalContent = modal.querySelector('.game-modal-content');
     const titleEl = document.getElementById('origin-modal-title');
     const iconEl = document.getElementById('origin-modal-icon'); // Agora é um <img>
@@ -1576,12 +1576,12 @@ function populateOriginModal(data) {
 
     // Preenche os dados
     titleEl.textContent = data.title;
-    iconEl.src = data.imageSrc; 
-    iconEl.alt = data.altText; 
-    
+    iconEl.src = data.imageSrc;
+    iconEl.alt = data.altText;
+
     // Limpa a lista antiga
     listEl.innerHTML = '';
-    
+
     // Adiciona os novos itens
     data.items.forEach(item => {
         const li = document.createElement('li');
@@ -1591,7 +1591,7 @@ function populateOriginModal(data) {
 
     // Atualiza as cores dinamicamente
     modalContent.style.borderColor = data.color;
-    
+
     // Abre o modal
     modal.classList.add('active');
     document.body.classList.add('game-modal-open');
@@ -1601,14 +1601,14 @@ function populateOriginModal(data) {
 function setupOriginMap() {
     const hotspots = document.querySelectorAll('.map-hotspot');
     const modal = document.getElementById('origin-modal');
-    
+
     // ===================================================
     // === ANIMAÇÃO DE ENTRADA (GSAP) ===
     // ===================================================
     if (typeof gsap !== 'undefined' && hotspots.length > 0) {
         // Define o estado inicial (invisível e pequeno)
         gsap.set(hotspots, { opacity: 0, scale: 0.5 });
-        
+
         gsap.to(hotspots, {
             duration: 0.8, // Duração da animação de cada botão
             opacity: 1,
@@ -1660,7 +1660,7 @@ function setupRecipeFilters() {
     // Verificação para garantir que estamos na página de receitas
     // Adiciona uma verificação pelo ID da página de receitas
     const recipePage = document.getElementById('receitas');
-    
+
     if (!filterContainer || !recipePage || !recipePage.classList.contains('active')) {
         // Se o container não existe OU a página de receitas não está ativa, não faz nada.
         // Isso previne que o script tente rodar em outras páginas.
@@ -1707,91 +1707,91 @@ function setupRecipeFilters() {
     }
 }
 // --- 7. LÓGICA DE CELEBRAÇÃO DA DEDICATÓRIA (FORMATURA) ---
-    const dedicationBox = document.getElementById('class-dedication');
-    
-    // Variável para evitar disparar confetes a cada milissegundo.
-    let confettiTimer = null; 
+const dedicationBox = document.getElementById('class-dedication');
 
-    if (dedicationBox && typeof triggerConfetti !== 'undefined') {
-        
-        // Dispara o confete APENAS ao passar o mouse (hover)
-        dedicationBox.addEventListener('mouseenter', () => {
-             // Checa se já existe um timer rodando para não sobrecarregar
-             if (confettiTimer) {
-                 return;
-             }
-             
-             // Dispara o confete
-             triggerConfetti(dedicationBox);
+// Variável para evitar disparar confetes a cada milissegundo.
+let confettiTimer = null;
 
-             // Define um novo timer para impedir um novo disparo por 2 segundos
-             confettiTimer = setTimeout(() => {
-                 confettiTimer = null;
-             }, 2000); 
-        });
-        
-        // O CÓDIGO DE DISPARO INICIAL FOI REMOVIDO DAQUI.
-    }
-    
-    /* =======================================================
-     * LÓGICA CHATBOT (IMPLEMENTAÇÃO COMPLETA)
-     * ======================================================= */
-    
-    function setupChatbotToggle() {
-        const toggleBtn = document.getElementById('chatbot-toggle-btn');
-        const closeBtn = document.getElementById('chatbot-close-btn');
-        const chatWindow = document.getElementById('chatbot-window');
-        
-        // ⚠️ Adicionado console.error para debugging, caso não encontre um elemento
-        if (!toggleBtn || !chatWindow || !closeBtn) {
-             console.error("ERRO: Elementos do Chatbot (toggleBtn, chatWindow, closeBtn) não foram encontrados no DOM.");
-             return; 
+if (dedicationBox && typeof triggerConfetti !== 'undefined') {
+
+    // Dispara o confete APENAS ao passar o mouse (hover)
+    dedicationBox.addEventListener('mouseenter', () => {
+        // Checa se já existe um timer rodando para não sobrecarregar
+        if (confettiTimer) {
+            return;
         }
 
-        function toggleChatbot() {
-            const isHidden = chatWindow.classList.contains('hidden');
-            
-            // 1. Alterna a visibilidade da janela e do FAB
-            chatWindow.classList.toggle('hidden');
-            toggleBtn.classList.toggle('hidden');
-            
-            // 2. Controla o scroll do body (trava a rolagem)
-            document.body.classList.toggle('game-modal-open', isHidden);
-            
-            // 3. Foca no input ao abrir
-            if (isHidden) {
-                const input = document.getElementById('chatbot-input');
-                if (input) {
-                    // Timeout para garantir que o foco seja aplicado após a animação de abertura
-                    setTimeout(() => input.focus(), 400); 
-                }
+        // Dispara o confete
+        triggerConfetti(dedicationBox);
+
+        // Define um novo timer para impedir um novo disparo por 2 segundos
+        confettiTimer = setTimeout(() => {
+            confettiTimer = null;
+        }, 2000);
+    });
+
+    // O CÓDIGO DE DISPARO INICIAL FOI REMOVIDO DAQUI.
+}
+
+/* =======================================================
+ * LÓGICA CHATBOT (IMPLEMENTAÇÃO COMPLETA)
+ * ======================================================= */
+
+function setupChatbotToggle() {
+    const toggleBtn = document.getElementById('chatbot-toggle-btn');
+    const closeBtn = document.getElementById('chatbot-close-btn');
+    const chatWindow = document.getElementById('chatbot-window');
+
+    // ⚠️ Adicionado console.error para debugging, caso não encontre um elemento
+    if (!toggleBtn || !chatWindow || !closeBtn) {
+        console.error("ERRO: Elementos do Chatbot (toggleBtn, chatWindow, closeBtn) não foram encontrados no DOM.");
+        return;
+    }
+
+    function toggleChatbot() {
+        const isHidden = chatWindow.classList.contains('hidden');
+
+        // 1. Alterna a visibilidade da janela e do FAB
+        chatWindow.classList.toggle('hidden');
+        toggleBtn.classList.toggle('hidden');
+
+        // 2. Controla o scroll do body (trava a rolagem)
+        document.body.classList.toggle('game-modal-open', isHidden);
+
+        // 3. Foca no input ao abrir
+        if (isHidden) {
+            const input = document.getElementById('chatbot-input');
+            if (input) {
+                // Timeout para garantir que o foco seja aplicado após a animação de abertura
+                setTimeout(() => input.focus(), 400);
             }
         }
-
-        // Event listeners
-        toggleBtn.addEventListener('click', toggleChatbot);
-        closeBtn.addEventListener('click', toggleChatbot);
     }
-    
-    // O restante da lógica de chat (envio de mensagem, gemini-chat.js, etc.) 
-    // deve ser implementado no arquivo correspondente.
+
+    // Event listeners
+    toggleBtn.addEventListener('click', toggleChatbot);
+    closeBtn.addEventListener('click', toggleChatbot);
+}
+
+// O restante da lógica de chat (envio de mensagem, gemini-chat.js, etc.) 
+// deve ser implementado no arquivo correspondente.
 
 
 /* =======================================================
  * CHAMADAS GERAIS (Roda APÓS A DEFINIÇÃO das funções)
  * ======================================================= */
-    
-    // Funções da Página Inicial (Home) - Roda no carregamento inicial
-    setupHeroCarousel();
-    
-    // Garante que o Chatbot e outras inicializações rodem *depois* do DOM
-    // O DOMContentLoaded garante que todos os elementos HTML (como o botão) 
-    // existam antes de tentarmos anexar o listener.
-    document.addEventListener('DOMContentLoaded', () => {
-        // Funções que devem rodar no carregamento inicial da página, independente da seção ativa:
-        setupChatbotToggle(); 
-        setupPrototypeWarning();
-    });
+
+// Funções da Página Inicial (Home) - Roda no carregamento inicial
+setupHeroCarousel();
+
+// Garante que o Chatbot e outras inicializações rodem *depois* do DOM
+// O DOMContentLoaded garante que todos os elementos HTML (como o botão) 
+// existam antes de tentarmos anexar o listener.
+document.addEventListener('DOMContentLoaded', () => {
+    // Funções que devem rodar no carregamento inicial da página, independente da seção ativa:
+    setupChatbotToggle();
+    setupPrototypeWarning();
+});
 /* =======================================================
  * LÓGICA DO AVISO DE PROTÓTIPO (MOSTRAR 1 VEZ POR SESSÃO - APENAS MOBILE)
  * ======================================================= */
@@ -1825,14 +1825,14 @@ function setupPrototypeWarning() {
     function closeWarning() {
         overlay.classList.remove('active');
         document.body.classList.remove('game-modal-open');
-        
+
         // 5. Salva no sessionStorage que o usuário já viu
         sessionStorage.setItem('seenPrototypeWarning', 'true');
     }
 
     // 6. Adiciona os eventos para fechar (esta parte não muda)
     closeBtn.addEventListener('click', closeWarning);
-    
+
     // (Opcional) Fecha se clicar fora do modal (no overlay)
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
