@@ -653,35 +653,47 @@ a.submenu-list__item-wrapper > svg {
     background-color: transparent !important;
 }
 
-    /* --- LÓGICA DO ACORDEÃO NÍVEL 1 (MENU PRINCIPAL) --- */
-    .main-header__list-item .submenu-wrapper {
-    position: static;
-    padding: 0;
-    opacity: 1;
-    visibility: visible;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s ease-in-out, margin-top 0.4s ease-in-out, margin-bottom 0.4s ease-in-out; /* Adiciona transição de margem */
-    box-shadow: none;
-    border: none;
-    pointer-events: auto !important;
-    left: auto;
-    transform: none;
-    max-width: none;
+.main-header__list-item .submenu-wrapper {
+    /* 1. MUDANÇA CHAVE: Tira o painel do fluxo normal da página */
+    position: absolute; 
 
-    /* === CORREÇÕES APLICADAS === */
+    /* 2. Posicionamento: 100% abaixo do topo do <li> pai */
+    top: 100%; 
+
+    /* 3. Centralização (igual aos cartões) */
+    left: 2.5%; /* (100% - 95%) / 2 */
+    width: 95%;
+    margin-left: 0;
+    margin-right: 0;
+
+    /* 4. Propriedades Visuais */
     background-color: var(--color-background);
-    box-shadow: inset 0 5px 8px -3px rgba(0, 0, 0, 0.1); 
-    border-radius: 8px;          
-    width: 95%;        /* 1. Define a largura para 95% */
-    margin-left: auto;   /* 2. Centraliza horizontalmente */
-    margin-right: auto;  /* 3. Centraliza horizontalmente */     
-    border-top: none;            
+    border-radius: 8px;
+    /* Sombra externa (para flutuar) + Sombra interna (para profundidade) */
+    box-shadow: 0 8px 15px rgba(0,0,0,0.15), inset 0 5px 8px -3px rgba(0, 0, 0, 0.1); 
+    padding: 10px;
+    z-index: 5; /* Z-index local (o pai controla o principal) */
+    overflow: hidden;
+
+    /* 5. Animação (Estado Fechado) - Trocamos 'max-height' por 'opacity' */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(0px);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s;
+
+    /* 6. Remove a animação de acordeão antiga */
+    max-height: none; 
 }
 .main-header__list-item.js-hover .submenu-wrapper {
-    max-height: 2000px;
-    margin-top: 5px;      /* <-- Dá um espaço no topo quando aberto */
-    margin-bottom: 10px;  /* <-- Dá um espaço embaixo quando aberto */
+    max-height: none; 
+    margin-top: 0;
+    margin-bottom: 0;
+
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(5px);
 }
 
     .main-header__list-item.js-hover .submenu-wrapper {
