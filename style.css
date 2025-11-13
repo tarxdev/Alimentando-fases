@@ -3490,6 +3490,10 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
         /* Reduz o tamanho do título */
         min-height: 2.2em;
         margin-bottom: 8px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .pilar-card p {
