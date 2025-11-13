@@ -624,29 +624,63 @@ a.submenu-list__item-wrapper>svg {
         fill: var(--color-primary-hover) !important;
         color: var(--color-primary-hover) !important;
     }
+    /* 1. Esconde a coluna "Destaques" APENAS no mobile */
+.submenu-content__column {
+    display: none !important;
+}
+
+/* 2. Garante que a seta ">" dos links L2 (Ex: Infância) não apareça */
+a.submenu-list__item-wrapper > svg {
+    display: none !important;
+}
+
+/* 3. Estiliza os links L2 para parecerem mais "clicáveis" */
+.submenu-list__item-wrapper {
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    border: 1px solid transparent; 
+    border-radius: 8px; 
+}
+
+/* 4. Adiciona um efeito de hover/foco nos links L2 */
+.submenu-list__item-wrapper:hover,
+.submenu-list__item-wrapper:focus-visible {
+    background-color: var(--color-background); 
+    border-color: var(--color-primary);       
+}
+
+/* 5. Remove o fundo cinza de "aba ativa" (do seu CSS original) */
+.submenu-list__item.has-submenu.active a.submenu-list__item-wrapper {
+    background-color: transparent !important;
+}
 
     /* --- LÓGICA DO ACORDEÃO NÍVEL 1 (MENU PRINCIPAL) --- */
     .main-header__list-item .submenu-wrapper {
-        position: static;
-        padding: 0;
-        opacity: 1;
-        visibility: visible;
-        /* Comportamento de Acordeão: Altura controlada por JS */
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height var(--transition);
-        box-shadow: none;
-        border: none;
-        background-color: transparent !important;
-        pointer-events: auto !important;
-        left: auto;
-        transform: none;
-        max-width: none;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-        /* Separador visual */
-        margin-top: -1px;
-        /* Cola no item de menu */
-    }
+    position: static;
+    padding: 0;
+    opacity: 1;
+    visibility: visible;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out, margin-top 0.4s ease-in-out, margin-bottom 0.4s ease-in-out; /* Adiciona transição de margem */
+    box-shadow: none;
+    border: none;
+    pointer-events: auto !important;
+    left: auto;
+    transform: none;
+    max-width: none;
+
+    /* === CORREÇÕES APLICADAS === */
+    background-color: #ffffff;     /* 1. Fundo BRANCO sólido */
+    border-radius: 8px;           /* 2. Bordas arredondadas */
+    margin: 0 10px 0 10px;        /* 3. Margens laterais para "respirar" */
+    border-top: none;             /* 4. Remove a borda superior antiga */
+}
+/* Adicione este novo bloco */
+.main-header__list-item.js-hover .submenu-wrapper {
+    max-height: 2000px;
+    margin-top: 5px;      /* <-- Dá um espaço no topo quando aberto */
+    margin-bottom: 10px;  /* <-- Dá um espaço embaixo quando aberto */
+}
 
     .main-header__list-item.js-hover .submenu-wrapper {
         /* A altura final é definida pelo JS (scrollHeight) */
@@ -663,7 +697,7 @@ a.submenu-list__item-wrapper>svg {
         flex-direction: column;
         /* CRÍTICO: layout vertical */
         margin-top: 10px;
-        background: rgba(0, 0, 0, 0.02);
+        background: transparent;
         border-radius: 10px;
         padding: 10px;
         gap: 10px;
@@ -5557,28 +5591,7 @@ div[vw-plugin-wrapper] {
     width: 100%;
     height: 100%;
 }
-
-/* =======================================================
- * CORREÇÃO DEFINITIVA DO MENU MOBILE (POPUP LIMPO)
- * ======================================================= */
-@media (max-width: 1024px) {
-
-    /* 1. ESCONDE a coluna de "Destaques" no mobile */
-    .submenu-content__column {
-        display: none !important;
-    }
-
-    /* 2. Remove o fundo cinza de "aba ativa" (do seu CSS original) */
-    .submenu-list__item.has-submenu.active a.submenu-list__item-wrapper {
-        background-color: transparent !important;
-    }
-
-    /* 3. Esconde a seta "->" desnecessária no mobile */
-    a.submenu-list__item-wrapper>svg {
-        display: none !important;
-    }
-}
-
+ 
 /* =======================================================
  * FIM DA CORREÇÃO DEFINITIVA
  * ======================================================= */
