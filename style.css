@@ -572,7 +572,7 @@ a.submenu-list__item-wrapper>svg {
         position: absolute;
         top: 100%;
         left: 0;
-        padding: 20px;
+        padding: 20px 0;
         opacity: 0;
         visibility: hidden;
         transition: var(--transition);
@@ -677,7 +677,6 @@ a.submenu-list__item-wrapper > svg {
     margin-right: auto;  /* 3. Centraliza horizontalmente */     
     border-top: none;            
 }
-/* Adicione este novo bloco */
 .main-header__list-item.js-hover .submenu-wrapper {
     max-height: 2000px;
     margin-top: 5px;      /* <-- Dá um espaço no topo quando aberto */
@@ -750,6 +749,66 @@ a.submenu-list__item-wrapper > svg {
         grid-template-columns: 1fr;
         gap: 15px;
     }
+    .main-header__list-item.menu-cta-button > a {
+    width: 95%;
+    margin: 5px auto;
+}
+
+.main-header__list-item .submenu-wrapper {
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.main-header__list-item:not(.has-submenu):not(.menu-cta-button) > a {
+    width: 95%; /* <-- LARGURA DE 95% */
+    margin: 5px auto; /* <-- CENTRALIZAÇÃO */
+    
+    background-color: #ffffff;
+    color: var(--color-secondary) !important;
+    border-radius: 8px;
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+}
+
+/* Hover dos links normais */
+.main-header__list-item:not(.has-submenu):not(.menu-cta-button) > a:hover {
+    background-color: var(--color-background);
+    border-color: var(--color-primary);
+}
+/* ============================================== */
+/* COLE ESTE BLOCO DENTRO DE @media (max-width: 1024px) */
+/* ============================================== */
+
+/* 1. Esconde a coluna "Destaques" APENAS no mobile */
+.submenu-content__column {
+    display: none !important;
+}
+
+/* 2. Garante que a seta ">" dos links L2 (Ex: Infância) não apareça */
+a.submenu-list__item-wrapper > svg {
+    display: none !important;
+}
+
+/* 3. Estiliza os links L2 para parecerem mais "clicáveis" */
+.submenu-list__item-wrapper {
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    border: 1px solid transparent; 
+    border-radius: 8px; 
+}
+
+/* 4. Adiciona um efeito de hover/foco nos links L2 */
+.submenu-list__item-wrapper:hover,
+.submenu-list__item-wrapper:focus-visible {
+    background-color: var(--color-background); 
+    border-color: var(--color-primary);       
+}
+
+/* 5. Remove o fundo cinza de "aba ativa" (do seu CSS original) */
+.submenu-list__item.has-submenu.active a.submenu-list__item-wrapper {
+    background-color: transparent !important;
+}
 }
 
 @media screen and (max-width: 767.9px) {
