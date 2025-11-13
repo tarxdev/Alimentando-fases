@@ -670,7 +670,8 @@ a.submenu-list__item-wrapper > svg {
     max-width: none;
 
     /* === CORREÇÕES APLICADAS === */
-    background-color: #ffffff;  
+    background-color: var(--color-background);
+    box-shadow: inset 0 5px 8px -3px rgba(0, 0, 0, 0.1); 
     border-radius: 8px;          
     width: 95%;        /* 1. Define a largura para 95% */
     margin-left: auto;   /* 2. Centraliza horizontalmente */
@@ -759,23 +760,95 @@ a.submenu-list__item-wrapper > svg {
     margin-left: auto;
     margin-right: auto;
 }
-
 .main-header__list-item:not(.has-submenu):not(.menu-cta-button) > a {
-    width: 95%; /* <-- LARGURA DE 95% */
-    margin: 5px auto; /* <-- CENTRALIZAÇÃO */
+    width: 95%; 
+    margin: 5px auto; 
     
-    background-color: #ffffff;
-    color: var(--color-secondary) !important;
+    /* === MUDANÇAS PRINCIPAIS === */
+    background-color: var(--color-background); /* Fundo BEGE claro */
+    color: var(--color-secondary) !important;  /* Texto MARROM escuro */
+    border: 2px solid #e0d7c0;  /* Borda bege mais escura */
+    /* === FIM DAS MUDANÇAS === */
+    
     border-radius: 8px;
     font-weight: 700;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    border: 1px solid #eee;
+    text-align: center; /* Garante que o texto fique centralizado */
+    padding: 15px; /* Padding vertical */
+}
+
+/* Efeito hover sutil */
+.main-header__list-item:not(.has-submenu):not(.menu-cta-button) > a:hover {
+    background-color: #fff;
+    border-color: var(--color-primary); /* Borda verde ao passar o mouse */
+}
+.main-header__list-item.has-submenu > a {
+    width: 95%; 
+    margin: 5px auto;
+    padding: 15px 20px; 
+    
+    background-color: var(--color-background); 
+    color: var(--color-secondary) !important;  
+    border: 2px solid #e0d7c0;
+    border-radius: 8px;
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+    position: relative; 
+    text-align: center;
+    
+}
+
+.main-header__list-item.has-submenu > a span {
+    color: var(--color-secondary) !important;
+}
+.main-header__list-item.has-submenu > a svg path {
+    fill: var(--color-secondary) !important;
+}
+/* 4. Posiciona a seta no canto direito */
+.main-header__list-item.has-submenu > a svg {
+    position: absolute;
+    right: 20px; /* Distância da borda direita */
+    top: 50%;    /* Alinhamento vertical */
+    transform: translateY(-50%); /* Ajuste fino do alinhamento */
+}
+
+.main-header__list-item.has-submenu > a:hover {
+    background-color: #fff;
+    border-color: var(--color-primary);
 }
 
 /* Hover dos links normais */
 .main-header__list-item:not(.has-submenu):not(.menu-cta-button) > a:hover {
     background-color: var(--color-background);
     border-color: var(--color-primary);
+}
+/* =======================================================
+ * DENTRO de @media (max-width: 1024px) no style.css
+ * ======================================================= */
+
+/* 1. Adicione position: relative ao item da lista */
+.main-header__list-item {
+    flex-direction: column;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    gap: 0;
+    position: relative; /* <-- ADICIONE ESTA LINHA */
+}
+
+/* 2. Adicione z-index: 10 ao item QUANDO ABERTO */
+.main-header__list-item.js-hover,
+.main-header__list-item.is-closing {
+    z-index: 10;
+}    
+
+/* (O código abaixo já existe no seu arquivo, 
+   apenas para referência de localização) */
+.main-header__list-item.js-hover .submenu-wrapper {
+    max-height: 2000px;
+    margin-top: 5px;
+    margin-bottom: 10px;
 }
 /* ============================================== */
 /* COLE ESTE BLOCO DENTRO DE @media (max-width: 1024px) */
@@ -921,7 +994,6 @@ a.submenu-list__item-wrapper > svg {
 .social a:focus-visible::after {
     inset-block-start: 0;
 }
-
 /* =======================================================
  * CSS PRINCIPAL - ALIMENTANDO FASES (SEGUNDA PARTE: COMPONENTES & CARDS)
  * ======================================================= */
@@ -5629,6 +5701,7 @@ div[vw-plugin-wrapper] {
     }
 }
 
+
 /* =======================================================
  * 33. CSS DO MAPA INTERATIVO (AÇÕES)
  * ======================================================= */
@@ -5893,4 +5966,39 @@ div[vw-plugin-wrapper] {
     background-color: #3f7238;
     /* Verde mais escuro no hover */
     border-color: #3f7238;
+}
+/* Pode adicionar no final do arquivo, fora de @media */
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dentro de @media (max-width: 1024px) */
+.main-header__navigation-wrapper.open .main-header__list-item {
+    /* Define a animação */
+    animation: fade-in-up 0.4s ease-out forwards;
+    
+    /* Começa invisível para a animação funcionar */
+    opacity: 0; 
+    
+    /* Impede que a animação rode antes de abrir */
+    animation-play-state: running; 
+}
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(1) { animation-delay: 0.1s; }
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(2) { animation-delay: 0.15s; }
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(3) { animation-delay: 0.2s; }
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(4) { animation-delay: 0.25s; }
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(5) { animation-delay: 0.3s; }
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(6) { animation-delay: 0.35s; }
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(7) { animation-delay: 0.4s; }
+.main-header__navigation-wrapper.open .mobile-warning-box {
+    animation: fade-in-up 0.4s ease-out 0.45s forwards;
+    opacity: 0;
 }
