@@ -846,7 +846,7 @@ a.submenu-list__item-wrapper > svg {
     padding: 0;
     margin: 0;
     gap: 0;
-    position: relative; /* <-- ADICIONE ESTA LINHA */
+    position: relative; 
 }
 
 /* 2. Adicione z-index: 10 ao item QUANDO ABERTO */
