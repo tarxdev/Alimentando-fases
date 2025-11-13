@@ -670,10 +670,12 @@ a.submenu-list__item-wrapper > svg {
     max-width: none;
 
     /* === CORREÇÕES APLICADAS === */
-    background-color: #ffffff;     /* 1. Fundo BRANCO sólido */
-    border-radius: 8px;           /* 2. Bordas arredondadas */
-    margin: 0 10px 0 10px;        /* 3. Margens laterais para "respirar" */
-    border-top: none;             /* 4. Remove a borda superior antiga */
+    background-color: #ffffff;  
+    border-radius: 8px;          
+    width: 95%;        /* 1. Define a largura para 95% */
+    margin-left: auto;   /* 2. Centraliza horizontalmente */
+    margin-right: auto;  /* 3. Centraliza horizontalmente */     
+    border-top: none;            
 }
 /* Adicione este novo bloco */
 .main-header__list-item.js-hover .submenu-wrapper {
