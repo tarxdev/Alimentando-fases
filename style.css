@@ -6018,3 +6018,11 @@ div[vw-plugin-wrapper] {
     animation: fade-in-up 0.4s ease-out 0.45s forwards;
     opacity: 0;
 }
+@media (min-width: 971px) {
+    
+    /* Alvos: Apenas as seções com 3 itens */
+    section#origem-alimentar .pilares-grid-container,
+    section#rotulagem .pilares-grid-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
