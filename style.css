@@ -336,7 +336,7 @@ a.submenu-list__item-wrapper {
     width: 100%;
     display: flex;
     align-items: center;
-    padding: 10px;
+    padding: 0;
     gap: 16px;
     border-radius: 14px;
     transition: var(--transition);
@@ -678,7 +678,7 @@ a.submenu-list__item-wrapper>svg {
         border-radius: 8px;
         /* Sombra externa (para flutuar) + Sombra interna (para profundidade) */
         box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15), inset 0 5px 8px -3px rgba(0, 0, 0, 0.1);
-        padding: 0 10px 10px;
+        padding: 0;
         z-index: 5;
         /* Z-index local (o pai controla o principal) */
         overflow: hidden;
@@ -886,14 +886,13 @@ a.submenu-list__item-wrapper>svg {
     .main-header__list-item.is-closing {
         z-index: 10;
     }
-
-    /* (O código abaixo já existe no seu arquivo, 
-   apenas para referência de localização) */
     .main-header__list-item.js-hover .submenu-wrapper {
-        max-height: 2000px;
-        margin-top: 5px;
-        margin-bottom: 10px;
-    }
+    /* A altura final é definida pelo JS (scrollHeight) */
+    max-height: 2000px; 
+    margin-top: 0; 
+    margin-bottom: 0;
+    padding: 10px 10px 15px; /* <-- Coloca o padding de volta SÓ AQUI */
+}
 
     /* ============================================== */
     /* COLE ESTE BLOCO DENTRO DE @media (max-width: 1024px) */
