@@ -29,6 +29,10 @@
     /* Variáveis Jogo Caça-Palavras */
     --grid-size: 15;
 }
+/* Remove o "flash azul" de toque no mobile */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
 
 * {
     margin: 0;
