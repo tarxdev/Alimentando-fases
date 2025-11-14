@@ -611,7 +611,11 @@ a.submenu-list__item-wrapper>svg {
         padding: 0;
         margin: 0;
         gap: 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
+    .main-header__list-item.menu-cta-button {
+    border-bottom: none; 
+}
 
     .main-header__list-item>a {
         padding: 15px;
@@ -624,78 +628,81 @@ a.submenu-list__item-wrapper>svg {
         fill: var(--color-primary-hover) !important;
         color: var(--color-primary-hover) !important;
     }
+
     /* 1. Esconde a coluna "Destaques" APENAS no mobile */
-.submenu-content__column {
-    display: none !important;
-}
+    .submenu-content__column {
+        display: none !important;
+    }
 
-/* 2. Garante que a seta ">" dos links L2 (Ex: Infância) não apareça */
-a.submenu-list__item-wrapper > svg {
-    display: none !important;
-}
+    /* 2. Garante que a seta ">" dos links L2 (Ex: Infância) não apareça */
+    a.submenu-list__item-wrapper>svg {
+        display: none !important;
+    }
 
-/* 3. Estiliza os links L2 para parecerem mais "clicáveis" */
-.submenu-list__item-wrapper {
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-    border: 1px solid transparent; 
-    border-radius: 8px; 
-}
+    /* 3. Estiliza os links L2 para parecerem mais "clicáveis" */
+    .submenu-list__item-wrapper {
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+        border: 1px solid transparent;
+        border-radius: 8px;
+    }
 
-/* 4. Adiciona um efeito de hover/foco nos links L2 */
-.submenu-list__item-wrapper:hover,
-.submenu-list__item-wrapper:focus-visible {
-    background-color: var(--color-background); 
-    border-color: var(--color-primary);       
-}
+    /* 4. Adiciona um efeito de hover/foco nos links L2 */
+    .submenu-list__item-wrapper:hover,
+    .submenu-list__item-wrapper:focus-visible {
+        background-color: var(--color-background);
+        border-color: var(--color-primary);
+    }
 
-/* 5. Remove o fundo cinza de "aba ativa" (do seu CSS original) */
-.submenu-list__item.has-submenu.active a.submenu-list__item-wrapper {
-    background-color: transparent !important;
-}
+    /* 5. Remove o fundo cinza de "aba ativa" (do seu CSS original) */
+    .submenu-list__item.has-submenu.active a.submenu-list__item-wrapper {
+        background-color: transparent !important;
+    }
 
-.main-header__list-item .submenu-wrapper {
-    /* 1. MUDANÇA CHAVE: Tira o painel do fluxo normal da página */
-    position: static; 
+    .main-header__list-item .submenu-wrapper {
+        /* 1. MUDANÇA CHAVE: Tira o painel do fluxo normal da página */
+        position: static !important;
 
-    /* 2. Posicionamento: 100% abaixo do topo do <li> pai */
-    top: 100%; 
+        /* 2. Posicionamento: 100% abaixo do topo do <li> pai */
+        top: 100%;
 
-    /* 3. Centralização (igual aos cartões) */
-    left: 2.5%; /* (100% - 95%) / 2 */
-    width: 95%;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 5px;
+        /* 3. Centralização (igual aos cartões) */
+        left: 2.5%;
+        /* (100% - 95%) / 2 */
+        width: 95%;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 0px;
 
-    /* 4. Propriedades Visuais */
-    background-color: var(--color-background);
-    border-radius: 8px;
-    /* Sombra externa (para flutuar) + Sombra interna (para profundidade) */
-    box-shadow: 0 8px 15px rgba(0,0,0,0.15), inset 0 5px 8px -3px rgba(0, 0, 0, 0.1); 
-    padding: 10px;
-    z-index: 5; /* Z-index local (o pai controla o principal) */
-    overflow: hidden;
+        /* 4. Propriedades Visuais */
+        background-color: var(--color-background);
+        border-radius: 8px;
+        /* Sombra externa (para flutuar) + Sombra interna (para profundidade) */
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15), inset 0 5px 8px -3px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        z-index: 5;
+        /* Z-index local (o pai controla o principal) */
+        overflow: hidden;
 
-    /* 5. Animação (Estado Fechado) - Trocamos 'max-height' por 'opacity' */
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateY(0px);
-    transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s;
+        /* 5. Animação (Estado Fechado) - Trocamos 'max-height' por 'opacity' */
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(0px);
+        transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s, max-height 0.4s ease-in-out;
 
-    /* 6. Remove a animação de acordeão antiga */
-    max-height: none; 
-}
-.main-header__list-item.js-hover .submenu-wrapper {
-    max-height: none; 
-    margin-top: 0;
-    margin-bottom: 0;
+        /* 6. Remove a animação de acordeão antiga */
+        max-height: 0;
+    }
 
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: translateY(5px);
-}
+    .main-header__list-item.js-hover .submenu-wrapper {
+        margin-top: 0;
+        margin-bottom: 0;
+
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
 
     .main-header__list-item.js-hover .submenu-wrapper {
         /* A altura final é definida pelo JS (scrollHeight) */
@@ -710,11 +717,10 @@ a.submenu-list__item-wrapper > svg {
         width: auto;
         display: flex;
         flex-direction: column;
-        /* CRÍTICO: layout vertical */
-        margin-top: 10px;
+        margin-top: 0;
         background: transparent;
         border-radius: 10px;
-        padding: 10px;
+        padding: 0 10px 10px 25px;
         gap: 10px;
         /* Espaçamento entre os itens principais (Infância, Adolescência) */
     }
@@ -763,147 +769,164 @@ a.submenu-list__item-wrapper > svg {
         grid-template-columns: 1fr;
         gap: 15px;
     }
-    .main-header__list-item.menu-cta-button > a {
-    width: 95%;
-    margin: 5px auto;
-}
 
-.main-header__list-item .submenu-wrapper {
-    width: 95%;
-    margin-left: auto;
-    margin-right: auto;
-}
-.main-header__list-item:not(.has-submenu):not(.menu-cta-button) > a {
-    width: 95%; 
-    margin: 5px auto; 
-    
-    /* === MUDANÇAS PRINCIPAIS === */
-    background-color: var(--color-background); /* Fundo BEGE claro */
-    color: var(--color-secondary) !important;  /* Texto MARROM escuro */
-    border: 2px solid #e0d7c0;  /* Borda bege mais escura */
-    /* === FIM DAS MUDANÇAS === */
-    
-    border-radius: 8px;
-    font-weight: 700;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    text-align: center; /* Garante que o texto fique centralizado */
-    padding: 15px; /* Padding vertical */
-}
+    .main-header__list-item.menu-cta-button>a {
+        width: 95%;
+        margin: 0 auto;
+    }
 
-/* Efeito hover sutil */
-.main-header__list-item:not(.has-submenu):not(.menu-cta-button) > a:hover {
-    background-color: #fff;
-    border-color: var(--color-primary); /* Borda verde ao passar o mouse */
-}
-.main-header__list-item.has-submenu > a {
-    width: 95%; 
-    margin: 5px auto;
-    padding: 15px 20px; 
-    
-    background-color: var(--color-background); 
-    color: var(--color-secondary) !important;  
-    border: 2px solid #e0d7c0;
-    border-radius: 8px;
-    font-weight: 700;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    .main-header__list-item .submenu-wrapper {
+        width: 95%;
+        margin-left: auto;
+        margin-right: auto;
+    }
 
-    position: relative; 
-    text-align: center;
-    
-}
+    .main-header__list-item:not(.has-submenu):not(.menu-cta-button)>a {
+        width: 95%;
+        margin: 0 auto;
 
-.main-header__list-item.has-submenu > a span {
-    color: var(--color-secondary) !important;
-}
-.main-header__list-item.has-submenu > a svg path {
-    fill: var(--color-secondary) !important;
-}
-/* 4. Posiciona a seta no canto direito */
-.main-header__list-item.has-submenu > a svg {
-    position: absolute;
-    right: 20px; /* Distância da borda direita */
-    top: 50%;    /* Alinhamento vertical */
-    transform: translateY(-50%); /* Ajuste fino do alinhamento */
-}
+        /* === MUDANÇAS PRINCIPAIS === */
+        background-color: var(--color-background);
+        /* Fundo BEGE claro */
+        color: var(--color-secondary) !important;
+        /* Texto MARROM escuro */
+        border: 2px solid #e0d7c0;
+        /* Borda bege mais escura */
+        /* === FIM DAS MUDANÇAS === */
 
-.main-header__list-item.has-submenu > a:hover {
-    background-color: #fff;
-    border-color: var(--color-primary);
-}
+        border-radius: 8px;
+        font-weight: 700;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        /* Garante que o texto fique centralizado */
+        padding: 20px;
+        /* Padding vertical */
+    }
 
-/* Hover dos links normais */
-.main-header__list-item:not(.has-submenu):not(.menu-cta-button) > a:hover {
-    background-color: var(--color-background);
-    border-color: var(--color-primary);
-}
-.main-header__list-item {
-    position: relative;
-    /* Isso é crucial para o z-index funcionar */
-}
+    /* Efeito hover sutil */
+    .main-header__list-item:not(.has-submenu):not(.menu-cta-button)>a:hover {
+        background-color: #fff;
+        border-color: var(--color-primary);
+        /* Borda verde ao passar o mouse */
+    }
 
-/* 2. ELEVA o item ATIVO (clicado) acima dos outros */
-.main-header__list-item.js-hover {
-    z-index: 10;
-}
-/* =======================================================
+    .main-header__list-item.has-submenu>a {
+        width: 95%;
+        margin: 0 auto;
+        padding: 15px 20px;
+
+        background-color: var(--color-background);
+        color: var(--color-secondary) !important;
+        border: 2px solid #e0d7c0;
+        border-radius: 8px;
+        font-weight: 700;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+        position: relative;
+        text-align: center;
+
+    }
+
+    .main-header__list-item.has-submenu>a span {
+        color: var(--color-secondary) !important;
+    }
+
+    .main-header__list-item.has-submenu>a svg path {
+        fill: var(--color-secondary) !important;
+    }
+
+    /* 4. Posiciona a seta no canto direito */
+    .main-header__list-item.has-submenu>a svg {
+        position: absolute;
+        right: 20px;
+        /* Distância da borda direita */
+        top: 50%;
+        /* Alinhamento vertical */
+        transform: translateY(-50%);
+        /* Ajuste fino do alinhamento */
+    }
+
+    .main-header__list-item.has-submenu>a:hover {
+        background-color: #fff;
+        border-color: var(--color-primary);
+    }
+
+    /* Hover dos links normais */
+    .main-header__list-item:not(.has-submenu):not(.menu-cta-button)>a:hover {
+        background-color: var(--color-background);
+        border-color: var(--color-primary);
+    }
+
+    .main-header__list-item {
+        position: relative;
+        /* Isso é crucial para o z-index funcionar */
+    }
+
+    /* 2. ELEVA o item ATIVO (clicado) acima dos outros */
+    .main-header__list-item.js-hover {
+        z-index: 10;
+    }
+
+    /* =======================================================
  * DENTRO de @media (max-width: 1024px) no style.css
  * ======================================================= */
 
-/* 1. Adicione position: relative ao item da lista */
-.main-header__list-item {
-    flex-direction: column;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    gap: 0;
-    position: relative; 
-}
+    /* 1. Adicione position: relative ao item da lista */
+    .main-header__list-item {
+        flex-direction: column;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        gap: 0;
+        position: relative;
+    }
 
-/* 2. Adicione z-index: 10 ao item QUANDO ABERTO */
-.main-header__list-item.js-hover,
-.main-header__list-item.is-closing {
-    z-index: 10;
-}    
+    /* 2. Adicione z-index: 10 ao item QUANDO ABERTO */
+    .main-header__list-item.js-hover,
+    .main-header__list-item.is-closing {
+        z-index: 10;
+    }
 
-/* (O código abaixo já existe no seu arquivo, 
+    /* (O código abaixo já existe no seu arquivo, 
    apenas para referência de localização) */
-.main-header__list-item.js-hover .submenu-wrapper {
-    max-height: 2000px;
-    margin-top: 5px;
-    margin-bottom: 10px;
-}
-/* ============================================== */
-/* COLE ESTE BLOCO DENTRO DE @media (max-width: 1024px) */
-/* ============================================== */
+    .main-header__list-item.js-hover .submenu-wrapper {
+        max-height: 2000px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+    }
 
-/* 1. Esconde a coluna "Destaques" APENAS no mobile */
-.submenu-content__column {
-    display: none !important;
-}
+    /* ============================================== */
+    /* COLE ESTE BLOCO DENTRO DE @media (max-width: 1024px) */
+    /* ============================================== */
 
-/* 2. Garante que a seta ">" dos links L2 (Ex: Infância) não apareça */
-a.submenu-list__item-wrapper > svg {
-    display: none !important;
-}
+    /* 1. Esconde a coluna "Destaques" APENAS no mobile */
+    .submenu-content__column {
+        display: none !important;
+    }
 
-/* 3. Estiliza os links L2 para parecerem mais "clicáveis" */
-.submenu-list__item-wrapper {
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-    border: 1px solid transparent; 
-    border-radius: 8px; 
-}
+    /* 2. Garante que a seta ">" dos links L2 (Ex: Infância) não apareça */
+    a.submenu-list__item-wrapper>svg {
+        display: none !important;
+    }
 
-/* 4. Adiciona um efeito de hover/foco nos links L2 */
-.submenu-list__item-wrapper:hover,
-.submenu-list__item-wrapper:focus-visible {
-    background-color: var(--color-background); 
-    border-color: var(--color-primary);       
-}
+    /* 3. Estiliza os links L2 para parecerem mais "clicáveis" */
+    .submenu-list__item-wrapper {
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+        border: 1px solid transparent;
+        border-radius: 8px;
+    }
 
-/* 5. Remove o fundo cinza de "aba ativa" (do seu CSS original) */
-.submenu-list__item.has-submenu.active a.submenu-list__item-wrapper {
-    background-color: transparent !important;
-}
+    /* 4. Adiciona um efeito de hover/foco nos links L2 */
+    .submenu-list__item-wrapper:hover,
+    .submenu-list__item-wrapper:focus-visible {
+        background-color: var(--color-background);
+        border-color: var(--color-primary);
+    }
+
+    /* 5. Remove o fundo cinza de "aba ativa" (do seu CSS original) */
+    .submenu-list__item.has-submenu.active a.submenu-list__item-wrapper {
+        background-color: transparent !important;
+    }
 }
 
 @media screen and (max-width: 767.9px) {
@@ -1016,6 +1039,7 @@ a.submenu-list__item-wrapper > svg {
 .social a:focus-visible::after {
     inset-block-start: 0;
 }
+
 /* =======================================================
  * CSS PRINCIPAL - ALIMENTANDO FASES (SEGUNDA PARTE: COMPONENTES & CARDS)
  * ======================================================= */
@@ -5718,7 +5742,7 @@ div[vw-plugin-wrapper] {
         border-radius: 8px;
         font-weight: 700;
         width: 95%;
-        margin: 5px auto;
+        margin: 0 auto;
     }
 
     .main-header__list-item.menu-cta-button>a:hover {
@@ -5751,7 +5775,7 @@ div[vw-plugin-wrapper] {
     width: 100%;
     height: 100%;
 }
- 
+
 /* =======================================================
  * FIM DA CORREÇÃO DEFINITIVA
  * ======================================================= */
@@ -5857,7 +5881,7 @@ div[vw-plugin-wrapper] {
         display: block;
         width: 95%;
         /* Combina com a largura do botão "Contato" */
-        margin: 15px auto;
+        margin: 0 auto 5px;
         padding: 12px 15px;
         background-color: #fffbeb;
         /* Fundo de aviso (amarelo claro) */
@@ -5993,6 +6017,7 @@ div[vw-plugin-wrapper] {
     /* Verde mais escuro no hover */
     border-color: #3f7238;
 }
+
 /* Pode adicionar no final do arquivo, fora de @media */
 
 @keyframes fade-in-up {
@@ -6000,6 +6025,7 @@ div[vw-plugin-wrapper] {
         opacity: 0;
         transform: translateY(15px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -6010,26 +6036,49 @@ div[vw-plugin-wrapper] {
 .main-header__navigation-wrapper.open .main-header__list-item {
     /* Define a animação */
     animation: fade-in-up 0.4s ease-out forwards;
-    
+
     /* Começa invisível para a animação funcionar */
-    opacity: 0; 
-    
+    opacity: 0;
+
     /* Impede que a animação rode antes de abrir */
-    animation-play-state: running; 
+    animation-play-state: running;
 }
-.main-header__navigation-wrapper.open .main-header__list-item:nth-child(1) { animation-delay: 0.1s; }
-.main-header__navigation-wrapper.open .main-header__list-item:nth-child(2) { animation-delay: 0.15s; }
-.main-header__navigation-wrapper.open .main-header__list-item:nth-child(3) { animation-delay: 0.2s; }
-.main-header__navigation-wrapper.open .main-header__list-item:nth-child(4) { animation-delay: 0.25s; }
-.main-header__navigation-wrapper.open .main-header__list-item:nth-child(5) { animation-delay: 0.3s; }
-.main-header__navigation-wrapper.open .main-header__list-item:nth-child(6) { animation-delay: 0.35s; }
-.main-header__navigation-wrapper.open .main-header__list-item:nth-child(7) { animation-delay: 0.4s; }
+
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(4) {
+    animation-delay: 0.25s;
+}
+
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(5) {
+    animation-delay: 0.3s;
+}
+
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(6) {
+    animation-delay: 0.35s;
+}
+
+.main-header__navigation-wrapper.open .main-header__list-item:nth-child(7) {
+    animation-delay: 0.4s;
+}
+
 .main-header__navigation-wrapper.open .mobile-warning-box {
     animation: fade-in-up 0.4s ease-out 0.45s forwards;
     opacity: 0;
 }
+
 @media (min-width: 971px) {
-    
+
     /* Alvos: Apenas as seções com 3 itens */
     section#origem-alimentar .pilares-grid-container,
     section#rotulagem .pilares-grid-container {
