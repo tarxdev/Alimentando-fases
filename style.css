@@ -655,7 +655,7 @@ a.submenu-list__item-wrapper > svg {
 
 .main-header__list-item .submenu-wrapper {
     /* 1. MUDANÇA CHAVE: Tira o painel do fluxo normal da página */
-    position: absolute; 
+    position: static; 
 
     /* 2. Posicionamento: 100% abaixo do topo do <li> pai */
     top: 100%; 
@@ -663,8 +663,9 @@ a.submenu-list__item-wrapper > svg {
     /* 3. Centralização (igual aos cartões) */
     left: 2.5%; /* (100% - 95%) / 2 */
     width: 95%;
-    margin-left: 0;
-    margin-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
 
     /* 4. Propriedades Visuais */
     background-color: var(--color-background);
@@ -834,6 +835,15 @@ a.submenu-list__item-wrapper > svg {
 .main-header__list-item:not(.has-submenu):not(.menu-cta-button) > a:hover {
     background-color: var(--color-background);
     border-color: var(--color-primary);
+}
+.main-header__list-item {
+    position: relative;
+    /* Isso é crucial para o z-index funcionar */
+}
+
+/* 2. ELEVA o item ATIVO (clicado) acima dos outros */
+.main-header__list-item.js-hover {
+    z-index: 10;
 }
 /* =======================================================
  * DENTRO de @media (max-width: 1024px) no style.css
