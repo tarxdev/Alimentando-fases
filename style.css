@@ -5827,6 +5827,8 @@ div[vw-plugin-wrapper] {
     /* 1. O card (pai) tem altura automática */
     body section#adolescencia .news-card {
         height: auto;
+        display: flex;
+        flex-direction: column;
     }
 
     /* 2. A IMAGEM ganha uma altura fixa */
@@ -5837,7 +5839,7 @@ div[vw-plugin-wrapper] {
         position: relative;
         /* Mantém no fluxo */
         z-index: 1;
-        /* Fica no fluxo normal */
+        flex-shrink: 0;
     }
 
     /* 3. O TEXTO vira um bloco estático (não mais flutuante) */
@@ -5847,7 +5849,7 @@ div[vw-plugin-wrapper] {
         /* Fundo escuro permanente */
         z-index: 2;
         padding-bottom: 1.5rem;
-        /* Mais espaço no fundo */
+        flex-grow: 1;
     }
 
     /* 4. O TÍTULO fica destacado */
