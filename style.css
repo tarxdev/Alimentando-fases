@@ -6129,3 +6129,92 @@ body section#adolescencia .news-card__excerpt strong {
     background-color: var(--color-background);
     color: var(--color-secondary);
 }
+/* =======================================================
+ * ESTILOS PARA O FORMULÁRIO AJAX (#my-form)
+ * Usando o padrão de cores e grid do Alimentando Fases.
+ * ======================================================= */
+
+#my-form {
+    display: grid;
+    /* Usa layout de grid para alinhar os campos */
+    grid-template-columns: 1fr;
+    /* Uma única coluna para os campos */
+    gap: 20px;
+    /* Espaçamento entre os campos */
+    margin-top: 25px;
+    padding: 0 10px; /* Um pequeno respiro nas laterais */
+}
+
+/* --- 1. Estilo das Etiquetas (Labels) --- */
+#my-form label {
+    font-weight: 700;
+    color: var(--color-secondary); /* Usa a cor marrom do site */
+    margin-bottom: 8px;
+    font-family: var(--font-heading); /* Usa a fonte de destaque */
+    display: block; /* Garante que o input fique na linha de baixo */
+}
+
+/* --- 2. Estilo dos Inputs (Email e Mensagem) --- */
+#my-form input[type="email"],
+#my-form input[type="text"] {
+    width: 100%;
+    padding: 12px 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    font-family: var(--font-body);
+    background-color: #fff;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    /* Os inputs são grandes e arredondados */
+}
+
+/* Estilo de Foco (Verde) */
+#my-form input[type="email"]:focus-visible,
+#my-form input[type="text"]:focus-visible {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(83, 149, 74, 0.2);
+}
+
+/* --- 3. Estilo do Botão de Envio --- */
+#my-form-button {
+    /* Reutiliza o estilo de botão CTA, mas centralizado */
+    font-family: 'Roboto', sans-serif;
+    display: inline-block;
+    padding: 15px 35px;
+    font-weight: 700;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background-color: var(--color-secondary);
+    color: var(--color-text-light);
+    border: 2px solid var(--color-secondary);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    
+    /* Centraliza na tela */
+    width: auto;
+    max-width: 250px;
+    justify-self: center;
+    margin-top: 10px; /* Espaço após o último campo */
+}
+
+#my-form-button:hover,
+#my-form-button:focus-visible {
+    background-color: #a06e49;
+    border-color: #a06e49;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* --- 4. Estilo do Status (Mensagem de Confirmação/Erro) --- */
+#my-form-status {
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1em;
+    padding: 10px 0;
+    margin-top: 15px;
+    min-height: 20px; /* Garante que o elemento ocupe espaço */
+    color: var(--color-primary); /* Cor de sucesso (verde) */
+}
+
+/* ⚠️ Nota: A cor de erro (Oops) será a mesma, mas se quiser customizar o erro, você pode adicionar classes dinâmicas no JavaScript. */
