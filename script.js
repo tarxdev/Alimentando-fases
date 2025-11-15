@@ -1790,5 +1790,4 @@ setupHeroCarousel();
 document.addEventListener('DOMContentLoaded', () => {
     // Funções que devem rodar no carregamento inicial da página, independente da seção ativa:
     setupChatbotToggle();
-    setupPrototypeWarning();
 });
