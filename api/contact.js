@@ -4,14 +4,16 @@ const nodemailer = require('nodemailer');
 // ⚠️ Seu e-mail de destino, onde você receberá as mensagens
 const DESTINATION_EMAIL = 'tarcisoferreira000@gmail.com'; 
 
-// Cria o transportador Nodemailer usando as variáveis de ambiente do Vercel
+// Cria o transportador Nodemailer usando as configurações do Resend
 const transporter = nodemailer.createTransport({
-    // Use 'gmail' ou um serviço de e-mail transacional (ex: SendGrid, Resend)
-    service: 'gmail', 
+    host: 'smtp.resend.com',
+    port: 465,
+    secure: true, // Usa SSL/TLS
     auth: {
-        // As credenciais são lidas das variáveis de ambiente configuradas no Vercel
-        user: process.env.EMAIL_USER, 
-        pass: process.env.EMAIL_PASS,
+        // O nome de usuário para o Resend é sempre 'resend'
+        user: 'resend', 
+        // A senha é a chave API que você vai configurar no Vercel
+        pass: process.env.RESEND_API_KEY, 
     },
 });
 
@@ -33,8 +35,7 @@ module.exports = async (req, res) => {
     try {
         // Envia o e-mail
         await transporter.sendMail({
-            // Formato de remetente: "Nome do Usuário" <email@dele.com>
-            from: `"${Nome}" <${Email}>`, 
+            from: `"${Nome}" <${Email}>`, // Remetente: o nome do usuário que preencheu o formulário
             to: DESTINATION_EMAIL, 
             subject: `[Site Contato] ${Assunto} - De: ${Nome}`,
             html: `
@@ -50,14 +51,12 @@ module.exports = async (req, res) => {
 
         // Redirecionamento de Sucesso para o Front-end
         res.writeHead(302, {
-            // ⚠️ O Vercel redirecionará para este caminho
             'Location': '/obrigado.html' 
         });
         res.end();
 
     } catch (error) {
         console.error('Erro ao enviar e-mail:', error);
-        // Em caso de erro, redireciona o usuário para a página de contato com status 500
         res.status(500).send('Falha no envio da mensagem. Tente novamente mais tarde.');
     }
 };
