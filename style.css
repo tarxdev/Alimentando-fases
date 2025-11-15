@@ -6031,6 +6031,15 @@ body section#adolescencia .news-card__excerpt strong {
     animation: fade-in-up 0.4s ease-out 0.45s forwards;
     opacity: 0;
 }
+
+@media (min-width: 971px) {
+
+    /* Alvos: Apenas as seções com 3 itens */
+    section#origem-alimentar .pilares-grid-container,
+    section#rotulagem .pilares-grid-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
 /* =======================================================
  * 37. INSTRUÇÃO DO JOGO (APENAS MOBILE)
  * ======================================================= */
@@ -6058,5 +6067,11 @@ body section#adolescencia .news-card__excerpt strong {
 
     .mobile-only-instruction i {
         margin-right: 8px; /* Espaço entre o ícone e o texto */
+    }
+}
+/* Força 3 colunas no grid da Rotulagem APENAS no desktop */
+@media (min-width: 971px) {
+    section#rotulagem .pilares-grid-container {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
