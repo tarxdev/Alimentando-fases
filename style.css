@@ -2909,7 +2909,7 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
 
 /* --- Jogo Classificar (Embutido Infância) --- */
 #classify-game-area-embedded {
-    padding-top: 20px;
+    padding-top: 10px;
 }
 
 #infancia .classify-zone {
@@ -6061,7 +6061,7 @@ body section#adolescencia .news-card__excerpt strong {
         font-size: 1.1em; /* Tamanho bom para leitura */
         font-weight: 700;
         color: #d97706; /* Laranja/Marrom (cor de aviso) */
-        margin-bottom: 20px; /* Espaço antes do jogo */
+        margin-bottom: 0; /* Espaço antes do jogo */
         line-height: 1.6;
     }
 
