@@ -51,6 +51,7 @@ body {
     font-family: var(--font-body);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
 }
 
 /* Trava a rolagem do body quando o modal está aberto */
