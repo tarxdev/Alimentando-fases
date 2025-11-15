@@ -6040,3 +6040,32 @@ body section#adolescencia .news-card__excerpt strong {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+/* =======================================================
+ * 37. INSTRUÇÃO DO JOGO (APENAS MOBILE)
+ * ======================================================= */
+
+/* 1. Esconde a instrução por padrão (Desktop) */
+.mobile-only-instruction {
+    display: none;
+}
+
+/* 2. Mostra a instrução apenas em telas menores (Mobile/Tablet) */
+@media (max-width: 1024px) {
+    .mobile-only-instruction {
+        display: block; /* Mostra o bloco */
+        text-align: center; /* Centraliza */
+        padding: 15px;
+        background-color: #fffbeb; /* Fundo de aviso (amarelo claro) */
+        border: 1px solid #fde68a; /* Borda de aviso */
+        border-radius: 8px;
+        font-size: 1.1em; /* Tamanho bom para leitura */
+        font-weight: 700;
+        color: #d97706; /* Laranja/Marrom (cor de aviso) */
+        margin-bottom: 20px; /* Espaço antes do jogo */
+        line-height: 1.6;
+    }
+
+    .mobile-only-instruction i {
+        margin-right: 8px; /* Espaço entre o ícone e o texto */
+    }
+}
