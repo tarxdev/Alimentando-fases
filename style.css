@@ -6075,3 +6075,57 @@ body section#adolescencia .news-card__excerpt strong {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+/* =======================================================
+ * 38. ESTILOS DAS SUGESTÕES DO CHATBOT
+ * ======================================================= */
+
+.chat-suggestions-container {
+    display: flex;
+    flex-direction: column; /* Botões um embaixo do outro */
+    gap: 8px;
+    margin-top: 10px;
+    align-self: flex-start; /* Alinha com as caixas do bot */
+    width: 90%; /* Ocupa 90% da largura da caixa do bot */
+    max-width: 300px;
+    animation: fadeIn 0.3s ease-out; /* Efeito de surgir */
+}
+
+.chat-suggestion-btn {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+    padding: 10px 15px;
+    border-radius: 18px; /* Borda arredondada */
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.9em;
+    text-align: left; /* Alinha o texto à esquerda */
+    transition: all 0.2s ease;
+}
+
+.chat-suggestion-btn:hover {
+    background-color: var(--color-background); /* Fundo bege claro no hover */
+    border-color: var(--color-secondary);
+    color: var(--color-secondary);
+    transform: translateY(-2px);
+}
+/* =======================================================
+ * 39. ESTILO DO BOTÃO "VOLTAR" DO CHATBOT
+ * ======================================================= */
+
+.chat-suggestion-btn.back-btn {
+    background-color: var(--color-secondary); /* Fundo marrom */
+    color: white;
+    border-color: var(--color-secondary);
+    font-style: italic;
+    text-align: center; /* Centraliza o texto */
+}
+
+.chat-suggestion-btn.back-btn:hover {
+    background-color: var(--color-background);
+    color: var(--color-secondary);
+}
