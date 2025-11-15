@@ -6031,15 +6031,6 @@ body section#adolescencia .news-card__excerpt strong {
     animation: fade-in-up 0.4s ease-out 0.45s forwards;
     opacity: 0;
 }
-
-@media (min-width: 971px) {
-
-    /* Alvos: Apenas as seções com 3 itens */
-    section#origem-alimentar .pilares-grid-container,
-    section#rotulagem .pilares-grid-container {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
 /* =======================================================
  * 37. INSTRUÇÃO DO JOGO (APENAS MOBILE)
  * ======================================================= */
