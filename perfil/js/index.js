@@ -1,15 +1,21 @@
-// perfil/js/index.js
+/* ARQUIVO: perfil/js/index.js */
 
-import { auth, db, firebase } from '../../firebase-config.js'; 
-import { InteractionService } from '../../comunidade/js/services/interaction.service.js';
-import { createCommentElement } from '../../comunidade/js/utils/dom-helpers.js';
+import { db, auth } from '../../firebase-config.js'; 
+import { 
+    doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, 
+    collection, query, where, orderBy, limit, getDocs, 
+    serverTimestamp, arrayUnion, arrayRemove, increment 
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+import { AuthService } from './services/authService.js';
+import { renderCommentItem } from './utils/dom.js';
 import { getRoleBadgeHTML } from '../../sistema-cargos/cargos.js';
 
 const OWNER_UID = "1Sfw2sVb7RVuKqCsNs2PUy8pIs33"; 
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    const interactionService = new InteractionService();
+    const authService = new AuthService();
 
     let myOriginalData = null;
     let currentProfileUid = null;
@@ -18,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let commentImageBase64 = null;
     let tempProfileImage = null; 
 
-    // Mapeamento
+    // Elementos DOM
     const els = {
         username: document.getElementById('display-username'),
         realname: document.getElementById('display-realname'),
@@ -26,19 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
         picMain: document.getElementById('profile-pic-main'),
         picNav: document.getElementById('nav-avatar-img'),
         picMainContainer: document.querySelector('.journey-avatar-container'),
-        
-        counts: {
-            posts: document.getElementById('count-posts'),
-            followers: document.getElementById('count-followers'),
-            following: document.getElementById('count-following')
-        },
+        counts: { posts: document.getElementById('count-posts'), followers: document.getElementById('count-followers'), following: document.getElementById('count-following') },
         statFollowers: document.getElementById('btn-view-followers'),
         statFollowing: document.getElementById('btn-view-following'),
-        
         feedContainer: document.getElementById('feed-container'),
         emptyState: document.getElementById('empty-state-timeline'),
-        
-        // MODAL
         modal: document.getElementById('modal-post-detail'),
         leftContent: document.getElementById('inst-left-content'),
         commentsList: document.getElementById('inst-comments-list'),
@@ -46,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
         authorPhoto: document.getElementById('inst-author-photo'),
         likesCount: document.getElementById('inst-likes-number'),
         btnCloseDetail: document.getElementById('btn-close-post-detail'),
-        
         inputComment: document.getElementById('inst-comment-input'),
         btnSend: document.getElementById('inst-btn-send'),
         mainLikeBtn: document.getElementById('inst-main-like-btn'),
@@ -57,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
         imgPreviewContainer: document.getElementById('comment-image-preview-container'),
         imgPreview: document.getElementById('comment-img-preview'),
         btnRemoveImg: document.getElementById('btn-remove-comment-img'),
-
         modalEdit: document.getElementById('edit-modal'),
         btnEdit: document.getElementById('btn-open-edit'),
         btnSaveEdit: document.getElementById('btn-save-changes'),
@@ -74,26 +70,20 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSair: document.getElementById('btn-sair-perfil') 
     };
 
-    auth.onAuthStateChanged(async (user) => {
+    authService.monitorAuth(async (user) => {
         if (user) {
             try {
-                const doc = await db.collection('users').doc(user.uid).get();
-                if (doc.exists) {
-                    const userData = doc.data();
-                    if (userData.isBanned) {
-                        await auth.signOut();
-                        window.location.href = '../login/index.html';
-                        return;
-                    }
+                const docSnap = await getDoc(doc(db, 'users', user.uid));
+                if (docSnap.exists()) {
+                    const userData = docSnap.data();
+                    if (userData.isBanned) { await authService.logout(); window.location.href = '../login/index.html'; return; }
                     currentProfileUid = user.uid;
                     myOriginalData = userData;
                     updateHeaderUI(userData);
                     loadFeed(user.uid);
                 }
             } catch (err) { console.error("Erro perfil:", err); }
-        } else {
-            window.location.href = '../login/index.html';
-        }
+        } else { window.location.href = '../login/index.html'; }
     });
 
     function isMasterUser(user) { return (user.role || user.authorRole) === 'admin_master'; }
@@ -102,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!data) return;
         const isOwner = currentProfileUid === OWNER_UID;
         const isMaster = isMasterUser(data);
-
         const adminLink = document.getElementById('nav-item-admin');
         if (adminLink) adminLink.style.display = (isMaster || isOwner) ? 'block' : 'none';
 
@@ -115,28 +104,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const badge = document.querySelector('.phase-badge');
             if(isMaster) {
                 els.picMainContainer.classList.add('master-avatar-frame');
-                if(badge) {
-                    badge.classList.add('master-crown');
-                    badge.innerHTML = '<i class="fa-solid fa-crown"></i>';
-                }
+                if(badge) { badge.classList.add('master-crown'); badge.innerHTML = '<i class="fa-solid fa-crown"></i>'; }
             } else {
                 els.picMainContainer.classList.remove('master-avatar-frame');
-                if(badge) {
-                    badge.classList.remove('master-crown');
-                    badge.innerHTML = '<i class="fa-solid fa-seedling"></i>';
-                }
+                if(badge) { badge.classList.remove('master-crown'); badge.innerHTML = '<i class="fa-solid fa-seedling"></i>'; }
             }
         }
 
         if(els.username) els.username.textContent = "@" + (data.username || "usuario");
         if(els.bio) els.bio.textContent = data.bio || "";
-        const photo = data.photo || "https://ui-avatars.com/api/?name=User";
-        if(els.picMain) els.picMain.src = photo;
-        if(els.picNav) els.picNav.src = photo;
+        els.picMain.src = data.photo || "https://ui-avatars.com/api/?name=User";
+        els.picNav.src = data.photo || "https://ui-avatars.com/api/?name=User";
 
         if(els.counts.posts) els.counts.posts.textContent = data.postsCount || 0;
-        if(els.counts.followers) els.counts.followers.textContent = data.followers ? data.followers.length : 0;
-        if(els.counts.following) els.counts.following.textContent = data.following ? data.following.length : 0;
+        if(els.counts.followers) els.counts.followers.textContent = data.followers?.length || 0;
+        if(els.counts.following) els.counts.following.textContent = data.following?.length || 0;
 
         if(els.statFollowers) els.statFollowers.onclick = () => openNetworkModal('Seguidores', data.followers || []);
         if(els.statFollowing) els.statFollowing.onclick = () => openNetworkModal('Seguindo', data.following || []);
@@ -154,10 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const snaps = await Promise.all(uids.slice(0, 50).map(id => db.collection('users').doc(id).get()));
+            const snaps = await Promise.all(uids.slice(0, 50).map(id => getDoc(doc(db, 'users', id))));
             let html = '<div class="user-list-container" style="display:flex; flex-direction:column; gap:12px;">';
             snaps.forEach(s => {
-                if(s.exists) {
+                if(s.exists()) {
                     const u = s.data();
                     html += `
                     <div class="user-list-item" style="display:flex; align-items:center; gap:12px; padding:8px; border-bottom:1px solid #f0f0f0;">
@@ -173,31 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) { els.modalListBody.innerHTML = '<p>Erro ao carregar.</p>'; }
     }
 
-    if (els.btnEdit) {
-        els.btnEdit.addEventListener('click', () => {
-            if (!myOriginalData) return;
-            document.getElementById('input-realname').value = myOriginalData.realname || "";
-            document.getElementById('input-username').value = myOriginalData.username || "";
-            document.getElementById('input-bio').value = myOriginalData.bio || "";
-            document.getElementById('input-link').value = myOriginalData.link || "";
-            if (els.imgPreviewEdit) els.imgPreviewEdit.src = myOriginalData.photo || "https://ui-avatars.com/api/?name=User";
-            tempProfileImage = null; 
-            els.modalEdit.classList.add('open');
-        });
-    }
-    
-    if (els.btnCamera && els.inputGlobalUpload) {
-        els.btnCamera.onclick = (e) => { e.preventDefault(); els.inputGlobalUpload.click(); };
-        els.inputGlobalUpload.onchange = async (e) => {
-            const file = e.target.files[0];
-            if(file) {
-                const base64 = await compressImage(file, 800, 0.7);
-                if(els.imgPreviewEdit) els.imgPreviewEdit.src = base64;
-                tempProfileImage = base64;
-            }
-        };
-    }
-
     if(els.btnSaveEdit) {
         els.btnSaveEdit.onclick = async () => {
             els.btnSaveEdit.disabled = true;
@@ -209,8 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     link: document.getElementById('input-link').value
                 };
                 if(tempProfileImage) newData.photo = tempProfileImage;
-                await db.collection('users').doc(currentProfileUid).set(newData, {merge:true});
-                if(auth.currentUser && tempProfileImage) await auth.currentUser.updateProfile({photoURL: tempProfileImage});
+                
+                await setDoc(doc(db, 'users', currentProfileUid), newData, {merge:true});
+                if(tempProfileImage) try { await authService.updateUserPhoto(tempProfileImage); } catch(e){}
+                
                 myOriginalData = {...myOriginalData, ...newData};
                 updateHeaderUI(myOriginalData);
                 els.modalEdit.classList.remove('open');
@@ -219,29 +178,11 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    function compressImage(file, w, q) {
-        return new Promise(resolve => {
-            const r = new FileReader();
-            r.onload = e => {
-                const img = new Image();
-                img.onload = () => {
-                    const cvs = document.createElement('canvas');
-                    let nw = img.width, nh = img.height;
-                    if(nw > w) { nh = Math.round(nh * (w/nw)); nw = w; }
-                    cvs.width = nw; cvs.height = nh;
-                    cvs.getContext('2d').drawImage(img,0,0,nw,nh);
-                    resolve(cvs.toDataURL('image/jpeg', q));
-                };
-                img.src = e.target.result;
-            };
-            r.readAsDataURL(file);
-        });
-    }
-
     async function loadFeed(uid) {
         if (!els.feedContainer) return;
         els.feedContainer.innerHTML = '';
-        const snapshot = await db.collection('posts').where('authorId', '==', uid).orderBy('timestamp', 'desc').limit(50).get();
+        const q = query(collection(db, 'posts'), where('authorId', '==', uid), orderBy('timestamp', 'desc'), limit(50));
+        const snapshot = await getDocs(q);
         
         if (snapshot.empty) {
             if (els.emptyState) els.emptyState.style.display = 'block';
@@ -249,12 +190,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (els.emptyState) els.emptyState.style.display = 'none';
 
-        snapshot.forEach(doc => {
-            const post = doc.data();
+        snapshot.forEach(docSnap => {
+            const post = docSnap.data();
             const div = document.createElement('div');
-            
-            div.id = `grid-post-${doc.id}`;
-            
+            div.id = `grid-post-${docSnap.id}`;
             let cls = 'gallery-item';
             if (isMasterUser({role: post.authorRole})) cls += ' master-post-border';
             else if (post.authorRole === 'nutri') cls += ' verified-post-border';
@@ -265,13 +204,12 @@ document.addEventListener('DOMContentLoaded', () => {
             else if(post.image) html = `<img src="${post.image}" class="gallery-image">`;
             else html = `<div class="gallery-text-only"><p>${post.content.substring(0,60)}...</p></div>`;
             
-            div.innerHTML = `${html}<div class="gallery-overlay"><i class="fa-solid fa-heart"></i> <span class="likes-num">${post.likes ? post.likes.length : 0}</span></div>`;
-            div.onclick = () => openPostModal(doc.id, post);
+            div.innerHTML = `${html}<div class="gallery-overlay"><i class="fa-solid fa-heart"></i> ${post.likes ? post.likes.length : 0}</div>`;
+            div.onclick = () => openPostModal(docSnap.id, post);
             els.feedContainer.appendChild(div);
         });
     }
 
-    // --- MODAL DETALHES ---
     async function openPostModal(postId, postData) {
         if (!els.modal) return;
         currentOpenPostId = postId;
@@ -279,164 +217,116 @@ document.addEventListener('DOMContentLoaded', () => {
         
         els.modal.classList.add('open');
         els.inputComment.value = '';
-        
         if(els.emojiContainer) els.emojiContainer.classList.remove('show-picker');
         if(els.imgPreviewContainer) els.imgPreviewContainer.classList.add('hidden');
 
-        if (postData.images && postData.images.length > 0) {
-            els.leftContent.innerHTML = `<img src="${postData.images[0]}" class="inst-post-img">`;
-        } else if (postData.image) {
-            els.leftContent.innerHTML = `<img src="${postData.image}" class="inst-post-img">`;
-        } else {
-            els.leftContent.innerHTML = `<div style="padding:40px; text-align:center;">${postData.content}</div>`;
-        }
+        if (postData.images && postData.images.length > 0) els.leftContent.innerHTML = `<img src="${postData.images[0]}" class="inst-post-img">`;
+        else if (postData.image) els.leftContent.innerHTML = `<img src="${postData.image}" class="inst-post-img">`;
+        else els.leftContent.innerHTML = `<div style="padding:40px; text-align:center;">${postData.content}</div>`;
 
         els.authorName.innerHTML = `${postData.authorName} ${getRoleBadgeHTML({role:postData.authorRole, crn:postData.authorCRN})}`;
         els.authorPhoto.src = postData.authorPhoto || "https://ui-avatars.com/api/?name=User";
         
         updateMainLikeButton(postData.likes);
         els.commentsList.innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">Carregando...</p>';
+        
         await loadComments(postId);
     }
 
+    // --- CORREÇÃO: Lógica de Comentários com Sub-coleções ---
     async function loadComments(postId) {
-        const comments = await interactionService.getComments(postId);
-        els.commentsList.innerHTML = '';
+        // 1. Busca os comentários pais
+        const commentsRef = collection(db, 'posts', postId, 'comments');
+        const q = query(commentsRef, orderBy('timestamp', 'asc'));
+        const snap = await getDocs(q);
         
-        if (comments.length === 0) {
+        els.commentsList.innerHTML = '';
+        if (snap.empty) {
             els.commentsList.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">Seja o primeiro a comentar.</div>';
             return;
         }
 
-        const authors = new Set(comments.map(c => c.authorId));
-        comments.forEach(c => c.replies && c.replies.forEach(r => authors.add(r.authorId)));
-        
-        const userMap = {};
-        await Promise.all([...authors].map(async uid => {
-            const doc = await db.collection('users').doc(uid).get();
-            if(doc.exists) userMap[uid] = doc.data();
+        // 2. Busca as respostas (replies) dentro de cada comentário
+        // Isso alinha o Perfil com a estrutura da Comunidade
+        const comments = await Promise.all(snap.docs.map(async (docSnap) => {
+            const commentData = docSnap.data();
+            const repliesRef = collection(db, 'posts', postId, 'comments', docSnap.id, 'replies');
+            const repliesQ = query(repliesRef, orderBy('timestamp', 'asc'));
+            const repliesSnap = await getDocs(repliesQ);
+            const replies = repliesSnap.docs.map(r => ({ id: r.id, ...r.data() }));
+            
+            return {
+                id: docSnap.id,
+                ...commentData,
+                replies: replies 
+            };
         }));
 
+        // Renderiza
+        const callbacks = {
+            onLike: (cid, liked) => toggleCommentLike(postId, cid, currentProfileUid, liked).then(() => refreshComments()),
+            onReply: (cid, name) => { 
+                replyTarget = {id:cid}; 
+                els.inputComment.placeholder = `Respondendo a ${name}...`; 
+                els.inputComment.focus(); 
+            },
+            onDelete: async (cid) => {
+                if(confirm("Apagar comentário?")) {
+                    await deleteDoc(doc(db, 'posts', postId, 'comments', cid));
+                    await updateDoc(doc(db, 'posts', postId), { commentsCount: increment(-1) });
+                    loadComments(postId);
+                }
+            }
+        };
+        
         comments.forEach(c => {
-            if(userMap[c.authorId]) {
-                c.authorPhoto = userMap[c.authorId].photo;
-                c.authorRole = userMap[c.authorId].role;
-            }
-            if(c.replies) c.replies.forEach(r => {
-                if(userMap[r.authorId]) {
-                    r.authorPhoto = userMap[r.authorId].photo;
-                    r.authorRole = userMap[r.authorId].role;
-                }
-            });
-
-            // CALLBACKS: DELETE COM MODAL QUESTION
-            const callbacks = {
-                onLike: (cid, liked) => interactionService.toggleCommentLike(postId, cid, currentProfileUid, liked).then(() => loadComments(postId)),
-                onReply: (cid, name) => { replyTarget = {id:cid}; els.inputComment.placeholder = `Respondendo a ${name}...`; els.inputComment.focus(); },
-                
-                onDelete: async (cid) => {
-                    const result = await Swal.fire({
-                        title: 'Excluir comentário?',
-                        text: "Essa ação não pode ser desfeita.",
-                        icon: 'question', // CORREÇÃO: Ícone mais amigável
-                        showCancelButton: true,
-                        confirmButtonText: 'Excluir',
-                        cancelButtonText: 'Cancelar',
-                        customClass: {
-                            popup: 'custom-logout-popup',
-                            confirmButton: 'swal-btn-logout',
-                            cancelButton: 'swal-btn-cancel'
-                        }
-                    });
-
-                    if (result.isConfirmed) {
-                        try {
-                            await interactionService.deleteComment(postId, cid);
-                            const Toast = Swal.mixin({
-                                toast: true, position: 'top-end', showConfirmButton: false, timer: 3000
-                            });
-                            Toast.fire({ icon: 'success', title: 'Comentário excluído' });
-                            await loadComments(postId);
-                        } catch (error) {
-                            console.error(error);
-                            Swal.fire('Erro', 'Não foi possível excluir.', 'error');
-                        }
-                    }
-                }
-            };
-            
-            els.commentsList.appendChild(createCommentElement(c, currentProfileUid, callbacks, c.replies||[]));
+            els.commentsList.appendChild(renderCommentItem(c, currentProfileUid, callbacks, c.replies));
         });
     }
 
-    function updateMainLikeButton(likes) {
-        const likesArr = likes || [];
-        const liked = likesArr.includes(currentProfileUid);
-        
-        if (liked) {
-            els.mainLikeBtn.innerHTML = '<i class="fa-solid fa-heart"></i>';
-            els.mainLikeBtn.classList.add('liked');
-        } else {
-            els.mainLikeBtn.innerHTML = '<i class="fa-regular fa-heart"></i>';
-            els.mainLikeBtn.classList.remove('liked');
-        }
-        
-        const count = likesArr.length;
-        els.likesCount.textContent = `${count} ${count === 1 ? 'curtida' : 'curtidas'}`;
-        els.mainLikeBtn.onclick = () => toggleMainLike(likesArr);
+    async function refreshComments() {
+        if (currentOpenPostId) await loadComments(currentOpenPostId);
     }
 
-    async function toggleMainLike(likes) {
-        const liked = likes.includes(currentProfileUid);
-        const ref = db.collection('posts').doc(currentOpenPostId);
-        
-        let newLikes = [...likes];
-        if(liked) newLikes = newLikes.filter(id => id !== currentProfileUid);
-        else newLikes.push(currentProfileUid);
-        
-        updateMainLikeButton(newLikes);
-
-        const gridItem = document.getElementById(`grid-post-${currentOpenPostId}`);
-        if(gridItem) {
-            const overlaySpan = gridItem.querySelector('.likes-num');
-            if(overlaySpan) overlaySpan.textContent = newLikes.length;
-        }
-
-        const action = liked ? firebase.firestore.FieldValue.arrayRemove(currentProfileUid) : firebase.firestore.FieldValue.arrayUnion(currentProfileUid);
-        await ref.update({likes: action});
-        const doc = await ref.get();
-        updateMainLikeButton(doc.data().likes);
+    async function toggleCommentLike(postId, commentId, uid, isLiked) {
+        const ref = doc(db, 'posts', postId, 'comments', commentId);
+        if (isLiked) await updateDoc(ref, { likes: arrayRemove(uid) });
+        else await updateDoc(ref, { likes: arrayUnion(uid) });
     }
 
-    if(els.btnToggleEmoji) {
-        els.btnToggleEmoji.onclick = (e) => {
-            e.stopPropagation();
-            els.emojiContainer.classList.toggle('show-picker'); 
+    async function addComment(postId, user, text, image) {
+        const comment = {
+            authorId: user.uid,
+            authorName: user.displayName,
+            authorPhoto: user.photoURL,
+            content: text,
+            image: image || null,
+            timestamp: serverTimestamp(),
+            likes: [],
+            // Replies não precisa ser inicializado como array vazio aqui se usarmos subcoleção
         };
-        const picker = document.querySelector('emoji-picker');
-        if(picker) picker.addEventListener('emoji-click', e => { els.inputComment.value += e.detail.unicode; });
-        
-        document.addEventListener('click', e => {
-            if(els.emojiContainer && !els.emojiContainer.contains(e.target) && e.target !== els.btnToggleEmoji) {
-                els.emojiContainer.classList.remove('show-picker');
-            }
-        });
+        await addDoc(collection(db, 'posts', postId, 'comments'), comment);
+        await updateDoc(doc(db, 'posts', postId), { commentsCount: increment(1) });
     }
 
-    if(els.btnGallery) {
-        els.btnGallery.onclick = () => els.inputGallery.click();
-        els.inputGallery.onchange = async (e) => {
-            const f = e.target.files[0];
-            if(f) {
-                commentImageBase64 = await compressImage(f, 800, 0.7);
-                els.imgPreview.src = commentImageBase64;
-                els.imgPreviewContainer.classList.remove('hidden'); 
-            }
+    async function addReply(postId, commentId, user, text, image) {
+        const reply = {
+            authorId: user.uid,
+            authorName: user.displayName,
+            authorPhoto: user.photoURL,
+            content: text,
+            image: image || null,
+            timestamp: serverTimestamp(),
+            likes: []
         };
-        els.btnRemoveImg.onclick = () => {
-            commentImageBase64 = null; els.inputGallery.value = ''; 
-            els.imgPreviewContainer.classList.add('hidden'); 
-        };
+        
+        // CORREÇÃO: Salva na SUB-COLEÇÃO 'replies', não num array
+        const repliesRef = collection(db, 'posts', postId, 'comments', commentId, 'replies');
+        await addDoc(repliesRef, reply);
+        
+        // CORREÇÃO: Incrementa o contador GLOBAL do Post (para a Comunidade ver)
+        const postRef = doc(db, 'posts', postId);
+        await updateDoc(postRef, { commentsCount: increment(1) });
     }
 
     if(els.btnSend) {
@@ -445,38 +335,56 @@ document.addEventListener('DOMContentLoaded', () => {
             if(!txt && !commentImageBase64) return;
             els.btnSend.style.opacity = "0.5";
             
-            const user = { uid:auth.currentUser.uid, displayName: myOriginalData.realname, photoURL: myOriginalData.photo };
-            if(replyTarget) await interactionService.addReply(currentOpenPostId, replyTarget.id, user, txt, commentImageBase64);
-            else await interactionService.addComment(currentOpenPostId, user, txt, commentImageBase64);
+            const user = { 
+                uid: authService.getCurrentUser().uid, 
+                displayName: myOriginalData.realname, 
+                photoURL: myOriginalData.photo 
+            };
             
-            els.inputComment.value = ''; replyTarget = null; commentImageBase64 = null;
-            els.imgPreviewContainer.classList.add('hidden');
-            els.emojiContainer.classList.remove('show-picker');
-            els.btnSend.style.opacity = "1";
-            loadComments(currentOpenPostId);
+            try {
+                if (replyTarget) {
+                    await addReply(currentOpenPostId, replyTarget.id, user, txt, commentImageBase64);
+                } else {
+                    await addComment(currentOpenPostId, user, txt, commentImageBase64);
+                }
+                
+                els.inputComment.value = ''; els.inputComment.placeholder = 'Adicione um comentário...';
+                replyTarget = null; commentImageBase64 = null;
+                els.imgPreviewContainer.classList.add('hidden');
+                els.emojiContainer.classList.remove('show-picker');
+                
+                await loadComments(currentOpenPostId);
+                
+            } catch (e) { console.error(e); alert("Erro ao enviar."); }
+            finally { els.btnSend.style.opacity = "1"; }
         };
     }
 
-    if(els.btnCloseDetail) els.btnCloseDetail.onclick = () => els.modal.classList.remove('open');
-    document.querySelectorAll('.btn-close, .btn-close-nc').forEach(b => b.onclick = (e) => e.target.closest('.modal-overlay').classList.remove('open'));
+    function compressImage(file, w, q) { return new Promise(resolve => { const r = new FileReader(); r.onload = e => { const img = new Image(); img.onload = () => { const cvs = document.createElement('canvas'); let nw = img.width, nh = img.height; if(nw > w) { nh = Math.round(nh * (w/nw)); nw = w; } cvs.width = nw; cvs.height = nh; cvs.getContext('2d').drawImage(img,0,0,nw,nh); resolve(cvs.toDataURL('image/jpeg', q)); }; img.src = e.target.result; }; r.readAsDataURL(file); }); }
     
-    if(els.btnSair) {
-        els.btnSair.onclick = async (e) => {
-            e.preventDefault();
-            const res = await Swal.fire({
-                title: 'Desconectar?', 
-                html: 'Você deseja realmente sair da sua conta?',
-                icon: 'question', 
-                showCancelButton: true,
-                confirmButtonText: 'Sim, sair',
-                cancelButtonText: 'Cancelar',
-                customClass: {
-                    popup: 'custom-logout-popup',
-                    confirmButton: 'swal-btn-logout',
-                    cancelButton: 'swal-btn-cancel'
-                }
-            });
-            if(res.isConfirmed) { await auth.signOut(); window.location.href='../login/index.html'; }
-        };
+    function updateMainLikeButton(likes) { 
+        const arr = likes||[]; 
+        els.likesCount.textContent = `${arr.length} curtidas`; 
+        if(arr.includes(currentProfileUid)) { els.mainLikeBtn.innerHTML='<i class="fa-solid fa-heart"></i>'; els.mainLikeBtn.classList.add('liked'); } 
+        else { els.mainLikeBtn.innerHTML='<i class="fa-regular fa-heart"></i>'; els.mainLikeBtn.classList.remove('liked'); } 
+        els.mainLikeBtn.onclick=()=>toggleMainLike(arr); 
     }
+    
+    async function toggleMainLike(likes) { 
+        const liked = likes.includes(currentProfileUid); 
+        const ref = doc(db, 'posts', currentOpenPostId); 
+        if(liked) await updateDoc(ref, {likes: arrayRemove(currentProfileUid)}); 
+        else await updateDoc(ref, {likes: arrayUnion(currentProfileUid)}); 
+        const s = await getDoc(ref); 
+        updateMainLikeButton(s.data().likes); 
+    }
+
+    if(els.btnEdit) els.btnEdit.onclick = () => { if(myOriginalData) els.modalEdit.classList.add('open'); };
+    if(els.btnCamera) els.btnCamera.onclick = (e) => { e.preventDefault(); els.inputGlobalUpload.click(); };
+    if(els.inputGlobalUpload) els.inputGlobalUpload.onchange = async (e) => { if(e.target.files[0]) { const b64 = await compressImage(e.target.files[0], 800, 0.7); els.imgPreviewEdit.src = b64; tempProfileImage = b64; } };
+    if(els.btnSair) els.btnSair.onclick = async (e) => { e.preventDefault(); if(confirm("Deseja sair?")) { await authService.logout(); window.location.href='../login/index.html'; } };
+    if(els.btnToggleEmoji) els.btnToggleEmoji.onclick = (e) => { e.stopPropagation(); els.emojiContainer.classList.toggle('show-picker'); };
+    document.addEventListener('click', e => { if(els.emojiContainer && !els.emojiContainer.contains(e.target) && e.target !== els.btnToggleEmoji) els.emojiContainer.classList.remove('show-picker'); });
+    if(els.btnCloseDetail) els.btnCloseDetail.onclick = () => els.modal.classList.remove('open');
+    document.querySelectorAll('.btn-close').forEach(b => b.onclick = (e) => e.target.closest('.modal-overlay').classList.remove('open'));
 });
