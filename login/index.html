@@ -2,105 +2,95 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entrar - Alimentando Fases</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <link rel="stylesheet" href="./style.css">
+    <link rel="canonical" href="https://alimentandofases.com/" />
+    <link rel="icon" href="../Imagens/logofavicon.webp">
+    <link rel="apple-touch-icon" href="../Imagens/logofavicon.webp">
 
-    <link rel="icon" type="image/png" href="../Imagens/favicon.png">
-
-    <style>
-        /* CSS para a bolinha girando (Loader) */
-        .loader-spinner {
-            width: 20px; height: 20px;
-            border: 2px solid #ffffff; border-bottom-color: transparent;
-            border-radius: 50%; display: none;
-            animation: rotation 1s linear infinite;
-        }
-        .btn-primary.loading .loader-spinner { display: block; }
-        .btn-primary.loading .btn-text { display: none; }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
-    <main class="login-container">
+
+    <div class="login-container">
         
         <div class="login-image-side">
+            <img src="../Imagens/loginsscreen.webp" alt="Pessoas em diversas fases da vida" class="cover-image">
             <div class="image-overlay"></div>
-            <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=2053&auto=format&fit=crop" class="cover-image" alt="Capa">
         </div>
 
         <div class="login-form-side">
             <div class="form-wrapper">
                 
-                <div class="brand-header">
-                    <img src="../Imagens/logo-af.png" alt="Logo" class="logo-icon">
-                    <span class="brand-name">Alimentando Fases</span>
+                <div class="form-header">
+                    <div class="brand-header">
+                        <img src="../Imagens/Alimentando fases (1).webp" alt="Logo" class="logo-icon">
+                        <span class="brand-name">Alimentando Fases</span>
+                    </div>
+
+                    <h2 class="welcome-title">Bem-vindo de volta!</h2>
+                    <p class="welcome-subtitle">Insira seus dados para acessar.</p>
                 </div>
 
-                <div class="text-header">
-                    <h2 class="welcome-title">Bem-vindo(a)!</h2>
-                    <p class="welcome-subtitle">Insira seus dados para continuar.</p>
-                </div>
-
-                <form id="loginForm" novalidate>
+                <form class="main-form" id="loginForm">
                     
                     <div class="input-group">
                         <div class="input-wrapper">
                             <i class="fa-regular fa-envelope input-icon"></i>
-                            <input type="email" id="email" name="email" placeholder="Seu e-mail" autocomplete="username" required>
+                            <input type="email" id="email" placeholder="Email" required autocomplete="email">
                         </div>
                     </div>
 
                     <div class="input-group">
                         <div class="input-wrapper password-type">
                             <i class="fa-solid fa-lock input-icon"></i>
-                            <input type="password" id="password" name="password" placeholder="Sua senha" autocomplete="current-password" required>
-                            <i class="fa-regular fa-eye toggle-password" id="togglePassword"></i>
+                            <input type="password" id="password" placeholder="Senha" required autocomplete="current-password">
+                            <i class="fa-regular fa-eye-slash toggle-password" id="togglePassword" role="button" aria-label="Mostrar senha"></i>
                         </div>
                     </div>
 
                     <div class="form-options">
                         <label class="remember-me">
-                            <input type="checkbox"> Lembrar-me
+                            <input type="checkbox" id="rememberMe">
+                            <span class="text">Lembrar de mim</span>
                         </label>
-                        <a href="./forgot-password.html" class="forgot-link">Esqueceu a senha?</a>
+                        <a href="#" class="forgot-link" id="forgot-btn">Esqueceu a senha?</a>
                     </div>
 
-                    <button type="submit" class="btn-primary" id="btnSubmit">
-                        <span class="btn-text">Entrar</span>
-                        <span class="loader-spinner"></span>
+                    <button type="submit" class="btn-primary" id="btnSubmit">Entrar</button>
+
+                    <button type="button" class="btn-google" id="google-login-btn">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google G">
+                        Entrar com Google
                     </button>
 
                 </form>
 
                 <div class="signup-footer">
-                    Não tem uma conta? <a href="./register.html">Cadastre-se agora</a>
+                    Não tem conta? <a href="../registro/index.html">Cadastre-se agora</a>
                 </div>
 
                 <div class="footer-links">
                     <p>
-                        <a href="../termos/index.html">Termos de Uso</a> &bull; 
-                        <a href="../privacidade/index.html">Política de Privacidade</a>
+                        Ao continuar, você concorda com nossos 
+                        <a href="../termos/index.html#termos">Termos de Uso</a> e nossa 
+                        <a href="../termos/index.html#privacidade">Política de Privacidade</a>.
                     </p>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
-    <dialog id="errorModal" class="modal-overlay" style="border:none; border-radius:8px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
-        <div style="text-align:center;">
-            <h3 style="color:#333; margin-bottom:10px;">Atenção</h3>
-            <p id="modalDesc" style="color:#666; margin-bottom:20px;">Erro.</p>
-            <button onclick="document.getElementById('errorModal').close()" style="padding:8px 16px; background:#53954a; color:white; border:none; border-radius:4px; cursor:pointer;">OK</button>
-        </div>
-    </dialog>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script type="module" src="./js/controllers/login.controller.js"></script>
+    <script type="module" src="./js/index.js"></script>
+
 </body>
 </html>
