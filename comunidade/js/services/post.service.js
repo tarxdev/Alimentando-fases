@@ -1,29 +1,38 @@
-import { db, arrayUnion, arrayRemove, serverTimestamp } from '../config/firebase.proxy.js';
+import { 
+    db, collection, addDoc, doc, updateDoc, deleteDoc, 
+    serverTimestamp, arrayUnion, arrayRemove, query, orderBy, limit,
+    onSnapshot // <--- A CHAVE DO TEMPO REAL
+} from '../config/firebase.proxy.js';
 
 export class PostService {
     constructor() {
-        this.collection = db().collection('posts');
+        this.collectionName = 'posts';
     }
 
-    // --- LEITURA ---
-    async getFeed(limit = 50) {
-        try {
-            const snapshot = await this.collection
-                .orderBy('timestamp', 'desc')
-                .limit(limit)
-                .get();
-            
-            return snapshot.docs.map(doc => ({
+    // --- MUDANÇA CRÍTICA: De getFeed para subscribeToFeed ---
+    // Em vez de retornar dados uma vez, ele chama o 'callback' sempre que algo mudar no banco.
+    subscribeToFeed(limitCount = 50, callback) {
+        const q = query(
+            collection(db, this.collectionName),
+            orderBy('timestamp', 'desc'),
+            limit(limitCount)
+        );
+
+        // O onSnapshot retorna uma função para parar de escutar (unsubscribe)
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const posts = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
-        } catch (error) {
-            console.error("PostService [getFeed]:", error);
-            throw error;
-        }
+            // Entrega os dados novos para quem pediu (FeedController)
+            callback(posts);
+        }, (error) => {
+            console.error("Erro no Real-Time do Feed:", error);
+        });
+
+        return unsubscribe;
     }
 
-    // --- ESCRITA ---
     async createPost(user, text, images = []) {
         if (!user) throw new Error("Usuário não autenticado.");
 
@@ -39,24 +48,20 @@ export class PostService {
             timestamp: serverTimestamp()
         };
 
-        return await this.collection.add(payload);
+        return await addDoc(collection(db, this.collectionName), payload);
     }
 
-    // --- INTERAÇÃO ---
     async toggleLike(postId, userId, isLiking) {
-        const ref = this.collection.doc(postId);
+        const postRef = doc(db, this.collectionName, postId);
         const operation = isLiking ? arrayUnion(userId) : arrayRemove(userId);
-        await ref.update({ likes: operation });
+        await updateDoc(postRef, { likes: operation });
     }
 
-    // --- DELETAR E EDITAR (NOVO) ---
     async deletePost(postId) {
-        return await this.collection.doc(postId).delete();
+        return await deleteDoc(doc(db, this.collectionName, postId));
     }
 
     async updatePost(postId, newContent) {
-        return await this.collection.doc(postId).update({
-            content: newContent
-        });
+        return await updateDoc(doc(db, this.collectionName, postId), { content: newContent });
     }
 }
