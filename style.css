@@ -6791,3 +6791,19 @@ body section#adolescencia .news-card__excerpt strong {
 .btn-sair-nav:hover {
     color: var(--color-primary); /* Fica verde ao passar o mouse */
 }
+.profile-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%; /* Deixa redonda */
+    object-fit: cover;  /* Evita distorção */
+    margin-right: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    display: none;      /* Controlado pelo JS */
+}
+
+/* Garante alinhamento dos itens no botão */
+.profile-pill-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
