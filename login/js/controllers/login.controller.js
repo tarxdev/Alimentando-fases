@@ -1,131 +1,130 @@
 /**
  * LOGIN CONTROLLER
- * Camada: Controller (MVC)
- * Responsabilidade: Orquestração da autenticação e manipulação do DOM.
+ * Path: login/js/controllers/login.controller.js
+ * Descrição: Gerencia autenticação e UX do formulário (incluindo toggle de senha).
  */
 
-// Importa config da raiz (Sobe 3 níveis: controllers -> js -> login -> raiz)
 import { auth } from '../../../firebase-config.js'; 
 import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
-class LoginController {
+export class LoginController {
+    
     constructor() {
-        // Mapeamento dos elementos do DOM para acesso rápido
         this.dom = {
             form: document.getElementById('loginForm'),
             email: document.getElementById('email'),
             password: document.getElementById('password'),
-            submitBtn: document.getElementById('btnSubmit'),
-            // Loader opcional interno, caso o CSS use apenas a classe .loading no botão
+            
+            // NOVO: Seleciona o ícone de olho (pela classe CSS .toggle-password)
+            togglePasswordIcon: document.querySelector('.toggle-password'),
+            
+            submitBtn: document.getElementById('btnSubmit') || document.querySelector('.btn-primary'),
             loaderIcon: document.querySelector('.btn-loader'), 
             errorModal: document.getElementById('errorModal'),
             modalMessage: document.getElementById('modalDesc')
         };
     }
 
-    /**
-     * Inicializa os listeners da aplicação.
-     */
     init() {
         if (!this.dom.form) {
-            console.error('Critical Error: Elemento #loginForm não encontrado no DOM.');
+            console.error('[Critical] Elemento #loginForm não encontrado.');
             return;
         }
         
+        // Listener do Login
         this.dom.form.addEventListener('submit', (e) => this.handleLogin(e));
+
+        // NOVO: Listener do Olho (Ver Senha)
+        if (this.dom.togglePasswordIcon) {
+            this.dom.togglePasswordIcon.addEventListener('click', () => this.togglePasswordVisibility());
+        }
     }
 
     /**
-     * Processa a submissão do formulário de login.
-     * @param {Event} e Evento de submit
+     * NOVO MÉTODO: Alterna a visibilidade da senha
      */
+    togglePasswordVisibility() {
+        const input = this.dom.password;
+        const icon = this.dom.togglePasswordIcon;
+
+        // 1. Verifica o estado atual
+        const isPassword = input.getAttribute('type') === 'password';
+
+        // 2. Troca o tipo do input (password <-> text)
+        input.setAttribute('type', isPassword ? 'text' : 'password');
+
+        // 3. Troca o ícone (FontAwesome classes)
+        // Remove classes antigas para evitar conflito
+        icon.classList.remove('fa-eye', 'fa-eye-slash');
+
+        if (isPassword) {
+            // Se virou texto (visível), mostra o olho cortado ou aberto (depende do seu gosto)
+            // Geralmente: Olho aberto = vendo senha. Olho cortado = senha oculta.
+            // Ajuste aqui conforme sua preferência visual:
+            icon.classList.add('fa-eye'); // Ícone de olho aberto
+        } else {
+            // Se virou password (oculto)
+            icon.classList.add('fa-eye-slash'); // Ícone de olho cortado
+        }
+    }
+
     async handleLogin(e) {
         e.preventDefault();
         
-        // Validação HTML5 Nativa
         if (!this.dom.form.checkValidity()) {
             this.dom.form.reportValidity();
             return;
         }
 
-        this.setLoading(true);
+        this.setLoadingState(true);
 
         try {
             const email = this.dom.email.value.trim();
             const password = this.dom.password.value;
 
-            // Chamada ao serviço de Autenticação
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            console.info(`[Auth] Sucesso! UID: ${userCredential.user.uid}`);
             
-            console.info(`Auth Success: User ${userCredential.user.uid} logged in.`);
-            
-            // Redirecionamento (Sobe 3 níveis para encontrar a dashboard na raiz)
-            window.location.href = '../../../dashboard/index.html'; 
+            // Redirecionamento
+            window.location.href = '../index.html'; 
 
         } catch (error) {
-            this.handleAuthError(error);
+            this.handleAuthException(error);
         } finally {
-            this.setLoading(false);
+            this.setLoadingState(false);
         }
     }
 
-    /**
-     * Gerencia o estado visual de carregamento.
-     * Adiciona classe .loading para integração com o CSS existente.
-     * @param {boolean} isLoading 
-     */
-    setLoading(isLoading) {
+    setLoadingState(isLoading) {
+        if (!this.dom.submitBtn) return;
+
         if (isLoading) {
             this.dom.submitBtn.classList.add('loading');
-            this.dom.submitBtn.disabled = true;
+            this.dom.submitBtn.setAttribute('disabled', 'true');
             if (this.dom.loaderIcon) this.dom.loaderIcon.classList.remove('hidden');
         } else {
             this.dom.submitBtn.classList.remove('loading');
-            this.dom.submitBtn.disabled = false;
+            this.dom.submitBtn.removeAttribute('disabled');
             if (this.dom.loaderIcon) this.dom.loaderIcon.classList.add('hidden');
         }
     }
 
-    /**
-     * Trata erros retornados pelo Firebase Auth.
-     * @param {Error} error Objeto de erro do Firebase
-     */
-    handleAuthError(error) {
-        console.error('Auth Error:', error.code);
+    handleAuthException(error) {
+        console.error(`[Auth Error] ${error.code}`);
         
-        let message = 'Ocorreu um erro ao tentar entrar.';
-        
-        switch (error.code) {
-            case 'auth/invalid-credential':
-            case 'auth/user-not-found':
-            case 'auth/wrong-password':
-                message = 'E-mail ou senha incorretos.';
-                break;
-            case 'auth/too-many-requests':
-                message = 'O acesso a esta conta foi temporariamente desativado devido a muitas tentativas falhas de login. Tente novamente mais tarde.';
-                break;
-            case 'auth/network-request-failed':
-                message = 'Erro de conexão. Verifique sua internet.';
-                break;
-        }
+        let msg = 'Erro ao entrar.';
+        const errorMap = {
+            'auth/invalid-credential': 'E-mail ou senha incorretos.',
+            'auth/user-not-found': 'Usuário não encontrado.',
+            'auth/wrong-password': 'Senha incorreta.',
+            'auth/too-many-requests': 'Muitas tentativas. Aguarde.'
+        };
 
-        this.showErrorModal(message);
+        if (errorMap[error.code]) msg = errorMap[error.code];
+        this.renderError(msg);
     }
 
-    showErrorModal(message) {
-        if (this.dom.modalMessage) {
-            this.dom.modalMessage.textContent = message;
-        }
-        if (this.dom.errorModal) {
-            this.dom.errorModal.showModal();
-        } else {
-            alert(message); // Fallback caso o modal não exista
-        }
+    renderError(message) {
+        alert(message); 
     }
 }
-
-// Inicialização automática ao carregar o DOM
-document.addEventListener('DOMContentLoaded', () => {
-    const controller = new LoginController();
-    controller.init();
-});
