@@ -1,38 +1,41 @@
-import { db, serverTimestamp, increment, arrayUnion, arrayRemove } from '../config/firebase.proxy.js';
+import { 
+    db, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, 
+    serverTimestamp, arrayUnion, arrayRemove, increment, 
+    query, orderBy 
+} from '../config/firebase.proxy.js';
 
 export class InteractionService {
-    constructor() {
-        this.collection = db().collection('posts');
-    }
-
+    
+    // Busca comentários e respostas
     async getComments(postId) {
         try {
-            const snapshot = await this.collection.doc(postId).collection('comments')
-                .orderBy('timestamp', 'asc')
-                .get();
+            const commentsRef = collection(db, 'posts', postId, 'comments');
+            const q = query(commentsRef, orderBy('timestamp', 'asc'));
+            const snapshot = await getDocs(q);
             
-            // Para cada comentário, busca as respostas (sub-coleção)
-            const commentsWithReplies = await Promise.all(snapshot.docs.map(async doc => {
-                const commentData = doc.data();
-                const repliesSnap = await doc.ref.collection('replies').orderBy('timestamp', 'asc').get();
+            const commentsWithReplies = await Promise.all(snapshot.docs.map(async docSnap => {
+                const commentData = docSnap.data();
+                // Caminho explícito para garantir leitura correta
+                const repliesRef = collection(db, 'posts', postId, 'comments', docSnap.id, 'replies');
+                const repliesQ = query(repliesRef, orderBy('timestamp', 'asc'));
+                const repliesSnap = await getDocs(repliesQ);
+                
                 const replies = repliesSnap.docs.map(rd => ({ id: rd.id, ...rd.data() }));
                 
-                return { 
-                    id: doc.id, 
-                    ...commentData,
-                    replies: replies // Anexa as respostas ao objeto do comentário
-                };
+                return { id: docSnap.id, ...commentData, replies: replies };
             }));
 
             return commentsWithReplies;
         } catch (error) {
-            console.error(error);
+            console.error("Erro ao buscar comentários:", error);
             return [];
         }
     }
 
+    // Adicionar Comentário (+1 no contador)
     async addComment(postId, user, text, image = null) {
-        if (!user) throw new Error("Usuário não autenticado");
+        if (!user) throw new Error("Login necessário");
+        
         const payload = {
             authorId: user.uid,
             authorName: user.displayName || 'Usuário',
@@ -42,14 +45,17 @@ export class InteractionService {
             likes: [],
             timestamp: serverTimestamp()
         };
-        const ref = await this.collection.doc(postId).collection('comments').add(payload);
-        await this.collection.doc(postId).update({ commentsCount: increment(1) });
+        
+        const ref = await addDoc(collection(db, 'posts', postId, 'comments'), payload);
+        await updateDoc(doc(db, 'posts', postId), { commentsCount: increment(1) });
+        
         return { id: ref.id, ...payload };
     }
 
-    // ADICIONAR RESPOSTA (SUB-COLEÇÃO)
+    // Adicionar Resposta (+1 no contador)
     async addReply(postId, commentId, user, text, image = null) {
-        if (!user) throw new Error("Usuário não autenticado");
+        if (!user) throw new Error("Login necessário");
+        
         const payload = {
             authorId: user.uid,
             authorName: user.displayName || 'Usuário',
@@ -58,30 +64,71 @@ export class InteractionService {
             image: image,
             timestamp: serverTimestamp()
         };
-        // Salva dentro de comments -> replies
-        await this.collection.doc(postId).collection('comments').doc(commentId).collection('replies').add(payload);
         
-        // Atualiza contador global do post
-        await this.collection.doc(postId).update({ commentsCount: increment(1) });
+        await addDoc(collection(db, 'posts', postId, 'comments', commentId, 'replies'), payload);
+        await updateDoc(doc(db, 'posts', postId), { commentsCount: increment(1) });
     }
 
+    // Deletar Comentário (Remove Pai + Filhos e atualiza contador)
     async deleteComment(postId, commentId) {
-        // Primeiro deleta as respostas (opcional, mas bom pra limpar)
-        const replies = await this.collection.doc(postId).collection('comments').doc(commentId).collection('replies').get();
-        replies.forEach(doc => doc.ref.delete());
+        try {
+            const commentRef = doc(db, 'posts', postId, 'comments', commentId);
+            
+            // 1. Contar quantas respostas existem para descontar corretamente
+            const repliesRef = collection(db, 'posts', postId, 'comments', commentId, 'replies');
+            const repliesSnap = await getDocs(repliesRef);
+            const totalToDelete = 1 + repliesSnap.size; // 1 (Pai) + N (Filhos)
 
-        await this.collection.doc(postId).collection('comments').doc(commentId).delete();
-        await this.collection.doc(postId).update({ commentsCount: increment(-1 - replies.size) });
+            // 2. Deletar respostas individualmente
+            const deletePromises = repliesSnap.docs.map(r => deleteDoc(r.ref));
+            await Promise.all(deletePromises);
+
+            // 3. Deletar Pai
+            await deleteDoc(commentRef);
+
+            // 4. Atualizar contador com o número exato que foi removido
+            await updateDoc(doc(db, 'posts', postId), { commentsCount: increment(-totalToDelete) });
+
+        } catch (error) {
+            console.error("Erro ao deletar:", error);
+        }
     }
 
     async deleteReply(postId, commentId, replyId) {
-        await this.collection.doc(postId).collection('comments').doc(commentId).collection('replies').doc(replyId).delete();
-        await this.collection.doc(postId).update({ commentsCount: increment(-1) });
+        await deleteDoc(doc(db, 'posts', postId, 'comments', commentId, 'replies', replyId));
+        await updateDoc(doc(db, 'posts', postId), { commentsCount: increment(-1) });
     }
 
     async toggleCommentLike(postId, commentId, userId, isLiking) {
-        const commentRef = this.collection.doc(postId).collection('comments').doc(commentId);
-        const operation = isLiking ? arrayUnion(userId) : arrayRemove(userId);
-        await commentRef.update({ likes: operation });
+        const commentRef = doc(db, 'posts', postId, 'comments', commentId);
+        const op = isLiking ? arrayUnion(userId) : arrayRemove(userId);
+        await updateDoc(commentRef, { likes: op });
+    }
+
+    // --- FERRAMENTA DE CORREÇÃO (NUCLEAR) ---
+    // Conta manualmente tudo o que existe e sobrescreve o número no banco
+    async syncPostCommentCount(postId) {
+        try {
+            // 1. Pega todos os comentários raiz
+            const commentsRef = collection(db, 'posts', postId, 'comments');
+            const commentsSnap = await getDocs(commentsRef);
+            
+            let realTotal = commentsSnap.size;
+
+            // 2. Itera sobre cada um para somar as respostas (Subcoleções)
+            for (const docSnap of commentsSnap.docs) {
+                const repliesRef = collection(db, 'posts', postId, 'comments', docSnap.id, 'replies');
+                const repliesSnap = await getDocs(repliesRef);
+                realTotal += repliesSnap.size;
+            }
+
+            // 3. Força a atualização no banco (Sobrescreve o valor antigo errado)
+            await updateDoc(doc(db, 'posts', postId), { commentsCount: realTotal });
+            
+            return realTotal;
+        } catch (error) {
+            console.error("Falha no Sync:", error);
+            throw error;
+        }
     }
 }
