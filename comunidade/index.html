@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comunidade - Alimentando Fases</title>
-    
     <link rel="icon" href="../Imagens/logofavicon.webp">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800;900&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <link rel="stylesheet" href="css/core.css">
@@ -23,13 +21,11 @@
 <body class="dashboard-body">
 
     <div class="main-layout">
-        
         <nav class="sidebar">
             <div class="logo-area">
                 <img src="../Imagens/logofavicon.webp" alt="Logo" class="sidebar-logo-img">
                 <div class="brand-text">ALIMENTANDO <span>FASES</span></div>
             </div>
-            
             <ul class="nav-links">
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> <span>Início</span></a></li>
                 <li><a href="#" class="active"><i class="fa-solid fa-earth-americas"></i> <span>Comunidade</span></a></li>
@@ -39,7 +35,6 @@
                 <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> <span>Calendário</span></a></li>
                 <li><a href="#" id="btn-open-settings"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
             </ul>
-
             <div class="nav-footer">
                 <a href="../perfil/index.html" class="profile-pill-link">
                     <img src="https://ui-avatars.com/api/?name=User" class="nav-avatar" id="nav-avatar-img"> 
@@ -49,7 +44,6 @@
         </nav>
 
         <main class="content-area">
-            
             <div class="top-search-bar" style="position:relative;">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="global-search-input" placeholder="Pesquisar na comunidade..." autocomplete="off">
@@ -77,147 +71,59 @@
         </main>
 
         <aside class="right-sidebar">
-            
             <div class="widget-card resources-widget">
-                <div class="widget-header">
-                    <h3><i class="fa-solid fa-layer-group"></i> Recursos Extras</h3>
-                </div>
-
+                <div class="widget-header"><h3><i class="fa-solid fa-layer-group"></i> Recursos Extras</h3></div>
                 <div class="resources-list">
-                    
                     <div class="resource-card usda-feature">
                         <div class="rc-cover">
                             <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=500&auto=format&fit=crop" alt="USDA Food Data">
                             <span class="rc-badge"><i class="fa-solid fa-database"></i> API Oficial</span>
                         </div>
                         <div class="rc-content">
-                            <div class="rc-title-row">
-                                <h4>USDA FoodData</h4>
-                                <i class="fa-solid fa-leaf" style="color: #2c3e50;"></i>
-                            </div>
+                            <div class="rc-title-row"><h4>USDA FoodData</h4><i class="fa-solid fa-leaf" style="color: #2c3e50;"></i></div>
                             <p>Consulte a composição de alimentos direto da fonte oficial.</p>
-                            <button class="btn-resource-action">
-                                Acessar Base <i class="fa-solid fa-arrow-right"></i>
-                            </button>
+                            <button class="btn-resource-action">Acessar Base <i class="fa-solid fa-arrow-right"></i></button>
                         </div>
                     </div>
-
-                    <div class="resource-item-mini">
-                        <div class="rim-icon-box"><i class="fa-solid fa-flask"></i></div>
-                        <div class="rim-info">
-                            <h4>Tabela TACO</h4>
-                            <span>Composição Brasileira</span>
-                        </div>
-                        <button class="rim-btn"><i class="fa-solid fa-chevron-right"></i></button>
-                    </div>
-
                 </div>
             </div>
-
             <div class="footer-links-mini"><p>© 2026 Alimentando Fases</p></div>
         </aside>
     </div>
 
-    <div id="modal-tools" class="modal-overlay">
-        <div class="modal-content-tools">
-            <div class="modal-header-tools"><h3><i class="fa-solid fa-screwdriver-wrench"></i> Ferramentas</h3><button id="btn-close-tools" class="btn-icon-close"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="tools-grid">
-                <div class="tool-card"><div class="tool-icon water-icon"><i class="fa-solid fa-droplet"></i></div><h4>Água</h4><div class="tool-input-area"><input type="number" id="user-weight-water" placeholder="Peso (kg)"><div id="calc-result-area" class="tool-result hidden"><strong id="water-result-text">0 L</strong></div></div></div>
-                <div class="tool-card"><div class="tool-icon imc-icon"><i class="fa-solid fa-weight-scale"></i></div><h4>IMC</h4><div class="tool-input-area"><div class="input-row"><input type="number" id="imc-height" placeholder="Alt" class="mini-input"><input type="number" id="imc-weight" placeholder="Peso" class="mini-input"></div><button class="btn-tool-action" id="btn-calc-imc">Calcular</button><div id="imc-result-area" class="tool-result hidden"><span>IMC: </span><strong id="imc-value">0.0</strong><div id="imc-status-badge" class="status-badge-mini"></div></div></div></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-new-post" class="modal-overlay">
-        <div class="modal-content-post">
-            <div class="modal-header-post"><button id="btn-close-modal" class="btn-icon-close-round"><i class="fa-solid fa-xmark"></i></button><h3>Criar publicação</h3><div style="width:32px;"></div></div>
-            <div class="modal-body-post">
-                <div class="cp-user-row"><img src="" id="modal-user-avatar" class="cp-avatar"><div class="cp-user-info"><span class="cp-username">Você</span></div></div>
-                <textarea id="modal-post-input" placeholder="Escreva uma legenda..."></textarea>
-                <div id="modal-image-preview-area" class="preview-grid hidden"></div>
-            </div>
-            <div class="modal-footer-post">
-                <div class="cp-tools"><label for="modal-file-upload" class="tool-btn"><i class="fa-regular fa-image"></i></label><input type="file" id="modal-file-upload" accept="image/*" hidden></div>
-                <button id="btn-submit-post" class="btn-publish" disabled>Publicar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-settings" class="modal-overlay">
-        <div class="modal-content-settings">
-            <div class="modal-header-settings"><h3>Configurações</h3><button id="btn-close-settings" class="btn-icon-close"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="settings-layout">
-                <nav class="settings-sidebar"><button class="settings-nav-btn active">Conta</button></nav>
-                <div class="settings-content-area"><div class="settings-section active"><h2 class="st-title">Sua conta</h2><div class="st-form-group"><label>Usuário</label><input type="text" id="st-info-username" readonly></div><div class="st-form-group"><label>E-mail</label><input type="text" id="st-info-email" readonly></div></div></div>
-            </div>
-        </div>
-    </div>
-
     <div id="modal-post-detail" class="modal-overlay">
         <div class="modal-instagram-container">
-            <div class="inst-left-side" id="inst-left-content" style="display:none;"></div>
-            <div class="inst-right-side" style="width:100%;">
+            <div class="inst-left-side" id="inst-left-content"></div>
+            <div class="inst-right-side">
                 <div class="inst-header">
-                    <div class="inst-header-left"><img src="" id="inst-author-photo" class="inst-avatar"><div class="inst-meta"><h4 id="inst-author-name">Nome</h4><span style="font-size:0.75rem;">Localização</span></div></div>
+                    <div class="inst-header-left"><img src="" id="inst-author-photo" class="inst-avatar"><div class="inst-meta"><h4 id="inst-author-name">Nome</h4></div></div>
                     <button class="btn-close-modal-inst"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="inst-comments-area" id="inst-comments-list"></div>
                 <div class="inst-footer-section">
                     <div class="inst-action-icons">
-                        <div class="inst-icons-left"><button id="inst-btn-like" class="inst-icon-btn"><i class="fa-regular fa-heart"></i></button><button class="inst-icon-btn"><i class="fa-regular fa-comment"></i></button><button class="inst-icon-btn"><i class="fa-regular fa-paper-plane"></i></button></div>
-                        <button class="inst-icon-btn"><i class="fa-regular fa-bookmark"></i></button>
+                        <div class="inst-icons-left"><button id="inst-btn-like" class="inst-icon-btn"><i class="fa-regular fa-heart"></i></button></div>
                     </div>
-                    <span class="inst-likes-count" id="inst-likes-number">0 curtidas</span><span id="inst-post-date">HÁ 2 HORAS</span>
+                    <span class="inst-likes-count" id="inst-likes-number">0 curtidas</span>
                     <div id="comment-img-preview-container" class="comment-img-preview hidden"></div>
                     <div class="inst-input-wrapper">
                         <button class="inst-emoji-btn"><i class="fa-regular fa-face-smile"></i></button>
                         <textarea id="inst-comment-input" placeholder="Adicione um comentário..." rows="1"></textarea>
-                        <button id="btn-add-comment-img" class="inst-gallery-btn"><i class="fa-regular fa-image"></i></button><input type="file" id="input-comment-img" accept="image/*" hidden>
+                        <button id="btn-add-comment-img" class="inst-gallery-btn"><i class="fa-regular fa-image"></i></button>
+                        <input type="file" id="input-comment-img" accept="image/*" hidden>
                         <button id="inst-btn-send" class="inst-post-btn" disabled>Publicar</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div id="modal-usda" class="modal-overlay">
-        <div class="modal-content-usda">
-            <div class="usda-header">
-                <div class="usda-brand">
-                    <i class="fa-solid fa-leaf" style="color: #53954a;"></i>
-                    <div><h3>USDA FoodData Central</h3><span>Base de dados oficial</span></div>
-                </div>
-                <button id="btn-close-usda" class="btn-icon-close"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="usda-body">
-                <div class="usda-search-box">
-                    <input type="text" id="usda-search-input" placeholder="Pesquise um alimento (ex: 'Banana')..." autocomplete="off">
-                    <button id="btn-usda-search"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
-                <div id="usda-loader" class="usda-loader hidden"><div class="spinner"></div><p>Consultando base de dados...</p></div>
-                <div id="usda-results-list" class="usda-list"><div class="usda-placeholder-state"><i class="fa-solid fa-basket-shopping"></i><p>Pesquise por alimentos em inglês ou português.</p></div></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-image-editor" class="modal-overlay" style="z-index: 20001;">
-        <div class="editor-container">
-            <div class="editor-header"><h3>Editar</h3><button id="btn-close-editor" class="btn-icon-close" style="color:white;"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="editor-preview-area"><canvas id="editor-canvas"></canvas></div>
-            <div class="editor-controls">
-                <div class="filters-row"><button class="filter-btn active" data-preset="normal">Normal</button><button class="filter-btn" data-preset="grayscale">P&B</button><button class="filter-btn" data-preset="sepia">Sépia</button></div>
-                <div class="sliders-column"><div class="slider-group"><label>Brilho</label><input type="range" id="edit-brightness" min="0" max="200" value="100"></div><div class="slider-group"><label>Contraste</label><input type="range" id="edit-contrast" min="0" max="200" value="100"></div></div>
-                <div class="editor-footer"><button id="btn-cancel-edit-img" class="btn-cancel-edit" style="color:white; border-color:#555;">Cancelar</button><button id="btn-save-edit-img" class="btn-save-edit">Salvar</button></div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="../firebase-config.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
+    <div id="modal-new-post" class="modal-overlay"><div class="modal-content-post"><div class="modal-header-post"><button id="btn-close-modal" class="btn-icon-close-round"><i class="fa-solid fa-xmark"></i></button><h3>Criar publicação</h3><div style="width:32px;"></div></div><div class="modal-body-post"><div class="cp-user-row"><img src="" id="modal-user-avatar" class="cp-avatar"><div class="cp-user-info"><span class="cp-username">Você</span></div></div><textarea id="modal-post-input" placeholder="Escreva uma legenda..."></textarea><div id="modal-image-preview-area" class="preview-grid hidden"></div></div><div class="modal-footer-post"><div class="cp-tools"><label for="modal-file-upload" class="tool-btn"><i class="fa-regular fa-image"></i></label><input type="file" id="modal-file-upload" accept="image/*" hidden></div><button id="btn-submit-post" class="btn-publish" disabled>Publicar</button></div></div></div>
+    <div id="modal-image-editor" class="modal-overlay" style="z-index: 20001;"><div class="editor-container"><div class="editor-header"><h3>Editar</h3><button id="btn-close-editor" class="btn-icon-close" style="color:white;"><i class="fa-solid fa-xmark"></i></button></div><div class="editor-preview-area"><canvas id="editor-canvas"></canvas></div><div class="editor-controls"><div class="filters-row"><button class="filter-btn active" data-preset="normal">Normal</button><button class="filter-btn" data-preset="grayscale">P&B</button><button class="filter-btn" data-preset="sepia">Sépia</button></div><div class="sliders-column"><div class="slider-group"><label>Brilho</label><input type="range" id="edit-brightness" min="0" max="200" value="100"></div><div class="slider-group"><label>Contraste</label><input type="range" id="edit-contrast" min="0" max="200" value="100"></div></div><div class="editor-footer"><button id="btn-cancel-edit-img" class="btn-cancel-edit" style="color:white; border-color:#555;">Cancelar</button><button id="btn-save-edit-img" class="btn-save-edit">Salvar</button></div></div></div></div>
+    <div id="modal-usda" class="modal-overlay"><div class="modal-content-usda"><div class="usda-header"><div class="usda-brand"><i class="fa-solid fa-leaf" style="color: #53954a;"></i><div><h3>USDA FoodData Central</h3><span>Base de dados oficial</span></div></div><button id="btn-close-usda" class="btn-icon-close"><i class="fa-solid fa-xmark"></i></button></div><div class="usda-body"><div class="usda-search-box"><input type="text" id="usda-search-input" placeholder="Pesquise um alimento..."><button id="btn-usda-search"><i class="fa-solid fa-magnifying-glass"></i></button></div><div id="usda-loader" class="usda-loader hidden"><div class="spinner"></div><p>Consultando...</p></div><div id="usda-results-list" class="usda-list"></div></div></div></div>
+    <div id="modal-tools" class="modal-overlay"><div class="modal-content-tools"><div class="modal-header-tools"><h3><i class="fa-solid fa-screwdriver-wrench"></i> Ferramentas</h3><button id="btn-close-tools" class="btn-icon-close"><i class="fa-solid fa-xmark"></i></button></div><div class="tools-grid"><div class="tool-card"><div class="tool-icon water-icon"><i class="fa-solid fa-droplet"></i></div><h4>Água</h4><div class="tool-input-area"><input type="number" id="user-weight-water" placeholder="Peso (kg)"><div id="calc-result-area" class="tool-result hidden"><strong id="water-result-text">0 L</strong></div></div></div><div class="tool-card"><div class="tool-icon imc-icon"><i class="fa-solid fa-weight-scale"></i></div><h4>IMC</h4><div class="tool-input-area"><div class="input-row"><input type="number" id="imc-height" placeholder="Alt" class="mini-input"><input type="number" id="imc-weight" placeholder="Peso" class="mini-input"></div><button class="btn-tool-action" id="btn-calc-imc">Calcular</button><div id="imc-result-area" class="tool-result hidden"><span>IMC: </span><strong id="imc-value">0.0</strong><div id="imc-status-badge" class="status-badge-mini"></div></div></div></div></div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="js/index.js"></script>
 
 </body>
