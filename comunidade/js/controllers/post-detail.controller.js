@@ -1,6 +1,6 @@
 import { InteractionService } from '../services/interaction.service.js';
 import { createCommentElement } from '../utils/dom-helpers.js';
-import { auth, db } from '../config/firebase.proxy.js';
+import { auth, db, onAuthStateChanged, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from '../config/firebase.proxy.js';
 import { escapeHtml, getTimeAgo } from '../utils/formatters.js';
 
 export class PostDetailController {
@@ -11,48 +11,36 @@ export class PostDetailController {
         this.selectedImageBase64 = null;
         this.replyToCommentId = null;
 
-        // Elementos DOM Principais
         this.modal = document.getElementById('modal-post-detail');
         this.containerComments = document.getElementById('inst-comments-list');
         this.input = document.getElementById('inst-comment-input');
         this.btnSend = document.getElementById('inst-btn-send');
         this.btnClose = document.querySelector('.btn-close-modal-inst');
-        
-        // Elementos de Imagem
         this.btnImg = document.getElementById('btn-add-comment-img');
         this.fileInput = document.getElementById('input-comment-img');
         this.previewContainer = document.getElementById('comment-img-preview-container');
-        
-        // Elemento Emoji
         this.btnEmoji = document.querySelector('.inst-emoji-btn');
-        this.emojiPicker = null; // Será criado dinamicamente
-
-        // Header e Info
         this.leftSide = document.getElementById('inst-left-content');
         this.authorName = document.getElementById('inst-author-name');
         this.authorPhoto = document.getElementById('inst-author-photo');
         this.postDate = document.getElementById('inst-post-date');
         this.likesCount = document.getElementById('inst-likes-number');
         this.likeBtn = document.getElementById('inst-btn-like');
-        
-        // Lista de Emojis Populares
-        this.commonEmojis = [
-            '😂','❤️','😍','🔥','👏','🙌','😭','🥺',
-            '🤣','🥰','😊','🙏','👍','👀','🤔','😅',
-            '🥳','😎','✨','💯','💔','💪','💀','👻',
-            '🌹','🌸','🎂','👋'
-        ];
+        this.commonEmojis = ['😂','❤️','😍','🔥','👏','🙌','😭','🤣','🥰','😊','👍','👀','🤔','😅'];
     }
 
     init() {
-        auth().onAuthStateChanged(user => this.currentUser = user);
+        onAuthStateChanged(auth, user => this.currentUser = user);
 
         document.addEventListener('open-post-detail', (e) => { if (e.detail) this.open(e.detail); });
-        document.addEventListener('delete-reply', (e) => this.deleteReply(e.detail.commentId, e.detail.replyId));
+        
+        document.addEventListener('delete-reply', (e) => {
+            const { commentId, replyId } = e.detail;
+            this.deleteReply(commentId, replyId);
+        });
 
         if (this.btnClose) this.btnClose.onclick = () => this.close();
         if (this.modal) this.modal.addEventListener('click', (e) => { if (e.target === this.modal) this.close(); });
-
         if (this.btnSend) this.btnSend.onclick = () => this.handleSubmit();
         
         if (this.input) {
@@ -62,7 +50,6 @@ export class PostDetailController {
             });
         }
 
-        // Lógica de Imagem
         if (this.btnImg && this.fileInput) {
             this.btnImg.addEventListener('click', () => this.fileInput.click());
             this.fileInput.addEventListener('change', (e) => {
@@ -79,30 +66,24 @@ export class PostDetailController {
             });
         }
 
-        // --- LÓGICA DE EMOJI (NOVA) ---
         if (this.btnEmoji) {
             this.createEmojiPicker();
-            this.btnEmoji.addEventListener('click', (e) => {
-                e.stopPropagation(); // Impede fechar ao clicar
-                this.toggleEmojiPicker();
-            });
-            // Fecha picker ao clicar fora
+            this.btnEmoji.addEventListener('click', (e) => { e.stopPropagation(); this.toggleEmojiPicker(); });
             document.addEventListener('click', (e) => {
-                if (this.emojiPicker && !this.emojiPicker.contains(e.target) && e.target !== this.btnEmoji) {
-                    this.emojiPicker.classList.add('hidden');
-                }
+                if (this.emojiPicker && !this.emojiPicker.contains(e.target) && e.target !== this.btnEmoji) this.emojiPicker.classList.add('hidden');
             });
         }
     }
 
-    // Cria o HTML do Picker e insere no DOM
+    // ... (Métodos auxiliares mantidos: createEmojiPicker, toggleEmojiPicker, insertEmoji, showPreview, clearImageSelection, checkInputState) ...
+    // Estou omitindo os métodos auxiliares acima para brevidade, mantenha os que você já tem no arquivo original.
+    // Abaixo estão os métodos MODIFICADOS ou CRÍTICOS.
+
     createEmojiPicker() {
         const wrapper = document.querySelector('.inst-input-wrapper');
         if (!wrapper) return;
-
         this.emojiPicker = document.createElement('div');
         this.emojiPicker.className = 'emoji-picker-popover hidden';
-        
         this.commonEmojis.forEach(emoji => {
             const span = document.createElement('span');
             span.className = 'emoji-option';
@@ -110,31 +91,19 @@ export class PostDetailController {
             span.onclick = () => this.insertEmoji(emoji);
             this.emojiPicker.appendChild(span);
         });
-
         wrapper.appendChild(this.emojiPicker);
     }
 
-    toggleEmojiPicker() {
-        if(this.emojiPicker) this.emojiPicker.classList.toggle('hidden');
-    }
+    toggleEmojiPicker() { if(this.emojiPicker) this.emojiPicker.classList.toggle('hidden'); }
 
     insertEmoji(emoji) {
         if(!this.input) return;
-        
-        // Insere onde o cursor está (ou no final)
         const start = this.input.selectionStart;
         const end = this.input.selectionEnd;
-        const text = this.input.value;
-        const newText = text.substring(0, start) + emoji + text.substring(end);
-        
-        this.input.value = newText;
+        this.input.value = this.input.value.substring(0, start) + emoji + this.input.value.substring(end);
         this.input.focus();
-        // Move cursor para depois do emoji
         this.input.selectionStart = this.input.selectionEnd = start + emoji.length;
-        
         this.checkInputState();
-        // Opcional: fechar ao selecionar
-        // this.emojiPicker.classList.add('hidden'); 
     }
 
     showPreview(base64) {
@@ -163,8 +132,8 @@ export class PostDetailController {
         this.containerComments.innerHTML = '<div style="text-align:center; padding:40px; color:#999;"><i class="fa-solid fa-circle-notch fa-spin"></i></div>';
         
         try {
-            const postDoc = await db().collection('posts').doc(postId).get();
-            if (postDoc.exists) {
+            const postDoc = await getDoc(doc(db, 'posts', postId));
+            if (postDoc.exists()) {
                 const post = postDoc.data();
                 this.renderPostHeaderAndImage(post);
                 await this.loadComments();
@@ -179,7 +148,7 @@ export class PostDetailController {
         this.input.value = '';
         if(this.emojiPicker) this.emojiPicker.classList.add('hidden');
         this.clearImageSelection();
-        this.leftSide.innerHTML = '';
+        if(this.leftSide) this.leftSide.innerHTML = '';
     }
 
     renderPostHeaderAndImage(post) {
@@ -197,10 +166,10 @@ export class PostDetailController {
         if (post.images && post.images.length > 0) imageUrl = post.images[0];
         else if (post.image) imageUrl = post.image;
 
-        if (imageUrl) {
+        if (imageUrl && this.leftSide) {
             this.leftSide.style.display = 'flex';
             this.leftSide.innerHTML = `<img src="${imageUrl}" class="inst-post-img" alt="Post">`;
-        } else {
+        } else if (this.leftSide) {
             this.leftSide.style.display = 'none';
         }
     }
@@ -225,16 +194,12 @@ export class PostDetailController {
     async handleModalLike(shouldLike) {
         if (!this.currentUser) return alert("Faça login.");
         this.updateLikeButton(shouldLike);
-        let text = this.likesCount.innerText;
-        let count = parseInt(text) || 0;
-        let newCount = shouldLike ? count + 1 : Math.max(0, count - 1);
-        this.likesCount.innerText = newCount === 1 ? '1 curtida' : `${newCount} curtidas`;
-
-        const ref = db().collection('posts').doc(this.currentPostId);
+        
+        const ref = doc(db, 'posts', this.currentPostId);
         const uid = this.currentUser.uid;
-        const arrayUnion = db().app.firestore.FieldValue.arrayUnion;
-        const arrayRemove = db().app.firestore.FieldValue.arrayRemove;
-        try { await ref.update({ likes: shouldLike ? arrayUnion(uid) : arrayRemove(uid) }); } catch (error) { console.error(error); }
+        try { 
+            await updateDoc(ref, { likes: shouldLike ? arrayUnion(uid) : arrayRemove(uid) }); 
+        } catch (error) { console.error(error); }
     }
 
     async loadComments() {
@@ -247,18 +212,18 @@ export class PostDetailController {
     renderComments(comments) {
         this.containerComments.innerHTML = '';
         if (comments.length === 0) {
-            this.containerComments.innerHTML = `
-                <div style="text-align:center; padding:40px 20px; color:#65676b;">
-                    <h3 style="font-size:1.2rem; margin-bottom:5px;">Sem comentários ainda.</h3>
-                    <p style="font-size:0.9rem;">Comece a conversa.</p>
-                </div>`;
+            this.containerComments.innerHTML = `<div style="text-align:center; padding:40px 20px; color:#65676b;"><h3 style="font-size:1.2rem; margin-bottom:5px;">Sem comentários ainda.</h3><p style="font-size:0.9rem;">Comece a conversa.</p></div>`;
             return;
         }
 
         const callbacks = {
             onLike: (commentId, isLiking) => this.toggleCommentLike(commentId, isLiking),
             onReply: (commentId, username) => this.prepareReply(commentId, username),
-            onDelete: (commentId) => this.deleteComment(commentId)
+            onDelete: async (commentId) => {
+                if(confirm("Excluir comentário?")) {
+                    await this.deleteComment(commentId);
+                }
+            }
         };
 
         comments.forEach(comment => {
@@ -283,6 +248,7 @@ export class PostDetailController {
         } catch(e) { console.error(e); }
     }
 
+    // --- EVENT DISPATCH IMPLEMENTATION ---
     async handleSubmit() {
         if (!this.currentUser) return;
         const text = this.input.value.trim();
@@ -300,6 +266,15 @@ export class PostDetailController {
                 await this.service.addComment(this.currentPostId, this.currentUser, text, image);
             }
 
+            // NOTIFICA O FEED: +1 comentário
+            document.dispatchEvent(new CustomEvent('post-interaction-update', { 
+                detail: { 
+                    postId: this.currentPostId, 
+                    type: 'comment', 
+                    countChange: 1 
+                } 
+            }));
+
             this.input.value = '';
             this.replyToCommentId = null;
             this.clearImageSelection();
@@ -315,9 +290,18 @@ export class PostDetailController {
     }
 
     async deleteComment(commentId) {
-        if (!confirm('Deseja excluir este comentário?')) return;
         try {
+            // Nota: O service agora retorna quantos deletou ou faz o batch internamente.
+            // Para simplicidade de UI, assumimos que deletar um root decrementa pelo menos 1,
+            // mas o ideal seria o service retornar o count real.
+            // Assumimos -1 aqui para feedback imediato, o refresh do feed corrigirá o resto.
             await this.service.deleteComment(this.currentPostId, commentId);
+            
+            // NOTIFICA O FEED: Decremento Genérico (o service ajusta o DB corretamente)
+            document.dispatchEvent(new CustomEvent('post-interaction-update', { 
+                detail: { postId: this.currentPostId, type: 'comment', countChange: -1 } 
+            }));
+
             await this.loadComments();
         } catch (error) { console.error(error); }
     }
@@ -326,6 +310,12 @@ export class PostDetailController {
         if (!confirm('Deseja excluir esta resposta?')) return;
         try {
             await this.service.deleteReply(this.currentPostId, commentId, replyId);
+            
+            // NOTIFICA O FEED: -1 comentário
+            document.dispatchEvent(new CustomEvent('post-interaction-update', { 
+                detail: { postId: this.currentPostId, type: 'comment', countChange: -1 } 
+            }));
+
             await this.loadComments();
         } catch (error) { console.error(error); }
     }
