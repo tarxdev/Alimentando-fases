@@ -570,14 +570,15 @@
         <i class="fa-regular fa-user"></i> <span>Entrar</span>
     </a>
 
-    <li class="main-header__list-item user-profile-item" id="auth-actions-wrapper">
     <div id="user-profile-actions" class="profile-actions" style="display: none;">
-        
         <a href="./perfil/index.html" class="nav-link profile-pill-btn" id="btn-perfil">
-            <i class="fa-solid fa-user-circle"></i> Olá, <span id="user-display-name">Perfil</span>
+            <i class="fa-solid fa-user-circle" id="default-user-icon"></i>
+            
+            <img id="user-photo" src="" alt="Foto" class="profile-avatar" style="display: none;">
+            
+            Olá, <span id="user-display-name">Perfil</span>
         </a>
-        
-        </div>
+    </div>
 </li>
 
                     </ul>
@@ -5153,66 +5154,8 @@
         <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-     
-    <script src="./firebase-config.js"></script> 
+    <script type="module" src="login/js/auth-handler.js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const auth = firebase.auth();
-            const db = firebase.firestore();
-
-            // Elementos do HTML
-            const btnEntrar = document.getElementById('btn-entrar');
-            const userActions = document.getElementById('user-profile-actions');
-            const userNameDisplay = document.getElementById('user-display-name');
-            // O ícone que vamos substituir pela foto
-            const profileIcon = document.querySelector('#btn-perfil i'); 
-
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    // 1. Usuário Logado: Esconde botão "Entrar", Mostra "Perfil"
-                    if(btnEntrar) btnEntrar.style.display = 'none';
-                    if(userActions) userActions.style.display = 'flex'; // ou 'block'
-
-                    // 2. Pega o nome básico
-                    const firstName = (user.displayName || user.email).split(' ')[0];
-                    if(userNameDisplay) userNameDisplay.textContent = firstName;
-
-                    // 3. Busca a FOTO PERSONALIZADA no Banco de Dados
-                    try {
-                        const doc = await db.collection('users').doc(user.uid).get();
-                        if (doc.exists) {
-                            const data = doc.data();
-                            if (data.photo) {
-                                // Cria uma imagem para substituir o ícone <i>
-                                const img = document.createElement('img');
-                                img.src = data.photo;
-                                img.style.width = '25px';
-                                img.style.height = '25px';
-                                img.style.borderRadius = '50%';
-                                img.style.objectFit = 'cover';
-                                img.style.marginRight = '5px';
-                                
-                                // Substitui o ícone pela foto
-                                if(profileIcon) {
-                                    profileIcon.parentNode.replaceChild(img, profileIcon);
-                                }
-                            }
-                        }
-                    } catch (error) {
-                        console.log("Erro ao carregar foto na home:", error);
-                    }
-
-                } else {
-                    // Usuário Deslogado
-                    if(btnEntrar) btnEntrar.style.display = 'flex';
-                    if(userActions) userActions.style.display = 'none';
-                }
-            });
-        });
     </script>
      
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
@@ -5221,9 +5164,6 @@
     <script src="confetti.js" defer></script>
     <script src="wordsearch.js" defer></script>
     <script src="script.js?v=" defer></script>
-
-    <script src="index.js" defer></script>
-
 
     <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai/dist/index.min.js"></script>
 
