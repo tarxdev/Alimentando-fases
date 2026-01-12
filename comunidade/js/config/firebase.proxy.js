@@ -1,16 +1,24 @@
-// Acessa a variável global injetada pelo CDN no HTML
-export const getFirebase = () => {
-    if (typeof window.firebase === 'undefined') {
-        console.error("Firebase SDK não carregado. Verifique os scripts no HTML.");
-        throw new Error("Firebase SDK missing");
-    }
-    return window.firebase;
-};
+// Importa as instâncias JÁ INICIALIZADAS da raiz
+import { db, auth } from '../../../firebase-config.js';
 
-// Exporta atalhos prontos para uso em outros arquivos
-export const db = () => getFirebase().firestore();
-export const auth = () => getFirebase().auth();
-export const serverTimestamp = () => getFirebase().firestore.FieldValue.serverTimestamp();
-export const arrayUnion = (val) => getFirebase().firestore.FieldValue.arrayUnion(val);
-export const arrayRemove = (val) => getFirebase().firestore.FieldValue.arrayRemove(val);
-export const increment = (val) => getFirebase().firestore.FieldValue.increment(val);
+// Importa TODAS as funções Modulares (V9) necessárias
+import { 
+    collection, collectionGroup, 
+    doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, // <--- ADICIONADO setDoc
+    query, where, orderBy, limit, onSnapshot, 
+    arrayUnion, arrayRemove, increment, serverTimestamp,
+    writeBatch // <--- ADICIONADO writeBatch
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+// Exporta tudo corrigido
+export { 
+    db, auth, 
+    collection, collectionGroup,
+    doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, 
+    query, where, orderBy, limit, onSnapshot, 
+    arrayUnion, arrayRemove, increment, serverTimestamp,
+    writeBatch,
+    onAuthStateChanged, signOut 
+};
