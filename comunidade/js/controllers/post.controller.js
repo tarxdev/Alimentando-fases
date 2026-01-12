@@ -1,10 +1,12 @@
 import { PostService } from '../services/post.service.js';
-import { auth } from '../config/firebase.proxy.js';
+import { auth, onAuthStateChanged } from '../config/firebase.proxy.js';
 
 export class PostController {
-    constructor() {
+    // CORREÇÃO: Apenas um construtor com argumento opcional
+    constructor(editor = null) {
         this.postService = new PostService();
         this.currentUser = null;
+        this.editor = editor; // Salva a referência do editor se for passada
         
         // Elementos do DOM
         this.modal = document.getElementById('modal-new-post');
@@ -20,7 +22,9 @@ export class PostController {
     }
 
     init() {
-        auth().onAuthStateChanged(user => this.currentUser = user);
+        onAuthStateChanged(auth, user => {
+            this.currentUser = user;
+        });
 
         if (this.btnOpen) {
             this.btnOpen.addEventListener('click', () => {
@@ -49,24 +53,38 @@ export class PostController {
     checkInput() {
         const hasText = this.input.value.trim().length > 0;
         const hasImage = this.selectedImages.length > 0;
-        this.btnSubmit.disabled = !(hasText || hasImage);
+        if(this.btnSubmit) this.btnSubmit.disabled = !(hasText || hasImage);
     }
 
     handleFileSelect(e) {
         const file = e.target.files[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const base64 = event.target.result;
-            this.selectedImages.push(base64);
-            this.renderPreview();
-            this.checkInput();
-        };
-        reader.readAsDataURL(file);
+        // Se o editor foi injetado (via index.js), usa ele
+        if (this.editor) {
+            this.editor.open(file, (base64) => {
+                this.selectedImages.push(base64);
+                this.renderPreview();
+                this.checkInput();
+                e.target.value = ''; // Limpa para permitir selecionar de novo
+            });
+        } else {
+            // Fallback direto se não houver editor
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const base64 = event.target.result;
+                this.selectedImages.push(base64);
+                this.renderPreview();
+                this.checkInput();
+                e.target.value = '';
+            };
+            reader.readAsDataURL(file);
+        }
     }
 
     renderPreview() {
+        if(!this.previewArea) return;
+        
         this.previewArea.classList.remove('hidden');
         this.previewArea.innerHTML = this.selectedImages.map((img, idx) => `
             <div class="preview-item-wrapper">
@@ -77,13 +95,17 @@ export class PostController {
             </div>
         `).join('');
 
-        // Listener para remover imagem
-        document.addEventListener('remove-img', (e) => {
-            this.selectedImages.splice(e.detail, 1);
-            this.renderPreview();
-            if(this.selectedImages.length === 0) this.previewArea.classList.add('hidden');
-            this.checkInput();
-        }, {once:true});
+        // Listener para remover imagem (Delegado ao documento para simplificar HTML inline)
+        // Nota: Em produção, idealmente adicionamos listeners diretos, mas isso funciona com o HTML acima
+        if (!this._hasRemoveListener) {
+            document.addEventListener('remove-img', (e) => {
+                this.selectedImages.splice(e.detail, 1);
+                this.renderPreview();
+                if(this.selectedImages.length === 0) this.previewArea.classList.add('hidden');
+                this.checkInput();
+            });
+            this._hasRemoveListener = true;
+        }
     }
 
     async submitPost() {
@@ -96,7 +118,7 @@ export class PostController {
         try {
             await this.postService.createPost(this.currentUser, text, this.selectedImages);
             
-            // Dispara evento para o Feed recarregar
+            // Event Bus: Notifica Feed para recarregar
             document.dispatchEvent(new Event('post-created'));
             
             if(window.Swal) Swal.fire({ icon: 'success', title: 'Post publicado!', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
@@ -106,8 +128,10 @@ export class PostController {
             console.error(error);
             alert("Erro ao publicar.");
         } finally {
-            this.btnSubmit.innerText = "Publicar";
-            this.btnSubmit.disabled = false;
+            if(this.btnSubmit) {
+                this.btnSubmit.innerText = "Publicar";
+                this.btnSubmit.disabled = false;
+            }
         }
     }
 
@@ -115,8 +139,10 @@ export class PostController {
         this.modal.classList.remove('open');
         this.input.value = '';
         this.selectedImages = [];
-        this.previewArea.innerHTML = '';
-        this.previewArea.classList.add('hidden');
+        if(this.previewArea) {
+            this.previewArea.innerHTML = '';
+            this.previewArea.classList.add('hidden');
+        }
         if(this.fileInput) this.fileInput.value = '';
     }
 }
