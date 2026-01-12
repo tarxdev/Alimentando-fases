@@ -1,15 +1,9 @@
-/**
- * SISTEMA DE CARGOS (LÓGICA CENTRALIZADA)
- * Pasta: /sistema-cargos/cargos.js
- */
-
 export const getRoleBadgeHTML = (user) => {
     if (!user) return '';
 
     const role = user.role || user.authorRole || 'user';
     const crn = user.crn || user.authorCRN || ''; // Usado para Nutri
-    const crm = user.crm || ''; // Usado para Médico (exemplo futuro)
-
+    
     // --- 1. MASTER (GOD MODE) ---
     if (role === 'admin_master') {
         return `
@@ -71,7 +65,7 @@ export const getRoleBadgeHTML = (user) => {
             </div>`;
     }
 
-    // --- 7. ESTUDANTE (Unificado) ---
+    // --- 7. ESTUDANTE ---
     if (role === 'student') {
         return `
             <div class="role-badge-container" title="Estudante em Formação">
