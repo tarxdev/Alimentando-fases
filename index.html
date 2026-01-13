@@ -383,17 +383,17 @@
                                             </a>
                                         </li>
 
-                                        <li class="submenu-list__item">
-                                      <a href="#" class="submenu-list__item-wrapper nav-link" data-page="contato" role="button">
-                                          <div class="submenu-list__item-link">
-                                              <span class="submenu-list__item-title">Contato e Parcerias</span>
-                                              <span class="submenu-list__item-subtile">Fale com a nossa equipe</span>
-                                          </div>
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="14" viewBox="0 0 16 14">
-                                              <path d="M0.5 6.99996H15.5M15.5 6.99996L9.66667 1.16663M15.5 6.99996L9.66667 12.8333" stroke-linecap="round" stroke-linejoin="round" />
-                                          </svg>
-                                      </a>
-                                  </li>
+                                        <li class="submenu-list__item has-submenu">
+                                            <a href="#" class="submenu-list__item-wrapper nav-link" data-page="acoes" role="button">
+                                                <div class="submenu-list__item-link">
+                                                    <span class="submenu-list__item-title">Ações na Comunidade</span>
+                                                    <span class="submenu-list__item-subtile">Oficinas, eventos e parcerias</span>
+                                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="14" viewBox="0 0 16 14">
+                                                    <path d="M0.5 6.99996H15.5M15.5 6.99996L9.66667 1.16663M15.5 6.99996L9.66667 12.8333" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
+                                            </a>
+                                        </li>
                             
                                     </ul>
                                     <div class="submenu-content__column">
@@ -478,6 +478,41 @@
                                         
                                             </ul>
                                         </div>
+
+                                                                                <div class="submenu-content" data-submenu-for="Ações na Comunidade">
+                                                                                    <div class="submenu-content__title">Destaques das Ações</div>
+                                                                                    <ul class="submenu-content__list">
+                                                                                        <li class="submenu-content__list-item">
+                                                                                            <a href="#acao-rotulagem" class="submenu-content__link submenu-link-scroll nav-link" data-page="acoes" role="button">
+                                                                                                <div class="submenu-content__link-img">
+                                                                                                    <img src="Imagens/acaoinfancia2.webp" alt="Ação das Crianças" loading="lazy">
+                                                                                                </div>
+                                                                                                <div class="submenu-content__link-title">Ação das Crianças</div>
+                                                                                                <div class="submenu-content__link-text">Oficina sensorial e dinâmica dos alimentos in natura vs. ultraprocessados.</div>
+                                                                                            </a>
+                                                                                        </li>
+
+                                                                                        <li class="submenu-content__list-item">
+                                                                                            <a href="#acao-social-escola" class="submenu-content__link submenu-link-scroll nav-link" data-page="acoes" role="button">
+                                                                                                <div class="submenu-content__link-img">
+                                                                                                    <img src="Imagens/acaoadultos2.webp" alt="Ação dos Adultos" loading="lazy">
+                                                                                                </div>
+                                                                                                <div class="submenu-content__link-title">Saúde no Trabalho</div>
+                                                                                                <div class="submenu-content__link-text">Triagem nutricional e palestra sobre alimentação e estresse no CDC.</div>
+                                                                                            </a>
+                                                                                        </li>
+
+                                                                                        <li class="submenu-content__list-item">
+                                                                                            <a href="#acao-mesa-redonda" class="submenu-content__link submenu-link-scroll nav-link" data-page="acoes" role="button">
+                                                                                                <div class="submenu-content__link-img">
+                                                                                                    <img src="Imagens/acaoidosos3.webp" alt="Ação dos Idosos" loading="lazy">
+                                                                                                </div>
+                                                                                                <div class="submenu-content__link-title">Nutrição 60+</div>
+                                                                                                <div class="submenu-content__link-text">Roda de conversa sobre sarcopenia, hidratação e proteínas na terceira idade.</div>
+                                                                                            </a>
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                </div>
 
                                         <div class="submenu-content" data-submenu-for="Higiene dos Alimentos">
                                             <div class="submenu-content__title">Guias de Higiene</div>
@@ -571,12 +606,14 @@
     </a>
 
     <div id="user-profile-actions" class="profile-actions" style="display: none;">
-        <a href="./perfil/index.html" class="nav-link profile-pill-btn" id="btn-perfil">
-            <i class="fa-solid fa-user-circle" id="default-user-icon"></i>
-            
-            <img id="user-photo" src="" alt="Foto" class="profile-avatar" style="display: none;">
-            
-            Olá, <span id="user-display-name">Perfil</span>
+        <a href="./perfil/index.html" class="nav-link profile-pill-btn profile-chip" id="btn-perfil">
+            <div class="profile-avatar-circle" aria-hidden="true">
+                <i class="fa-regular fa-user" id="default-user-icon"></i>
+                <img id="user-photo" src="" alt="Foto do usuário" class="profile-avatar" style="display: none;">
+                <span class="profile-initials" id="user-initials" aria-hidden="true">AF</span>
+            </div>
+            <span class="profile-name" id="user-display-name">Perfil</span>
+            <i class="fa-solid fa-chevron-down profile-chevron" aria-hidden="true"></i>
         </a>
     </div>
 </li>
