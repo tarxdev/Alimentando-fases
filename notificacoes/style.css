@@ -1,15 +1,16 @@
 /* =======================================================
  * 1. RESET E LAYOUT GERAL
  * ======================================================= */
-.dashboard-body { background-color: #f0f2f5; font-family: 'Lato', sans-serif; color: #050505; margin: 0; overflow-x: hidden; }
-.main-layout { display: grid; grid-template-columns: 260px 1fr 340px; max-width: 1400px; margin: 0 auto; min-height: 100vh; gap: 0; }
+.dashboard-body { background-color: #f0f2f5; font-family: 'Lato', sans-serif; color: #050505; margin: 0; overflow-x: hidden; overflow-y: scroll; }
+.main-layout { display: flex; flex-direction: row; width: 100vw; height: 100vh; max-width: none; margin: 0; padding: 0; gap: 0; }
 
 /* =======================================================
  * 2. SIDEBAR ESQUERDA (MINIMALISTA)
  * ======================================================= */
 .sidebar { 
     background: white; 
-    padding: 25px 20px; 
+    width: 260px; 
+    padding: 30px 20px; 
     height: 100vh; 
     position: sticky; 
     top: 0; 
@@ -19,14 +20,15 @@
     z-index: 100; 
     overflow-y: auto; 
     scrollbar-width: none; 
+    flex-shrink: 0;
 }
 .sidebar::-webkit-scrollbar { display: none; }
 
 .logo-area { 
     display: flex; 
     align-items: center; 
-    gap: 10px; 
-    margin-bottom: 35px; 
+    gap: 12px; 
+    margin-bottom: 40px; 
     padding-left: 5px; 
     flex-shrink: 0; 
 }
@@ -40,27 +42,31 @@
     color: #65676b; 
     display: flex; 
     align-items: center; 
-    gap: 15px; 
-    padding: 12px 20px; 
+    gap: 16px; 
+    padding: 12px 16px; 
     border-radius: 12px; 
-    font-weight: 600; 
-    transition: all 0.2s; 
-    font-size: 1rem;
+    font-weight: 700; 
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s; 
+    font-size: 0.95rem;
+    position: relative;
 }
-.nav-links a:hover { background-color: #f2f2f2; }
+.nav-links a:hover { background-color: #f7f9fa; color: #53954a; }
 .nav-links a.active { background-color: #e8f5e9; color: #53954a; font-weight: 700; }
-.nav-links a i { font-size: 1.3rem; width: 25px; text-align: center; }
+.nav-links a i { font-size: 1.3rem; min-width: 24px; text-align: center; }
+.icon-container { position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+.nav-badge { position: absolute; top: -5px; right: -6px; background: #ff3b30; color: white; font-size: 0.6rem; font-weight: 800; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; z-index: 10; }
+.nav-badge.hidden { display: none; }
 
-.nav-footer { margin-top: auto; padding-top: 15px; border-top: 1px solid #f0f0f0; }
+.nav-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid #f0f0f0; }
 .profile-pill-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #333; padding: 10px; border-radius: 10px; transition: background 0.2s; }
 .profile-pill-link:hover { background-color: #f5f5f5; }
-.nav-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+.nav-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 .profile-info-mini span { display: block; font-weight: 700; font-size: 0.9rem; }
 
 /* =======================================================
  * 3. ÁREA CENTRAL (NOTIFICAÇÕES + BUSCA)
  * ======================================================= */
-.content-area { padding: 30px 40px; width: 100%; max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; }
+.content-area { padding: 30px 40px; width: 100%; max-width: none; margin: 0; display: flex; flex-direction: column; flex: 1; min-width: 0; overflow-y: auto; }
 
 /* BARRA DE BUSCA NO TOPO */
 .top-search-bar {
@@ -125,7 +131,7 @@
 /* =======================================================
  * 4. SIDEBAR DIREITA
  * ======================================================= */
-.right-sidebar { background: white; padding: 30px 25px; position: sticky; top: 0; height: 100vh; overflow: hidden; border-left: 1px solid #e0e0e0; display: flex; flex-direction: column; }
+.right-sidebar { width: 340px; background: white; padding: 30px 25px; position: sticky; top: 0; height: 100vh; overflow: auto; border-left: 1px solid #e0e0e0; display: flex; flex-direction: column; flex-shrink: 0; }
 .widget-header h3 { margin: 0 0 20px 0; font-size: 1.1rem; color: #333; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
 .ranking-widget { flex: 1; display: flex; flex-direction: column; }
 .ranking-list { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 5px; }
@@ -192,4 +198,5 @@
 .s-title { font-size: 0.95rem; font-weight: 700; color: #333; }
 .s-desc { font-size: 0.8rem; color: #888; }
 @keyframes scaleUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-@media (max-width: 992px) { .right-sidebar { display: none; } .main-layout { grid-template-columns: 80px 1fr; } .brand-text, .nav-links span, .profile-info-mini { display: none; } .sidebar { width: 80px; align-items: center; } .search-box { display: none; } }
+@media (max-width: 992px) { .right-sidebar { display: none; } .sidebar { width: 80px; align-items: center; padding: 20px 10px; } .brand-text, .nav-links span, .profile-info-mini { display: none; } .logo-area { justify-content: center; padding: 0; width: 100%; } .nav-links a { justify-content: center; padding: 15px; } .search-box { display: none; } }
+@media (max-width: 600px) { .main-layout { flex-direction: column; } .sidebar { display: none; } .content-area { padding: 20px 15px; } }

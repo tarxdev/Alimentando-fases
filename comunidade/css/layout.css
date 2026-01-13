@@ -10,53 +10,63 @@
     overflow-x: hidden;
 }
 
+
 .main-layout {
-    display: grid;
-    /* Sidebar: 260px | Feed: Flexível | Widgets: 340px */
-    grid-template-columns: 260px 1fr 340px; 
-    max-width: 1400px;
-    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
     min-height: 100vh;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+    background: #fff;
 }
 
 /* --- SIDEBAR ESQUERDA --- */
 .sidebar {
-    background: white;
-    padding: 25px 20px;
+    width: 260px;
+    background: #fff;
+    border-right: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    padding: 30px 20px;
+    flex-shrink: 0;
     height: 100vh;
     position: sticky;
     top: 0;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid #dbdbdb;
+    overflow-y: auto;
     z-index: 100;
 }
+.sidebar::-webkit-scrollbar { display: none; }
 
-.logo-area { display: flex; align-items: center; gap: 10px; margin-bottom: 25px; padding-left: 5px; }
-.sidebar-logo-img { width: 35px; }
-.brand-text { font-family: 'Montserrat', sans-serif; font-weight: 400; color: #53954a; font-size: 1.1rem; }
-.brand-text span { display: block; font-weight: 800; color: #6e513d; }
+.logo-area { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; padding-left: 5px; flex-shrink: 0; }
+.sidebar-logo-img { width: 40px; height: auto; }
+.brand-text { font-family: 'Montserrat', sans-serif; font-weight: 800; color: var(--primary-color); font-size: 1.1rem; }
+.brand-text span { color: #6e513d; }
 
-.nav-links { list-style: none; padding: 0; flex: 1; }
-.nav-links li { margin-bottom: 8px; }
-.nav-links a {
-    text-decoration: none; color: #000; display: flex; align-items: center; gap: 15px;
-    padding: 12px 15px; border-radius: 8px; font-weight: 400; transition: 0.2s;
-}
-.nav-links a.active, .nav-links a:hover { background-color: #f2f2f2; font-weight: 700; }
-.nav-links a i { font-size: 1.4rem; width: 30px; }
+.nav-links { list-style: none; padding: 0; margin: 0; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.nav-links a { text-decoration: none; color: var(--text-secondary); display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; transition: background-color 0.2s, color 0.2s, box-shadow 0.2s; position: relative; }
+.nav-links a:hover { background-color: #f7f9fa; color: var(--primary-color); }
+.nav-links a.active { background-color: #e8f5e9; color: #53954a; font-weight: 700; }
+.nav-links a i { font-size: 1.3rem; width: 24px; text-align: center; }
+.icon-container { position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+.nav-badge { position: absolute; top: -5px; right: -6px; background-color: #ff3b30; color: white; font-size: 0.6rem; font-weight: 800; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; z-index: 10; }
+.nav-badge.hidden { display: none; }
 
-.nav-footer { margin-top: 20px; padding-top: 15px; border-top: 1px solid #efefef; }
-.profile-pill-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #000; padding: 10px; border-radius: 8px; }
-.profile-pill-link:hover { background-color: #f2f2f2; }
-.nav-avatar { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+.nav-footer { margin-top: auto; border-top: 1px solid var(--border-light); padding-top: 20px; flex-shrink: 0; }
+.profile-pill-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-color); padding: 10px; border-radius: 12px; }
+.profile-pill-link:hover { background-color: #f7f9fa; }
+.nav-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
 /* --- ÁREA CENTRAL (Feed + Busca) --- */
 .content-area {
     padding: 30px 40px;
     width: 100%;
-    margin: 0 auto;
-    /* Não precisa mais de max-width forçado aqui pois a coluna da direita segura */
+    max-width: none;
+    margin: 0;
+    flex: 1;
+    min-width: 0;
 }
 
 /* Barra de Pesquisa no Topo */
@@ -95,11 +105,13 @@
 
 /* --- SIDEBAR DIREITA (Conteúdos Extras) --- */
 .right-sidebar {
+    width: 340px;
     background: white; padding: 30px 25px;
     position: sticky; top: 0; height: 100vh;
-    border-left: 1px solid #dbdbdb;
+    border-left: 1px solid var(--border-light);
     display: flex; flex-direction: column;
     overflow-y: auto;
+    flex-shrink: 0;
 }
 
 /* Headers de Widget */
@@ -163,5 +175,10 @@
     .right-sidebar { display: none; }
     .main-layout { grid-template-columns: 80px 1fr; }
     .brand-text, .nav-links span, .profile-info-mini { display: none; }
-    .sidebar { width: 80px; align-items: center; }
+    .sidebar { width: 80px; align-items: center; padding: 20px 10px; }
+}
+
+@media (max-width: 700px) {
+    .sidebar { display: none; }
+    .main-layout { grid-template-columns: 1fr; }
 }

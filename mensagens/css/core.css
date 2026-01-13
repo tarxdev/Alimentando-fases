@@ -13,7 +13,8 @@
 body, html { 
     margin: 0; padding: 0; 
     height: 100%; 
-    overflow: hidden !important; 
+    overflow-x: hidden; 
+    overflow-y: scroll; 
     font-family: 'Lato', sans-serif; 
     background-color: var(--bg-app) !important; 
 }

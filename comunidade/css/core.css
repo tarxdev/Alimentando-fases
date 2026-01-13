@@ -34,6 +34,7 @@ body.dashboard-body {
     margin: 0;
     padding: 0;
     overflow-x: hidden; /* Evita scroll lateral acidental */
+    overflow-y: scroll; /* Mantém scrollbar fixo e evita jump entre páginas */
 }
 
 /* Remove estilos padrões feios */
