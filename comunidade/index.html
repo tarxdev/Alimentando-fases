@@ -31,7 +31,16 @@
                 <li><a href="#" class="active"><i class="fa-solid fa-earth-americas"></i> <span>Comunidade</span></a></li>
                 <li><a href="#" id="btn-open-tools"><i class="fa-solid fa-screwdriver-wrench"></i> <span>Ferramentas</span></a></li>
                 <li><a href="../notificacoes/index.html"><i class="fa-regular fa-bell"></i> <span>Notificações</span></a></li>
-                <li><a href="../mensagens/index.html"><i class="fa-solid fa-envelope"></i> <span>Mensagens</span></a></li>
+                <li>
+                    <a href="../mensagens/index.html">
+                        <div class="icon-container">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span id="sidebar-badge" class="nav-badge hidden">0</span>
+                        </div>
+                        <span>Mensagens</span>
+                    </a>
+                </li>
+                <li id="nav-item-admin" style="display: none;"><a href="../admin/index.html"><i class="fa-solid fa-lock"></i> <span>Painel Admin</span></a></li>
                 <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> <span>Calendário</span></a></li>
                 <li><a href="#" id="btn-open-settings"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
             </ul>
@@ -124,6 +133,7 @@
     <div id="modal-tools" class="modal-overlay"><div class="modal-content-tools"><div class="modal-header-tools"><h3><i class="fa-solid fa-screwdriver-wrench"></i> Ferramentas</h3><button id="btn-close-tools" class="btn-icon-close"><i class="fa-solid fa-xmark"></i></button></div><div class="tools-grid"><div class="tool-card"><div class="tool-icon water-icon"><i class="fa-solid fa-droplet"></i></div><h4>Água</h4><div class="tool-input-area"><input type="number" id="user-weight-water" placeholder="Peso (kg)"><div id="calc-result-area" class="tool-result hidden"><strong id="water-result-text">0 L</strong></div></div></div><div class="tool-card"><div class="tool-icon imc-icon"><i class="fa-solid fa-weight-scale"></i></div><h4>IMC</h4><div class="tool-input-area"><div class="input-row"><input type="number" id="imc-height" placeholder="Alt" class="mini-input"><input type="number" id="imc-weight" placeholder="Peso" class="mini-input"></div><button class="btn-tool-action" id="btn-calc-imc">Calcular</button><div id="imc-result-area" class="tool-result hidden"><span>IMC: </span><strong id="imc-value">0.0</strong><div id="imc-status-badge" class="status-badge-mini"></div></div></div></div></div></div></div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="../sistema-cargos/admin-guard.js"></script>
     <script type="module" src="js/index.js"></script>
 
 </body>
