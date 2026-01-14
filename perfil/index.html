@@ -23,6 +23,24 @@
 </head>
 <body class="dashboard-body"> 
 
+    <header class="mobile-profile-bar">
+        <button class="mp-btn" onclick="window.location.href='../index.html'" aria-label="Voltar">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <div class="mp-identity">
+            <span class="mp-username" id="mobile-username">@usuario</span>
+            <span class="mp-sub">Perfil</span>
+        </div>
+        <div class="mp-actions">
+            <button class="mp-btn" id="mp-btn-add" aria-label="Novo post">
+                <i class="fa-regular fa-square-plus"></i>
+            </button>
+            <button class="mp-btn" id="mp-btn-settings" aria-label="Configurações">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+        </div>
+    </header>
+
     <div class="main-layout">
         
         <nav class="sidebar">
@@ -135,7 +153,23 @@
                         <p>Documentar sua alimentação é o segredo da constância.</p>
                         <button class="txt-link-brand" onclick="document.getElementById('modal-new-post').classList.add('open')">✍️ Registrar meu dia agora</button>
                     </div>
-                    <div id="feed-container" class="gallery-grid"></div>
+                    <div class="profile-feed-sections">
+                        <section class="feed-section" id="feed-section-media">
+                            <div class="feed-section-header">
+                                <h3>Publicações com imagem</h3>
+                                <span class="feed-section-count" id="count-posts-media">0</span>
+                            </div>
+                            <div id="feed-container-media" class="gallery-grid"></div>
+                        </section>
+
+                        <section class="feed-section" id="feed-section-text">
+                            <div class="feed-section-header">
+                                <h3>Publicações sem imagem</h3>
+                                <span class="feed-section-count" id="count-posts-text">0</span>
+                            </div>
+                            <div id="feed-container-text" class="gallery-grid"></div>
+                        </section>
+                    </div>
                 </div>
 
                 <div id="tab-saved" class="tab-pane hidden">
@@ -157,6 +191,24 @@
             </div> 
         </main>
     </div>
+
+    <nav class="bottom-nav" aria-label="Menu inferior">
+        <a href="../index.html" class="bn-item">
+            <i class="fa-solid fa-house"></i><span>Início</span>
+        </a>
+        <a href="../comunidade/index.html" class="bn-item">
+            <i class="fa-solid fa-earth-americas"></i><span>Comunidade</span>
+        </a>
+        <a href="../notificacoes/index.html" class="bn-item">
+            <i class="fa-regular fa-bell"></i><span>Notifs</span>
+        </a>
+        <a href="../mensagens/index.html" class="bn-item">
+            <i class="fa-solid fa-envelope"></i><span>Msgs</span>
+        </a>
+        <a href="#" class="bn-item active">
+            <i class="fa-solid fa-user"></i><span>Perfil</span>
+        </a>
+    </nav>
 
     <div class="modal-overlay" id="edit-modal">
         <div class="modal-content">

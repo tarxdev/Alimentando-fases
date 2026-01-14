@@ -37,6 +37,50 @@
 .chat-sidebar-panel { width: 360px !important; background: #fff; border-right: 1px solid var(--border-light); display: flex; flex-direction: column; flex-shrink: 0 !important; height: 100vh; z-index: 90; }
 .chat-window-panel { flex: 1 !important; display: flex; flex-direction: column; background: #fff; height: 100vh; position: relative; min-width: 0; box-shadow: -5px 0 20px rgba(0,0,0,0.02); z-index: 1; }
 
+/* --- MENU INFERIOR (Mobile) --- */
+.bottom-nav {
+    display: none;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 68px;
+    background: #fff;
+    border-top: 1px solid var(--border-light);
+    box-shadow: 0 -4px 18px rgba(0,0,0,0.06);
+    z-index: 140;
+    padding: 8px 10px;
+    gap: 6px;
+    justify-content: space-between;
+}
+
+.bottom-nav .bn-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: #777;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-decoration: none;
+    border-radius: 12px;
+    padding: 6px 4px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.bottom-nav .bn-item i { font-size: 1.2rem; }
+.bottom-nav .bn-item:hover { background: #f6f6f6; color: #333; }
+.bottom-nav .bn-item.active { color: #53954a; background: #e8f5e9; }
+
 /* --- RESPONSIVIDADE --- */
 @media (max-width: 900px) { .sidebar { width: 80px !important; align-items: center; padding: 20px 10px !important; } .brand-text, .nav-links span, .profile-info-mini { display: none; } .nav-badge { top: -2px; right: -2px; } .chat-sidebar-panel { width: 320px !important; } }
-@media (max-width: 700px) { .sidebar { display: none !important; } .chat-sidebar-panel { width: 100% !important; } .chat-sidebar-panel.hidden-mobile { display: none !important; } .chat-window-panel { display: none !important; width: 100% !important; } .chat-window-panel.active-mobile { display: flex !important; } .btn-back-mobile { display: block; } }
+@media (max-width: 700px) {
+    .sidebar { display: none !important; }
+    .chat-sidebar-panel { width: 100% !important; }
+    .chat-sidebar-panel.hidden-mobile { display: none !important; }
+    .chat-window-panel { display: none !important; width: 100% !important; }
+    .chat-window-panel.active-mobile { display: flex !important; }
+    .btn-back-mobile { display: block; }
+    .bottom-nav { display: flex; }
+    .chat-layout { padding-bottom: 74px !important; }
+}

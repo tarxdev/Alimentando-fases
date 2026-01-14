@@ -9,12 +9,22 @@ export class UIController {
             sidebar: document.getElementById('nav-avatar-img'),
             widget: document.getElementById('widget-user-avatar'),
             modalPost: document.getElementById('modal-user-avatar'),
-            instComment: document.getElementById('inst-author-photo')
+            instComment: document.getElementById('inst-author-photo'),
+            mobileNav: document.getElementById('mobile-nav-avatar'),
+            mobileMenu: document.getElementById('mobile-menu-avatar')
         };
 
         this.nameElements = {
             sidebar: document.querySelector('.p-name'),
-            modalPost: document.querySelector('.cp-username')
+            modalPost: document.querySelector('.cp-username'),
+            mobileMenu: document.getElementById('mobile-menu-name')
+        };
+
+        this.mobileMenu = {
+            toggleBtn: document.getElementById('btn-mobile-menu'),
+            closeBtn: document.getElementById('btn-close-mobile-menu'),
+            overlay: document.getElementById('mobile-menu-overlay'),
+            drawer: document.getElementById('mobile-drawer')
         };
     }
 
@@ -40,6 +50,8 @@ export class UIController {
                 }
             });
         }
+
+        this.bindMobileMenu();
     }
 
     async handleAutomaticSync(firebaseUser) {
@@ -110,7 +122,11 @@ export class UIController {
         if (name) {
             if (this.nameElements.sidebar) this.nameElements.sidebar.innerText = "Meu Perfil";
             if (this.nameElements.modalPost) this.nameElements.modalPost.innerText = name;
+            if (this.nameElements.mobileMenu) this.nameElements.mobileMenu.innerText = name;
         }
+
+        const mobileProfileLink = document.querySelector('.mobile-avatar-link');
+        if (mobileProfileLink) mobileProfileLink.href = "../perfil/index.html";
     }
 
     setGuestState() {
@@ -122,6 +138,29 @@ export class UIController {
             const link = document.querySelector('.profile-pill-link');
             if(link) { link.href = "../login/index.html"; } // Restaura link original
         }
+        if (this.nameElements.mobileMenu) this.nameElements.mobileMenu.innerText = "Convidado";
+        const mobileProfileLink = document.querySelector('.mobile-avatar-link');
+        if (mobileProfileLink) mobileProfileLink.href = "../login/index.html";
+    }
+
+    bindMobileMenu() {
+        const { toggleBtn, closeBtn, overlay, drawer } = this.mobileMenu;
+        if (!toggleBtn || !overlay || !drawer) return;
+
+        const closeMenu = () => {
+            overlay.classList.remove('open');
+            document.body.classList.remove('no-scroll');
+        };
+
+        const openMenu = () => {
+            overlay.classList.add('open');
+            document.body.classList.add('no-scroll');
+        };
+
+        toggleBtn.addEventListener('click', openMenu);
+        if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+        overlay.addEventListener('click', (event) => { if (event.target === overlay) closeMenu(); });
+        drawer.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
     }
 
     showLoginAlert() {

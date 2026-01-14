@@ -19,9 +19,11 @@ async function resolveRole(uid) {
 }
 
 function toggleAdminLink(show) {
-    const link = document.getElementById('nav-item-admin');
-    if (!link) return;
-    link.style.display = show ? 'block' : 'none';
+    const desktopLink = document.getElementById('nav-item-admin');
+    const mobileLink = document.getElementById('mobile-item-admin');
+
+    if (desktopLink) desktopLink.style.display = show ? 'block' : 'none';
+    if (mobileLink) mobileLink.style.display = show ? 'block' : 'none';
 }
 
 onAuthStateChanged(auth, async (user) => {

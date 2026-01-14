@@ -35,7 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
         counts: { posts: document.getElementById('count-posts'), followers: document.getElementById('count-followers'), following: document.getElementById('count-following') },
         statFollowers: document.getElementById('btn-view-followers'),
         statFollowing: document.getElementById('btn-view-following'),
-        feedContainer: document.getElementById('feed-container'),
+        feedContainerMedia: document.getElementById('feed-container-media'),
+        feedContainerText: document.getElementById('feed-container-text'),
+        countPostsMedia: document.getElementById('count-posts-media'),
+        countPostsText: document.getElementById('count-posts-text'),
         emptyState: document.getElementById('empty-state-timeline'),
         modal: document.getElementById('modal-post-detail'),
         leftContent: document.getElementById('inst-left-content'),
@@ -69,6 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSubmitPost: document.getElementById('btn-submit-post'),
         btnSair: document.getElementById('btn-sair-perfil') 
     };
+
+    function timeAgo(date) {
+        if (!date) return '';
+        const d = date instanceof Date ? date : new Date(date);
+        const diff = (Date.now() - d.getTime()) / 1000;
+        if (diff < 60) return `${Math.max(1, Math.floor(diff))}s`;
+        if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+        if (diff < 2592000) return `${Math.floor(diff / 86400)}d`;
+        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    }
 
     authService.monitorAuth(async (user) => {
         if (user) {
@@ -115,6 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if(els.bio) els.bio.textContent = data.bio || "";
         els.picMain.src = data.photo || "https://ui-avatars.com/api/?name=User";
         els.picNav.src = data.photo || "https://ui-avatars.com/api/?name=User";
+        const mobileUser = document.getElementById('mobile-username');
+        if (mobileUser) mobileUser.textContent = '@' + (data.username || 'usuario');
 
         if(els.counts.posts) els.counts.posts.textContent = data.postsCount || 0;
         if(els.counts.followers) els.counts.followers.textContent = data.followers?.length || 0;
@@ -123,6 +139,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if(els.statFollowers) els.statFollowers.onclick = () => openNetworkModal('Seguidores', data.followers || []);
         if(els.statFollowing) els.statFollowing.onclick = () => openNetworkModal('Seguindo', data.following || []);
     }
+
+    const mpAdd = document.getElementById('mp-btn-add');
+    if (mpAdd) mpAdd.onclick = () => document.getElementById('modal-new-post')?.classList.add('open');
+    const mpSettings = document.getElementById('mp-btn-settings');
+    if (mpSettings) mpSettings.onclick = () => document.getElementById('edit-modal')?.classList.add('open');
 
     async function openNetworkModal(title, uids) {
         if (!els.modalList) return;
@@ -179,35 +200,98 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadFeed(uid) {
-        if (!els.feedContainer) return;
-        els.feedContainer.innerHTML = '';
+        if (!els.feedContainerMedia || !els.feedContainerText) return;
+        els.feedContainerMedia.innerHTML = '';
+        els.feedContainerText.innerHTML = '';
+
         const q = query(collection(db, 'posts'), where('authorId', '==', uid), orderBy('timestamp', 'desc'), limit(50));
         const snapshot = await getDocs(q);
         
         if (snapshot.empty) {
             if (els.emptyState) els.emptyState.style.display = 'block';
+            if (els.countPostsMedia) els.countPostsMedia.textContent = '0';
+            if (els.countPostsText) els.countPostsText.textContent = '0';
             return;
         }
         if (els.emptyState) els.emptyState.style.display = 'none';
 
+        let mediaCount = 0;
+        let textCount = 0;
+
         snapshot.forEach(docSnap => {
             const post = docSnap.data();
-            const div = document.createElement('div');
-            div.id = `grid-post-${docSnap.id}`;
-            let cls = 'gallery-item';
-            if (isMasterUser({role: post.authorRole})) cls += ' master-post-border';
-            else if (post.authorRole === 'nutri') cls += ' verified-post-border';
-            div.className = cls;
-            
-            let html = '';
-            if(post.images && post.images.length > 0) html = `<img src="${post.images[0]}" class="gallery-image">`;
-            else if(post.image) html = `<img src="${post.image}" class="gallery-image">`;
-            else html = `<div class="gallery-text-only"><p>${post.content.substring(0,60)}...</p></div>`;
-            
-            div.innerHTML = `${html}<div class="gallery-overlay"><i class="fa-solid fa-heart"></i> ${post.likes ? post.likes.length : 0}</div>`;
-            div.onclick = () => openPostModal(docSnap.id, post);
-            els.feedContainer.appendChild(div);
+            const card = document.createElement('div');
+            card.id = `grid-post-${docSnap.id}`;
+            card.className = 'tweet-card';
+            const authorPhoto = post.authorPhoto || els.picMain?.src || 'https://ui-avatars.com/api/?name=User';
+            const authorName = post.authorName || myOriginalData?.realname || 'Você';
+            const authorUsername = post.authorUsername || myOriginalData?.username || 'usuario';
+            const rawDate = post.timestamp?.toDate ? post.timestamp.toDate() : post.timestamp;
+            const timeLabel = timeAgo(rawDate);
+            const contentText = post.content || '';
+            const likeCount = post.likes ? post.likes.length : 0;
+
+            const mediaUrl = post.images?.[0] || post.image;
+            const mediaSlotHtml = mediaUrl ? `<div class="tweet-media-slot"></div>` : '';
+            const textHtml = post.content ? `<div class="tweet-text">${post.content}</div>` : '';
+
+            card.innerHTML = `
+                <img class="tweet-avatar" src="${authorPhoto}" alt="avatar">
+                <div class="tweet-body">
+                    <div class="tweet-header">
+                        <span class="tweet-name">${authorName}</span>
+                        <span class="tweet-username">@${authorUsername}</span>
+                        <span class="tweet-dot">•</span>
+                        <span class="tweet-time">${timeLabel}</span>
+                    </div>
+                    ${textHtml}
+                    ${mediaSlotHtml}
+                    <div class="tweet-actions">
+                        <div class="tweet-action" title="Comentar"><i class="fa-regular fa-comment"></i></div>
+                        <div class="tweet-action like" title="Curtir"><i class="fa-regular fa-heart"></i> <span>${likeCount}</span></div>
+                        <div class="tweet-action" title="Compartilhar"><i class="fa-solid fa-arrow-up-from-bracket"></i></div>
+                    </div>
+                </div>
+            `;
+
+            if (mediaUrl) {
+                const slot = card.querySelector('.tweet-media-slot');
+                if (slot) {
+                    const mediaDiv = document.createElement('div');
+                    mediaDiv.className = 'tweet-media';
+                    mediaDiv.style.setProperty('--tweet-media-url', `url("${mediaUrl}")`);
+
+                    const img = document.createElement('img');
+                    img.src = mediaUrl;
+                    img.loading = 'lazy';
+                    img.decoding = 'async';
+                    img.alt = 'imagem da publicação';
+
+                    mediaDiv.appendChild(img);
+                    slot.replaceWith(mediaDiv);
+                }
+            }
+
+            card.onclick = () => openPostModal(docSnap.id, post);
+
+            if (mediaUrl) {
+                mediaCount++;
+                els.feedContainerMedia.appendChild(card);
+            } else {
+                textCount++;
+                els.feedContainerText.appendChild(card);
+            }
         });
+
+        if (els.countPostsMedia) els.countPostsMedia.textContent = String(mediaCount);
+        if (els.countPostsText) els.countPostsText.textContent = String(textCount);
+
+        if (mediaCount === 0) {
+            els.feedContainerMedia.innerHTML = '<div class="feed-empty">Nenhuma publicação com imagem ainda.</div>';
+        }
+        if (textCount === 0) {
+            els.feedContainerText.innerHTML = '<div class="feed-empty">Nenhuma publicação sem imagem ainda.</div>';
+        }
     }
 
     async function openPostModal(postId, postData) {

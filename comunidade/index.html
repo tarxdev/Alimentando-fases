@@ -20,6 +20,49 @@
 
 <body class="dashboard-body">
 
+    <header class="mobile-header">
+        <button class="icon-btn" id="btn-mobile-menu" aria-label="Abrir menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="mobile-brand">
+            <img src="../Imagens/logofavicon.webp" alt="Logo" class="mobile-logo">
+            <div class="mobile-brand-text">
+                <strong>Comunidade</strong>
+                <span>Alimentando Fases</span>
+            </div>
+        </div>
+        <a href="../perfil/index.html" class="mobile-avatar-link" aria-label="Perfil">
+            <img src="https://ui-avatars.com/api/?name=User" class="mobile-avatar" id="mobile-nav-avatar">
+        </a>
+    </header>
+
+    <div class="mobile-menu-overlay" id="mobile-menu-overlay">
+        <nav class="mobile-menu" id="mobile-drawer" aria-label="Menu principal">
+            <div class="mobile-menu-header">
+                <div class="mobile-user">
+                    <img src="https://ui-avatars.com/api/?name=User" class="mobile-menu-avatar" id="mobile-menu-avatar" alt="Avatar">
+                    <div class="mobile-user-text">
+                        <strong id="mobile-menu-name">Meu Perfil</strong>
+                        <span>Gerencie sua conta</span>
+                    </div>
+                </div>
+                <button class="icon-btn" id="btn-close-mobile-menu" aria-label="Fechar menu">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <ul class="mobile-nav-links">
+                <li><a href="../index.html"><i class="fa-solid fa-house"></i> Início</a></li>
+                <li><a href="#" class="active"><i class="fa-solid fa-earth-americas"></i> Comunidade</a></li>
+                <li><a href="#" id="btn-open-tools-mobile"><i class="fa-solid fa-screwdriver-wrench"></i> Ferramentas</a></li>
+                <li><a href="../notificacoes/index.html"><i class="fa-regular fa-bell"></i> Notificações</a></li>
+                <li><a href="../mensagens/index.html"><i class="fa-solid fa-envelope"></i> Mensagens</a></li>
+                <li id="mobile-item-admin" style="display: none;"><a href="../admin/index.html"><i class="fa-solid fa-lock"></i> Painel Admin</a></li>
+                <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> Calendário</a></li>
+                <li><a href="#" id="btn-open-settings-mobile"><i class="fa-solid fa-gear"></i> Configurações</a></li>
+            </ul>
+        </nav>
+    </div>
+
     <div class="main-layout">
         <nav class="sidebar">
             <div class="logo-area">
