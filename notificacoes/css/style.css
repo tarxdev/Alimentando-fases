@@ -18,7 +18,7 @@ body, html {
     margin: 0; padding: 0; 
     height: 100%; 
     overflow-x: hidden; 
-    overflow-y: scroll; 
+    overflow-y: auto; 
     font-family: var(--font-body); 
     background-color: var(--bg-app) !important; 
     color: var(--text-main);
@@ -40,16 +40,16 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* SIDEBAR - CLONE PERFEITO */
 .sidebar {
-    width: 260px !important;
+    width: var(--sidebar-width) !important;
     background: #fff !important;
     border-right: 1px solid var(--border-light) !important;
     display: flex !important;
     flex-direction: column !important;
-    padding: 30px 20px !important;
+    padding: 22px 16px !important;
     flex-shrink: 0 !important;
     z-index: 100;
     height: 100vh !important;
-    overflow-y: auto !important;
+    overflow-y: hidden !important;
     scrollbar-width: none !important;
     position: sticky;
     top: 0;
@@ -58,22 +58,21 @@ img { max-width: 100%; height: auto; display: block; }
 .logo-area {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 40px !important;
-    padding-left: 5px;
+    gap: 10px;
+    margin-bottom: 28px !important;
+    padding-left: 4px;
     flex-shrink: 0;
 }
 
-.sidebar-logo-img { width: 40px !important; height: auto !important; }
+.sidebar-logo-img { width: 34px !important; height: auto !important; }
 
 .brand-text {
     font-family: var(--font-heading);
     font-weight: 800;
     color: var(--primary-color);
-    font-size: 1.1rem;
+    font-size: 1rem;
     white-space: nowrap;
-    /* Removemos o line-height forçado que cortava o texto */
-    margin-top: 2px;
+    margin-top: 0;
 }
 .brand-text span { color: #6e513d; }
 
@@ -84,7 +83,7 @@ img { max-width: 100%; height: auto; display: block; }
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px !important;
+    gap: 6px !important;
 }
 
 .nav-links a {
@@ -92,11 +91,11 @@ img { max-width: 100%; height: auto; display: block; }
     color: var(--text-secondary);
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 12px 16px !important;
+    gap: 12px;
+    padding: 11px 12px !important;
     border-radius: 12px;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
     position: relative;
     font-family: var(--font-body);
@@ -143,15 +142,15 @@ img { max-width: 100%; height: auto; display: block; }
 .nav-badge.hidden { display: none; }
 
 .nav-links a i {
-    font-size: 1.3rem !important;
+    font-size: 1.15rem !important;
     text-align: center !important;
-    min-width: 24px !important;
+    min-width: 22px !important;
 }
 
 .nav-footer {
     margin-top: auto;
     border-top: 1px solid var(--border-light);
-    padding-top: 20px;
+    padding-top: 14px;
     flex-shrink: 0;
 }
 
@@ -167,8 +166,8 @@ img { max-width: 100%; height: auto; display: block; }
 .profile-pill-link:hover { background-color: #f7f9fa; }
 
 .nav-avatar {
-    width: 42px !important;
-    height: 42px !important;
+    width: 38px !important;
+    height: 38px !important;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #fff;
