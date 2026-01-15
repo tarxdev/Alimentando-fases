@@ -35,10 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         counts: { posts: document.getElementById('count-posts'), followers: document.getElementById('count-followers'), following: document.getElementById('count-following') },
         statFollowers: document.getElementById('btn-view-followers'),
         statFollowing: document.getElementById('btn-view-following'),
-        feedContainerMedia: document.getElementById('feed-container-media'),
-        feedContainerText: document.getElementById('feed-container-text'),
-        countPostsMedia: document.getElementById('count-posts-media'),
-        countPostsText: document.getElementById('count-posts-text'),
+        feedContainer: document.getElementById('feed-container'),
         emptyState: document.getElementById('empty-state-timeline'),
         modal: document.getElementById('modal-post-detail'),
         leftContent: document.getElementById('inst-left-content'),
@@ -200,23 +197,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadFeed(uid) {
-        if (!els.feedContainerMedia || !els.feedContainerText) return;
-        els.feedContainerMedia.innerHTML = '';
-        els.feedContainerText.innerHTML = '';
-
+        if (!els.feedContainer) return;
+        els.feedContainer.innerHTML = '';
         const q = query(collection(db, 'posts'), where('authorId', '==', uid), orderBy('timestamp', 'desc'), limit(50));
         const snapshot = await getDocs(q);
         
         if (snapshot.empty) {
             if (els.emptyState) els.emptyState.style.display = 'block';
-            if (els.countPostsMedia) els.countPostsMedia.textContent = '0';
-            if (els.countPostsText) els.countPostsText.textContent = '0';
             return;
         }
         if (els.emptyState) els.emptyState.style.display = 'none';
-
-        let mediaCount = 0;
-        let textCount = 0;
 
         snapshot.forEach(docSnap => {
             const post = docSnap.data();
@@ -231,8 +221,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const contentText = post.content || '';
             const likeCount = post.likes ? post.likes.length : 0;
 
+            let mediaHtml = '';
             const mediaUrl = post.images?.[0] || post.image;
-            const mediaSlotHtml = mediaUrl ? `<div class="tweet-media-slot"></div>` : '';
+            if (mediaUrl) mediaHtml = `<div class="tweet-media"><img src="${mediaUrl}"></div>`;
+
             const textHtml = post.content ? `<div class="tweet-text">${post.content}</div>` : '';
 
             card.innerHTML = `
@@ -245,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="tweet-time">${timeLabel}</span>
                     </div>
                     ${textHtml}
-                    ${mediaSlotHtml}
+                    ${mediaHtml}
                     <div class="tweet-actions">
                         <div class="tweet-action" title="Comentar"><i class="fa-regular fa-comment"></i></div>
                         <div class="tweet-action like" title="Curtir"><i class="fa-regular fa-heart"></i> <span>${likeCount}</span></div>
@@ -254,44 +246,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
 
-            if (mediaUrl) {
-                const slot = card.querySelector('.tweet-media-slot');
-                if (slot) {
-                    const mediaDiv = document.createElement('div');
-                    mediaDiv.className = 'tweet-media';
-                    mediaDiv.style.setProperty('--tweet-media-url', `url("${mediaUrl}")`);
-
-                    const img = document.createElement('img');
-                    img.src = mediaUrl;
-                    img.loading = 'lazy';
-                    img.decoding = 'async';
-                    img.alt = 'imagem da publicação';
-
-                    mediaDiv.appendChild(img);
-                    slot.replaceWith(mediaDiv);
-                }
-            }
-
             card.onclick = () => openPostModal(docSnap.id, post);
-
-            if (mediaUrl) {
-                mediaCount++;
-                els.feedContainerMedia.appendChild(card);
-            } else {
-                textCount++;
-                els.feedContainerText.appendChild(card);
-            }
+            els.feedContainer.appendChild(card);
         });
-
-        if (els.countPostsMedia) els.countPostsMedia.textContent = String(mediaCount);
-        if (els.countPostsText) els.countPostsText.textContent = String(textCount);
-
-        if (mediaCount === 0) {
-            els.feedContainerMedia.innerHTML = '<div class="feed-empty">Nenhuma publicação com imagem ainda.</div>';
-        }
-        if (textCount === 0) {
-            els.feedContainerText.innerHTML = '<div class="feed-empty">Nenhuma publicação sem imagem ainda.</div>';
-        }
     }
 
     async function openPostModal(postId, postData) {
