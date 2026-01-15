@@ -11,27 +11,27 @@
 }
 
 /* --- SIDEBAR (Menu Lateral) --- */
-.sidebar { width: 260px !important; background: #fff !important; border-right: 1px solid var(--border-light) !important; display: flex !important; flex-direction: column !important; padding: 30px 20px !important; flex-shrink: 0 !important; z-index: 100; height: 100vh !important; overflow-y: auto !important; scrollbar-width: none !important; position: sticky; top: 0; }
+.sidebar { width: 260px !important; background: #fff !important; border-right: 1px solid var(--border-light) !important; display: flex !important; flex-direction: column !important; padding: 22px 16px !important; flex-shrink: 0 !important; z-index: 100; height: 100vh !important; overflow: hidden !important; scrollbar-width: none !important; position: sticky; top: 0; }
 .sidebar::-webkit-scrollbar { display: none !important; }
 
-.logo-area { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; padding-left: 5px; flex-shrink: 0; }
-.sidebar-logo-img { width: 40px !important; height: auto !important; }
-.brand-text { font-family: 'Montserrat', sans-serif; font-weight: 800; color: var(--primary-color); font-size: 1.1rem; }
+.logo-area { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; padding-left: 4px; flex-shrink: 0; }
+.sidebar-logo-img { width: 34px !important; height: auto !important; }
+.brand-text { font-family: 'Montserrat', sans-serif; font-weight: 800; color: var(--primary-color); font-size: 1rem; }
 .brand-text span { color: #6e513d; }
 
-.nav-links { list-style: none; padding: 0; margin: 0; flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.nav-links a { text-decoration: none; color: var(--text-secondary); display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; transition: background-color 0.2s, color 0.2s, box-shadow 0.2s; position: relative; }
+.nav-links { list-style: none; padding: 0; margin: 0; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.nav-links a { text-decoration: none; color: var(--text-secondary); display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; transition: background-color 0.2s, color 0.2s, box-shadow 0.2s; position: relative; }
 .nav-links a:hover { background-color: #f7f9fa; color: var(--primary-color); }
 .nav-links a.active { background-color: #e8f5e9; color: #53954a; font-weight: 700; }
 
-.icon-container { position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
-.nav-links a i { font-size: 1.3rem; min-width: 24px; text-align: center; }
+.icon-container { position: relative; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+.nav-links a i { font-size: 1.15rem; min-width: 22px; text-align: center; }
 .nav-badge { position: absolute; top: -5px; right: -6px; background-color: #ff3b30; color: white; font-size: 0.6rem; font-weight: 800; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; z-index: 10; }
 .nav-badge.hidden { display: none; }
 
-.nav-footer { margin-top: auto; border-top: 1px solid var(--border-light); padding-top: 20px; flex-shrink: 0; }
-.profile-pill-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-main); padding: 10px; border-radius: 12px; }
-.nav-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.nav-footer { margin-top: auto; border-top: 1px solid var(--border-light); padding-top: 16px; flex-shrink: 0; }
+.profile-pill-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-main); padding: 8px; border-radius: 12px; }
+.nav-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
 /* --- PAINÉIS DO CHAT --- */
 .chat-sidebar-panel { width: 360px !important; background: #fff; border-right: 1px solid var(--border-light); display: flex; flex-direction: column; flex-shrink: 0 !important; height: 100vh; z-index: 90; }
