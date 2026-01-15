@@ -45,33 +45,32 @@
         
         <nav class="sidebar">
             <div class="logo-area">
-                <h1 class="brand-text">ALIMENTANDO <span style="color: #6e513d;">FASES</span></h1>
+                <img src="../Imagens/logofavicon.webp" alt="Logo" class="sidebar-logo-img">
+                <div class="brand-text">ALIMENTANDO <span>FASES</span></div>
             </div>
-
             <ul class="nav-links">
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> <span>Início</span></a></li>
-                <li><a href="#" id="btn-open-search"><i class="fa-solid fa-magnifying-glass"></i> <span>Buscar Usuários</span></a></li>
-                <li><a href="../quem-somos.html"><i class="fa-solid fa-users"></i> <span>Quem Somos</span></a></li>
                 <li><a href="../comunidade/index.html"><i class="fa-solid fa-earth-americas"></i> <span>Comunidade</span></a></li>
-                <li><a href="../dicas.html"><i class="fa-solid fa-book-open"></i> <span>Dicas</span></a></li>
-                <li><a href="#"><i class="fa-regular fa-paper-plane"></i> <span>Mensagens</span></a></li>
-                <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> <span>Calendário</span></a></li>
-                
+                <li><a href="javascript:void(0)" id="btn-open-tools" role="button"><i class="fa-solid fa-screwdriver-wrench"></i> <span>Ferramentas</span></a></li>
+                <li><a href="../notificacoes/index.html"><i class="fa-regular fa-bell"></i> <span>Notificações</span></a></li>
+                <li>
+                    <a href="../mensagens/index.html">
+                        <div class="icon-container">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span id="sidebar-badge" class="nav-badge hidden">0</span>
+                        </div>
+                        <span>Mensagens</span>
+                    </a>
+                </li>
                 <li id="nav-item-admin" style="display: none;"><a href="../admin/index.html"><i class="fa-solid fa-lock"></i> <span>Painel Admin</span></a></li>
+                <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> <span>Calendário</span></a></li>
+                <li><a href="javascript:void(0)" id="btn-open-settings" role="button"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
             </ul>
-
             <div class="nav-footer">
-                <a href="#" class="profile-link-footer active">
-                    <img src="https://ui-avatars.com/api/?name=User" class="nav-avatar" id="nav-avatar-img" alt="Perfil">
-                    <div class="footer-info">
-                        <span class="p-name">Minha Jornada</span>
-                        <small style="font-size: 0.75rem; color: #888;">Ver perfil</small>
-                    </div>
+                <a href="../perfil/index.html" class="profile-pill-link">
+                    <img src="https://ui-avatars.com/api/?name=User" class="nav-avatar" id="nav-avatar-img" alt="Perfil"> 
+                    <div class="profile-info-mini"><span class="p-name">Meu Perfil</span></div>
                 </a>
-
-                <button id="btn-sair-perfil" class="btn-logout-sidebar" title="Sair da conta">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                </button>
             </div>
         </nav>
 
@@ -153,23 +152,7 @@
                         <p>Documentar sua alimentação é o segredo da constância.</p>
                         <button class="txt-link-brand" onclick="document.getElementById('modal-new-post').classList.add('open')">✍️ Registrar meu dia agora</button>
                     </div>
-                    <div class="profile-feed-sections">
-                        <section class="feed-section" id="feed-section-media">
-                            <div class="feed-section-header">
-                                <h3>Publicações com imagem</h3>
-                                <span class="feed-section-count" id="count-posts-media">0</span>
-                            </div>
-                            <div id="feed-container-media" class="gallery-grid"></div>
-                        </section>
-
-                        <section class="feed-section" id="feed-section-text">
-                            <div class="feed-section-header">
-                                <h3>Publicações sem imagem</h3>
-                                <span class="feed-section-count" id="count-posts-text">0</span>
-                            </div>
-                            <div id="feed-container-text" class="gallery-grid"></div>
-                        </section>
-                    </div>
+                    <div id="feed-container" class="gallery-grid"></div>
                 </div>
 
                 <div id="tab-saved" class="tab-pane hidden">
@@ -205,7 +188,7 @@
         <a href="../mensagens/index.html" class="bn-item">
             <i class="fa-solid fa-envelope"></i><span>Msgs</span>
         </a>
-        <a href="#" class="bn-item active">
+        <a href="javascript:void(0)" class="bn-item active">
             <i class="fa-solid fa-user"></i><span>Perfil</span>
         </a>
     </nav>
