@@ -1,7 +1,8 @@
+/* ARQUIVO: comunidade/js/controllers/feed.controller.js */
 import { PostService } from '../services/post.service.js';
 import { InteractionService } from '../services/interaction.service.js';
 import { escapeHtml, getTimeAgo } from '../utils/formatters.js';
-import { auth, onAuthStateChanged } from '../config/firebase.proxy.js';
+import { auth, onAuthStateChanged, db, getDoc, doc } from '../config/firebase.proxy.js'; // +Imports
 
 export class FeedController {
     constructor() {
@@ -9,37 +10,26 @@ export class FeedController {
         this.interactionService = new InteractionService();
         this.container = document.getElementById('feed-container');
         this.currentUser = null;
-        this.unsubscribeFeed = null; // Para guardar a conexão
+        this.unsubscribeFeed = null; 
     }
 
     async init() {
         onAuthStateChanged(auth, user => {
             this.currentUser = user;
-            // Inicia a conexão Real-Time assim que tivermos o usuário (ou guest)
             this.startRealTimeFeed();
         });
 
         if (this.container) {
             this.container.addEventListener('click', (e) => this.handleInteractions(e));
         }
-        
-        // Removemos os Listeners manuais antigos ('post-interaction-update', etc)
-        // O Real-Time cuida disso agora.
     }
 
     startRealTimeFeed() {
-        // Se já existir uma conexão, fecha ela antes de abrir outra
         if (this.unsubscribeFeed) this.unsubscribeFeed();
-
         this.renderSkeleton();
 
-        // Conecta ao "Tubo" de dados do Firebase
-        this.unsubscribeFeed = this.postService.subscribeToFeed(50, (posts) => {
-            // Esta função roda AUTOMATICAMENTE sempre que:
-            // 1. Alguém postar
-            // 2. Alguém der like
-            // 3. O contador de comentários mudar
-            this.renderPosts(posts);
+        this.unsubscribeFeed = this.postService.subscribeToFeed(50, async (posts) => {
+            await this.renderPosts(posts);
         });
     }
 
@@ -48,20 +38,35 @@ export class FeedController {
         this.container.innerHTML = s.repeat(2);
     }
 
-    renderPosts(posts) {
+    async renderPosts(posts) {
         if (!posts || posts.length === 0) {
             this.container.innerHTML = `<div style="text-align:center; padding:60px 20px; color:#ccc;"><p>Nada aqui ainda.</p></div>`;
             return;
         }
-        // Redesenha o feed com os dados mais frescos possíveis
+
+        // === SYNC FOTOS DO FEED ===
+        const authorIds = new Set(posts.map(p => p.authorId));
+        const photosMap = {};
+
+        // Busca fotos atualizadas em paralelo
+        await Promise.all(Array.from(authorIds).map(async (uid) => {
+            try {
+                const uDoc = await getDoc(doc(db, 'users', uid));
+                if (uDoc.exists()) photosMap[uid] = uDoc.data().photo;
+            } catch(e) {}
+        }));
+
+        // Atualiza objetos do post
+        posts.forEach(p => {
+            if (photosMap[p.authorId]) p.authorPhoto = photosMap[p.authorId];
+        });
+
         this.container.innerHTML = posts.map(p => this.buildPostHTML(p)).join('');
     }
 
     buildPostHTML(post) {
         const uid = this.currentUser ? this.currentUser.uid : null;
         const isLiked = post.likes && post.likes.includes(uid);
-        
-        // Proteção contra undefined no contador
         const commentCount = post.commentsCount !== undefined ? post.commentsCount : 0;
 
         let mediaHtml = '';
@@ -90,14 +95,17 @@ export class FeedController {
             </article>`;
     }
 
-    // --- MANIPULADORES DE INTERAÇÃO (Mantidos, mas simplificados) ---
+    // ... (Métodos de interação handleLike, handleOptions mantêm-se iguais) ...
+    // Estou omitindo para brevidade, pois não mudam a lógica principal, 
+    // mas se precisar, copie do arquivo original enviado anteriormente.
+    
     async handleInteractions(e) {
         const target = e.target.closest('[data-action]');
         if (!target) return;
         const action = target.dataset.action;
         const postId = target.dataset.id;
 
-        if (action === 'like') this.handleLike(postId, target); // Passando target para feedback otimista
+        if (action === 'like') this.handleLike(postId, target);
         else if (action === 'comment') document.dispatchEvent(new CustomEvent('open-post-detail', { detail: postId }));
         else if (action === 'options') {
             const authorId = target.dataset.author;
@@ -108,13 +116,10 @@ export class FeedController {
 
     async handleLike(postId, btn) {
         if (!this.currentUser) return alert("Faça login.");
-        // O Real-Time vai atualizar a tela sozinho, mas para ser INSTANTÂNEO (0ms),
-        // podemos alternar a classe visualmente antes da resposta do servidor.
         btn.classList.toggle('liked');
         const icon = btn.querySelector('i');
         icon.className = btn.classList.contains('liked') ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
         
-        // Envia para o banco (isso vai disparar o listener lá em cima depois)
         const isLiking = btn.classList.contains('liked');
         await this.postService.toggleLike(postId, this.currentUser.uid, isLiking);
     }
