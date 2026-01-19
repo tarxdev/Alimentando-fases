@@ -2,105 +2,145 @@
 
 import { getRoleBadgeHTML } from '../../../sistema-cargos/cargos.js';
 
-export function renderCommentItem(data, currentUid, callbacks, replies = []) {
+function getTimeAgo(timestamp) {
+    if (!timestamp) return 'Agora';
+    try {
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        const diff = (Date.now() - date) / 1000;
+        if(diff < 60) return 'Agora';
+        if(diff < 3600) return `${Math.floor(diff/60)} min`;
+        if(diff < 86400) return `${Math.floor(diff/3600)} h`;
+        const days = Math.floor(diff/86400);
+        if(days < 7) return `${days} d`;
+        const weeks = Math.floor(days/7);
+        return `${weeks} sem`; 
+    } catch(e) { return ''; }
+}
+
+function escapeHtml(text) {
+    if (!text) return "";
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+export function renderCommentItem(comment, currentUserId, currentUserPhoto, postAuthorId, callbacks, replies = []) {
     const wrapper = document.createElement('div');
-    wrapper.className = 'inst-comment-wrapper';
+    wrapper.className = 'inst-comment-block';
 
-    const contentText = data.content || data.text || "";
-    const badge = getRoleBadgeHTML({ role: data.authorRole, crn: data.authorCRN });
-    const isOwner = data.authorId === currentUid;
-    const hasImage = data.image ? `<br><img src="${data.image}" class="inst-comment-img" onclick="window.open(this.src)" loading="lazy">` : '';
-    const avatarUrl = data.authorPhoto || 'https://ui-avatars.com/api/?name=User';
+    const isCommentOwner = currentUserId === comment.authorId;
+    const isPostOwner = currentUserId === postAuthorId;
+    const canDelete = isCommentOwner || isPostOwner;
 
-    // 1. COMENTÁRIO PAI
-    const row = document.createElement('div');
-    row.className = 'inst-comment-row';
+    // Estado inicial
+    let isLiked = comment.likes && comment.likes.includes(currentUserId);
+    let likeCount = comment.likes ? comment.likes.length : 0;
     
-    row.innerHTML = `
-        <img src="${avatarUrl}" class="inst-c-avatar" alt="Foto">
-        <div class="inst-c-wrapper">
-            <div class="inst-c-bubble">
-                <span class="author-name">${data.authorName} ${badge}</span>
-                <span>${contentText}</span>
-                ${hasImage}
+    const badge = getRoleBadgeHTML({ role: comment.authorRole, crn: comment.authorCRN });
+    const contentText = comment.text || comment.content || "";
+    const displayAvatar = (isCommentOwner && currentUserPhoto) ? currentUserPhoto : (comment.authorPhoto || 'https://ui-avatars.com/api/?name=User');
+
+    let mediaHtml = '';
+    if (comment.image) {
+        mediaHtml = `<img src="${comment.image}" class="inst-comment-img" onclick="window.open(this.src)" alt="Foto">`;
+    }
+
+    // HTML INICIAL
+    wrapper.innerHTML = `
+        <div class="inst-comment-row">
+            <img src="${displayAvatar}" class="inst-c-avatar">
+            <div class="inst-c-wrapper">
+                <div class="inst-c-text">
+                    <span class="author-name">${escapeHtml(comment.authorName)} ${badge}</span>
+                    ${escapeHtml(contentText)}
+                </div>
+                ${mediaHtml}
+                <div class="inst-c-actions">
+                    <span>${getTimeAgo(comment.timestamp)}</span>
+                    <span class="like-counter-text" ${likeCount === 0 ? 'style="display:none"' : ''}>
+                        ${likeCount} curtida${likeCount > 1 ? 's' : ''}
+                    </span>
+                    <button class="btn-comment-action" data-action="reply">Responder</button>
+                    ${canDelete ? `<button class="btn-comment-action delete-btn" data-action="delete">Excluir</button>` : ''}
+                </div>
             </div>
-            
-            <div class="inst-c-actions">
-                <span class="comment-time">${formatTime(data.timestamp)}</span>
-                ${data.likes && data.likes.length > 0 ? `<span>${data.likes.length} curtidas</span>` : ''}
-                <button class="btn-comment-action btn-reply">Responder</button>
-                ${isOwner ? `<button class="btn-comment-action btn-delete" style="color:#ed4956;">Excluir</button>` : ''}
-            </div>
+            <button class="btn-comment-like ${isLiked ? 'liked' : ''}" data-action="like">
+                <i class="${isLiked ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+            </button>
         </div>
-        <button class="btn-comment-like ${data.likes && data.likes.includes(currentUid) ? 'liked' : ''}">
-            <i class="${data.likes && data.likes.includes(currentUid) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
-        </button>
     `;
 
-    const btnLike = row.querySelector('.btn-comment-like');
-    if (btnLike) btnLike.onclick = () => {
-        const isLiked = btnLike.classList.toggle('liked');
-        btnLike.querySelector('i').className = isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
-        callbacks.onLike(data.id, isLiked);
+    // --- LÓGICA DE LIKE INSTANTÂNEO (SEM RELOAD) ---
+    const likeBtn = wrapper.querySelector('[data-action="like"]');
+    const likeCounter = wrapper.querySelector('.like-counter-text');
+    const icon = likeBtn.querySelector('i');
+
+    likeBtn.onclick = () => {
+        // Inverte estado visualmente na hora
+        isLiked = !isLiked;
+        
+        // Atualiza classe e ícone
+        if(isLiked) {
+            likeBtn.classList.add('liked');
+            icon.className = 'fa-solid fa-heart';
+            likeCount++;
+        } else {
+            likeBtn.classList.remove('liked');
+            icon.className = 'fa-regular fa-heart';
+            likeCount--;
+        }
+
+        // Atualiza texto do contador
+        if(likeCount > 0) {
+            likeCounter.style.display = 'inline';
+            likeCounter.innerText = `${likeCount} curtida${likeCount > 1 ? 's' : ''}`;
+        } else {
+            likeCounter.style.display = 'none';
+        }
+
+        // Chama backend silenciosamente
+        callbacks.onLike(comment.id, isLiked);
     };
 
-    row.querySelector('.btn-reply').onclick = () => callbacks.onReply(data.id, data.authorName);
-    if(isOwner) row.querySelector('.btn-delete').onclick = () => callbacks.onDelete(data.id);
+    // Outros Listeners
+    wrapper.querySelector('[data-action="reply"]').onclick = () => callbacks.onReply(comment.id, comment.authorName);
+    if(canDelete) wrapper.querySelector('[data-action="delete"]').onclick = () => callbacks.onDelete(comment.id);
 
-    wrapper.appendChild(row);
-
-    // 2. RESPOSTAS (REPLIES)
-    if (replies && Array.isArray(replies) && replies.length > 0) {
+    // --- RENDERIZAR RESPOSTAS ---
+    if (replies && replies.length > 0) {
         const repliesContainer = document.createElement('div');
-        repliesContainer.className = 'inst-replies-list'; 
+        repliesContainer.className = 'inst-replies-list';
 
         replies.forEach(reply => {
-            const rText = reply.content || reply.text || "";
+            // Lógica similar para respostas
+            const isReplyOwner = currentUserId === reply.authorId;
+            const canDeleteReply = isReplyOwner || isPostOwner;
             const rBadge = getRoleBadgeHTML({ role: reply.authorRole, crn: reply.authorCRN });
-            const rIsOwner = reply.authorId === currentUid;
-            const rAvatar = reply.authorPhoto || 'https://ui-avatars.com/api/?name=User';
-            const rImage = reply.image ? `<br><img src="${reply.image}" class="inst-comment-img">` : '';
+            const rAvatar = (isReplyOwner && currentUserPhoto) ? currentUserPhoto : (reply.authorPhoto || 'https://ui-avatars.com/api/?name=U');
+            
+            const rMedia = reply.image ? `<img src="${reply.image}" class="inst-comment-img" onclick="window.open(this.src)">` : '';
+            const deleteReplyBtn = canDeleteReply 
+                ? `<button class="btn-comment-action delete-btn" onclick="document.dispatchEvent(new CustomEvent('delete-reply', {detail: {commentId: '${comment.id}', replyId: '${reply.id}'}}))">Excluir</button>` 
+                : '';
 
-            const rRow = document.createElement('div');
-            rRow.className = 'inst-comment-row';
-
-            rRow.innerHTML = `
-                <img src="${rAvatar}" class="inst-c-avatar inst-reply-avatar">
+            const div = document.createElement('div');
+            div.className = 'inst-comment-row is-reply';
+            div.innerHTML = `
+                <img src="${rAvatar}" class="inst-c-avatar">
                 <div class="inst-c-wrapper">
-                    <div class="inst-c-bubble" style="background:#fff; border:1px solid #f0f0f0;">
-                        <span class="author-name">${reply.authorName} ${rBadge}</span>
-                        <span>${rText}</span>
-                        ${rImage}
+                    <div class="inst-c-text">
+                        <span class="author-name">${escapeHtml(reply.authorName)} ${rBadge}</span>
+                        ${escapeHtml(reply.text || reply.content)}
                     </div>
+                    ${rMedia}
                     <div class="inst-c-actions">
-                        <span class="comment-time">${formatTime(reply.timestamp)}</span>
-                        ${rIsOwner ? `<button class="btn-comment-action btn-delete-reply" style="color:#ed4956;">Excluir</button>` : ''}
+                        <span>${getTimeAgo(reply.timestamp)}</span>
+                        ${deleteReplyBtn}
                     </div>
                 </div>
             `;
-            
-            if (rIsOwner) {
-                const rDel = rRow.querySelector('.btn-delete-reply');
-                if (rDel) rDel.onclick = () => alert("Para excluir respostas, use o app.");
-            }
-
-            repliesContainer.appendChild(rRow);
+            repliesContainer.appendChild(div);
         });
-
         wrapper.appendChild(repliesContainer);
     }
 
     return wrapper;
-}
-
-function formatTime(timestamp) {
-    if (!timestamp) return 'Agora';
-    try {
-        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-        const diff = (new Date() - date) / 1000;
-        if (diff < 60) return 'Agora';
-        if (diff < 3600) return `${Math.floor(diff / 60)} min`;
-        if (diff < 86400) return `${Math.floor(diff / 3600)} h`;
-        return `${Math.floor(diff / 86400)} d`;
-    } catch (e) { return 'Agora'; }
 }
