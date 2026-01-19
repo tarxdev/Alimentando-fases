@@ -1,3 +1,4 @@
+/* ARQUIVO: comunidade/js/controllers/post-detail.controller.js */
 import { InteractionService } from '../services/interaction.service.js';
 import { createCommentElement } from '../utils/dom-helpers.js';
 import { auth, db, onAuthStateChanged, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from '../config/firebase.proxy.js';
@@ -8,6 +9,7 @@ export class PostDetailController {
         this.service = new InteractionService();
         this.currentUser = null;
         this.currentPostId = null;
+        this.currentPostAuthorId = null; // Guardar ID do dono do post
         this.selectedImageBase64 = null;
         this.replyToCommentId = null;
 
@@ -20,12 +22,15 @@ export class PostDetailController {
         this.fileInput = document.getElementById('input-comment-img');
         this.previewContainer = document.getElementById('comment-img-preview-container');
         this.btnEmoji = document.querySelector('.inst-emoji-btn');
+        
+        // Elementos do Header do Post
         this.leftSide = document.getElementById('inst-left-content');
         this.authorName = document.getElementById('inst-author-name');
         this.authorPhoto = document.getElementById('inst-author-photo');
         this.postDate = document.getElementById('inst-post-date');
         this.likesCount = document.getElementById('inst-likes-number');
         this.likeBtn = document.getElementById('inst-btn-like');
+        
         this.commonEmojis = ['😂','❤️','😍','🔥','👏','🙌','😭','🤣','🥰','😊','👍','👀','🤔','😅'];
     }
 
@@ -74,10 +79,6 @@ export class PostDetailController {
             });
         }
     }
-
-    // ... (Métodos auxiliares mantidos: createEmojiPicker, toggleEmojiPicker, insertEmoji, showPreview, clearImageSelection, checkInputState) ...
-    // Estou omitindo os métodos auxiliares acima para brevidade, mantenha os que você já tem no arquivo original.
-    // Abaixo estão os métodos MODIFICADOS ou CRÍTICOS.
 
     createEmojiPicker() {
         const wrapper = document.querySelector('.inst-input-wrapper');
@@ -135,7 +136,20 @@ export class PostDetailController {
             const postDoc = await getDoc(doc(db, 'posts', postId));
             if (postDoc.exists()) {
                 const post = postDoc.data();
-                this.renderPostHeaderAndImage(post);
+                this.currentPostAuthorId = post.authorId; // Importante para permissões
+                
+                // === SYNC FOTO AUTOR POST ===
+                // Busca foto atualizada do autor do post
+                let authorPhoto = post.authorPhoto;
+                try {
+                    const authorDoc = await getDoc(doc(db, 'users', post.authorId));
+                    if (authorDoc.exists()) authorPhoto = authorDoc.data().photo || authorPhoto;
+                } catch(e) {}
+                
+                // Injeta a foto atualizada no objeto post para renderizar
+                const postWithUpdatedPhoto = { ...post, authorPhoto };
+                
+                this.renderPostHeaderAndImage(postWithUpdatedPhoto);
                 await this.loadComments();
             }
         } catch (error) { console.error(error); }
@@ -144,6 +158,7 @@ export class PostDetailController {
     close() {
         this.modal.classList.remove('open');
         this.currentPostId = null;
+        this.currentPostAuthorId = null;
         this.replyToCommentId = null;
         this.input.value = '';
         if(this.emojiPicker) this.emojiPicker.classList.add('hidden');
@@ -205,8 +220,37 @@ export class PostDetailController {
     async loadComments() {
         try {
             const comments = await this.service.getComments(this.currentPostId);
+            
+            // === SYNC DE FOTOS DOS COMENTÁRIOS ===
+            // 1. Coletar IDs únicos de autores
+            const authorIds = new Set();
+            comments.forEach(c => {
+                authorIds.add(c.authorId);
+                c.replies.forEach(r => authorIds.add(r.authorId));
+            });
+
+            // 2. Buscar fotos atuais no banco
+            const photosMap = {};
+            await Promise.all(Array.from(authorIds).map(async (uid) => {
+                try {
+                    const uDoc = await getDoc(doc(db, 'users', uid));
+                    if(uDoc.exists()) photosMap[uid] = uDoc.data().photo;
+                } catch(e) {}
+            }));
+
+            // 3. Atualizar objetos de comentário com a foto nova
+            comments.forEach(c => {
+                if(photosMap[c.authorId]) c.authorPhoto = photosMap[c.authorId];
+                c.replies.forEach(r => {
+                    if(photosMap[r.authorId]) r.authorPhoto = photosMap[r.authorId];
+                });
+            });
+
             this.renderComments(comments);
-        } catch (error) { this.containerComments.innerHTML = '<p style="padding:20px; text-align:center;">Erro ao carregar comentários.</p>'; }
+        } catch (error) { 
+            console.error(error);
+            this.containerComments.innerHTML = '<p style="padding:20px; text-align:center;">Erro ao carregar comentários.</p>'; 
+        }
     }
 
     renderComments(comments) {
@@ -227,11 +271,19 @@ export class PostDetailController {
         };
 
         comments.forEach(comment => {
-            const el = createCommentElement(comment, this.currentUser ? this.currentUser.uid : null, callbacks, comment.replies);
+            // Passamos this.currentPostAuthorId para o renderizador controlar permissões
+            const el = createCommentElement(
+                comment, 
+                this.currentUser ? this.currentUser.uid : null, 
+                this.currentPostAuthorId, 
+                callbacks, 
+                comment.replies
+            );
             this.containerComments.appendChild(el);
         });
         
-        this.containerComments.scrollTo({ top: this.containerComments.scrollHeight, behavior: 'smooth' });
+        // Scroll suave apenas na primeira carga ou envio, não em update de like
+        // (Optei por remover o auto-scroll agressivo para não incomodar na leitura)
     }
 
     prepareReply(commentId, username) {
@@ -248,7 +300,6 @@ export class PostDetailController {
         } catch(e) { console.error(e); }
     }
 
-    // --- EVENT DISPATCH IMPLEMENTATION ---
     async handleSubmit() {
         if (!this.currentUser) return;
         const text = this.input.value.trim();
@@ -266,13 +317,8 @@ export class PostDetailController {
                 await this.service.addComment(this.currentPostId, this.currentUser, text, image);
             }
 
-            // NOTIFICA O FEED: +1 comentário
             document.dispatchEvent(new CustomEvent('post-interaction-update', { 
-                detail: { 
-                    postId: this.currentPostId, 
-                    type: 'comment', 
-                    countChange: 1 
-                } 
+                detail: { postId: this.currentPostId, type: 'comment', countChange: 1 } 
             }));
 
             this.input.value = '';
@@ -291,17 +337,10 @@ export class PostDetailController {
 
     async deleteComment(commentId) {
         try {
-            // Nota: O service agora retorna quantos deletou ou faz o batch internamente.
-            // Para simplicidade de UI, assumimos que deletar um root decrementa pelo menos 1,
-            // mas o ideal seria o service retornar o count real.
-            // Assumimos -1 aqui para feedback imediato, o refresh do feed corrigirá o resto.
             await this.service.deleteComment(this.currentPostId, commentId);
-            
-            // NOTIFICA O FEED: Decremento Genérico (o service ajusta o DB corretamente)
             document.dispatchEvent(new CustomEvent('post-interaction-update', { 
                 detail: { postId: this.currentPostId, type: 'comment', countChange: -1 } 
             }));
-
             await this.loadComments();
         } catch (error) { console.error(error); }
     }
@@ -310,12 +349,9 @@ export class PostDetailController {
         if (!confirm('Deseja excluir esta resposta?')) return;
         try {
             await this.service.deleteReply(this.currentPostId, commentId, replyId);
-            
-            // NOTIFICA O FEED: -1 comentário
             document.dispatchEvent(new CustomEvent('post-interaction-update', { 
                 detail: { postId: this.currentPostId, type: 'comment', countChange: -1 } 
             }));
-
             await this.loadComments();
         } catch (error) { console.error(error); }
     }
