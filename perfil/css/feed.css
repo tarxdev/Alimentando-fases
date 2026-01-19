@@ -1,217 +1,217 @@
 /* ARQUIVO: perfil/css/feed.css */
 
-/* === FEED ESTILO X/TWITTER === */
-.profile-feed-sections {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-
-.feed-section {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.feed-section-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 0 4px;
-}
-
-.feed-section-header h3 {
-    font-family: var(--font-heading);
-    font-size: 1.05rem;
-    font-weight: 900;
-    color: #1a1a1a;
-}
-
-.feed-section-count {
-    font-size: 0.85rem;
-    font-weight: 800;
-    color: #555;
-    background: rgba(0,0,0,0.05);
-    border: 1px solid rgba(0,0,0,0.06);
-    padding: 4px 10px;
-    border-radius: 999px;
-    white-space: nowrap;
-}
-
-.feed-empty {
-    background: rgba(255,255,255,0.75);
-    border: 1px dashed rgba(0,0,0,0.12);
-    border-radius: 14px;
-    padding: 16px;
-    color: #666;
-    text-align: center;
-    font-weight: 600;
-}
-
+/* =======================================================
+   1. GRID DO PERFIL (3 COLUNAS)
+   ======================================================= */
 .gallery-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
     padding-bottom: 80px;
-}
-
-.tweet-card {
-    background: #fff;
-    border: 1px solid #e6e6e6;
-    border-radius: 16px;
-    padding: 14px;
-    display: flex;
-    gap: 12px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.04);
-}
-
-.tweet-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-
-.tweet-body { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-
-.tweet-header { display: flex; align-items: center; gap: 8px; font-size: 0.92rem; }
-.tweet-name { font-weight: 800; color: #111; }
-.tweet-username { color: #687684; font-size: 0.85rem; }
-.tweet-dot { color: #c4c4c4; }
-.tweet-time { color: #8899a6; font-size: 0.82rem; }
-
-.tweet-text { font-size: 0.95rem; color: #1c1e21; line-height: 1.4; white-space: pre-wrap; }
-
-.tweet-media {
-    border: 1px solid #e6e6e6;
-    border-radius: 12px;
-    overflow: hidden;
-    /* Sem espaço vazio feio: preenche com fundo desfocado da própria imagem */
-    position: relative;
-    isolation: isolate;
     width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #111;
-    padding: 10px;
 }
 
-.tweet-media::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background-image: var(--tweet-media-url);
-    background-size: cover;
-    background-position: center;
-    filter: blur(22px);
-    transform: scale(1.15);
-    opacity: 0.55;
-}
-
-.tweet-media::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.35) 65%, rgba(0,0,0,0.55) 100%);
-}
-
-.tweet-media img {
+.gallery-item {
     position: relative;
-    z-index: 1;
-    display: block;
-    width: auto;
-    height: auto;
-    max-width: 100%;
-    max-height: 420px;
-    object-fit: contain;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: #efefef;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
 }
 
-.tweet-actions { display: flex; gap: 18px; font-size: 0.95rem; color: #657786; }
-.tweet-action { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
-.tweet-action i { font-size: 1.05rem; }
-.tweet-action:hover { color: #111; }
-.tweet-action.like.liked { color: #e0245e; }
+.gallery-image {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform 0.2s ease;
+}
 
-.verified-post-border { border: 2px solid #27ae60; }
-.master-post-border { border: 2px solid #FFD700; }
+/* Hover Overlay */
+.gallery-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex; justify-content: center; align-items: center; gap: 20px;
+    color: white; font-weight: 700; font-size: 1.1rem;
+    opacity: 0; transition: opacity 0.2s ease; z-index: 5;
+}
+.gallery-overlay i { margin-right: 6px; }
+.gallery-item:hover .gallery-overlay { opacity: 1; }
 
-/* === MODAL === */
+.multi-image-icon { position: absolute; top: 10px; right: 10px; color: white; font-size: 1.2rem; text-shadow: 0 1px 3px rgba(0,0,0,0.5); z-index: 2; }
+.gallery-text-only { width: 100%; height: 100%; padding: 20px; display: flex; align-items: center; justify-content: center; text-align: center; background: #fff; color: #333; font-size: 0.8rem; border: 1px solid #dbdbdb; }
+
+/* =======================================================
+   2. ANIMAÇÃO DE LIKE
+   ======================================================= */
+@keyframes like-bounce {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+.inst-icon-btn.liked i, 
+.btn-comment-like.liked i {
+    color: #ed4956;
+    animation: like-bounce 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* =======================================================
+   3. MODAL DE POSTAGEM (VISUAL INSTAGRAM WEB)
+   ======================================================= */
+
 .modal-instagram-container {
-    display: flex; background: white; width: 90%; max-width: 1100px; height: 85vh;
-    border-radius: 4px; overflow: hidden; position: relative;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    display: flex; 
+    background: white; 
+    /* Largura automática para evitar bordas pretas */
+    width: auto; 
+    max-width: 95vw; 
+    height: 90vh; 
+    border-radius: 4px; 
+    overflow: hidden; 
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    margin: auto;
 }
-.inst-left-side { flex: 1.5; background: #000; display: flex; align-items: center; justify-content: center; }
-.inst-post-img { max-width: 100%; max-height: 100%; object-fit: contain; }
-.inst-right-side { flex: 1; display: flex; flex-direction: column; min-width: 350px; border-left: 1px solid #efefef; }
 
-/* Header e Footer */
-.inst-header { padding: 15px; border-bottom: 1px solid #efefef; display: flex; align-items: center; gap: 12px; }
-.inst-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
-.inst-meta h4 { margin: 0; font-size: 0.9rem; font-weight: 600; }
+/* LADO ESQUERDO (FOTO) */
+.inst-left-side { 
+    flex: 1 1 auto;
+    background: #000; 
+    display: flex; align-items: center; justify-content: center; 
+    height: 100%; 
+    min-width: 0; 
+}
 
-.inst-comments-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 16px; }
+.inst-post-img { 
+    height: 100%; width: auto; 
+    object-fit: contain; 
+    display: block;
+    max-width: 100%;
+}
+
+/* LADO DIREITO (CHAT) */
+.inst-right-side { 
+    width: 400px; min-width: 350px; flex: 0 0 auto;
+    background: white; display: flex; flex-direction: column; 
+    border-left: 1px solid #efefef; position: relative;
+}
+
+/* Botão Fechar */
+.btn-close-modal-inst {
+    position: absolute; top: 15px; right: 20px;
+    color: white; font-size: 2rem; background: none; border: none; cursor: pointer;
+    z-index: 2000; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+/* Header */
+.inst-header { 
+    padding: 14px 16px; border-bottom: 1px solid #efefef; 
+    display: flex; align-items: center; justify-content: space-between; 
+    height: 72px; flex-shrink: 0; 
+}
+.inst-header-left { display: flex; align-items: center; gap: 14px; }
+.inst-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #dbdbdb; }
+.inst-meta h4 { margin: 0; font-size: 0.9rem; color: #262626; font-weight: 600; }
+.btn-options-modal { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #262626; }
 
 /* Comentários */
-.inst-comment-wrapper { display: flex; flex-direction: column; width: 100%; }
-.inst-comment-row { display: flex; gap: 12px; align-items: flex-start; width: 100%; }
-
-.inst-c-avatar {
-    width: 32px !important; height: 32px !important; min-width: 32px !important;
-    border-radius: 50%; object-fit: cover; flex-shrink: 0;
+.inst-comments-area { 
+    flex: 1; overflow-y: auto; padding: 16px; 
+    display: flex; flex-direction: column; gap: 16px; 
+    scrollbar-width: thin;
 }
+.inst-comment-block { display: flex; flex-direction: column; width: 100%; }
+.inst-comment-row { display: flex; gap: 14px; align-items: flex-start; width: 100%; position: relative; }
+.inst-replies-list { margin-left: 16px; padding-left: 16px; border-left: 1px solid #efefef; margin-top: 10px; display: flex; flex-direction: column; gap: 12px; }
+.inst-comment-row.is-reply::before { content: ''; position: absolute; top: 14px; left: -18px; width: 12px; height: 1px; background: #efefef; }
 
-/* Avatar da Resposta (Menor) */
-.inst-reply-avatar {
-    width: 24px !important; height: 24px !important; min-width: 24px !important;
-}
-
+.inst-c-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: #fafafa; }
 .inst-c-wrapper { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.inst-c-bubble { font-size: 0.9rem; line-height: 1.4; color: #262626; word-wrap: break-word; }
-.author-name { font-weight: 700; margin-right: 5px; color: #000; }
-.inst-comment-img { width: 100px; height: auto; border-radius: 8px; margin-top: 5px; cursor: pointer; border: 1px solid #eee; }
-.inst-c-actions { display: flex; gap: 12px; font-size: 0.75rem; color: #8e8e8e; margin-top: 4px; }
-.btn-comment-action { background: none; border: none; padding: 0; color: #8e8e8e; font-weight: 600; font-size: 0.75rem; cursor: pointer; }
-.btn-comment-like { background: none; border: none; cursor: pointer; font-size: 0.8rem; color: #8e8e8e; padding-top: 5px; }
+.inst-c-text { font-size: 0.95rem; line-height: 1.4; color: #262626; word-wrap: break-word; }
+.author-name { font-weight: 600; margin-right: 5px; color: #262626; }
+
+/* IMAGEM DENTRO DO COMENTÁRIO (JÁ PUBLICADO) */
+.inst-comment-img { 
+    width: 120px; border-radius: 8px; margin-top: 6px; 
+    cursor: pointer; border: 1px solid #efefef; display: block; 
+}
+
+/* Ações do Comentário */
+.inst-c-actions { display: flex; gap: 12px; font-size: 0.75rem; color: #8e8e8e; margin-top: 6px; font-weight: 500; }
+.btn-comment-action { background: none; border: none; padding: 0; color: #8e8e8e; font-weight: 600; cursor: pointer; font-size: 0.75rem; }
+.btn-comment-action.delete-btn:hover { color: #262626; text-decoration: underline; }
+.btn-comment-like { background: none; border: none; cursor: pointer; font-size: 0.75rem; color: #8e8e8e; margin-top: 8px; padding: 0 4px; transition: transform 0.1s; }
+.btn-comment-like:active { transform: scale(0.9); }
 .btn-comment-like.liked { color: #ed4956; }
 
-/* Respostas */
-.inst-replies-list {
-    margin-left: 44px; margin-top: 10px; display: flex; flex-direction: column; gap: 12px;
-    border-left: 2px solid #efefef; padding-left: 10px;
+/* Footer */
+.inst-footer-section { 
+    border-top: 1px solid #efefef; background: white; 
+    flex-shrink: 0; padding: 6px 16px; position: relative; 
+}
+.inst-action-icons { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding-top: 6px; }
+.inst-icons-left { display: flex; gap: 16px; }
+.inst-icon-btn { background: none; border: none; padding: 0; font-size: 1.5rem; color: #262626; cursor: pointer; display: flex; align-items: center; }
+.inst-icon-btn i { font-weight: 400; -webkit-font-smoothing: antialiased; }
+.inst-icon-btn.liked { color: #ed4956; }
+.inst-icon-btn.liked i { font-weight: 900; }
+.inst-likes-count { font-weight: 600; font-size: 0.9rem; color: #262626; display: block; margin-bottom: 4px; }
+.inst-date { font-size: 0.65rem; color: #8e8e8e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: block; }
+
+/* INPUT CLEAN (Sem borda) */
+.inst-input-wrapper { 
+    display: flex; align-items: center; gap: 12px; 
+    border-top: 1px solid #efefef; padding: 14px 0; 
+    position: relative; 
+}
+.inst-emoji-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #262626; padding:0; }
+#inp-comment { 
+    flex: 1; border: none; outline: none; font-size: 0.95rem; 
+    resize: none; color: #262626; height: 18px; max-height: 80px; 
+    background: transparent; padding: 0;
+}
+#inp-comment::placeholder { color: #8e8e8e; }
+.inst-post-btn { 
+    color: #0095f6; font-weight: 600; background: none; 
+    border: none; cursor: pointer; font-size: 0.95rem; 
+    padding: 0; opacity: 0.4; transition: opacity 0.2s;
+}
+.inst-post-btn:disabled { cursor: default; }
+.inst-post-btn:not(:disabled) { opacity: 1; }
+.inst-gallery-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #262626; padding:0; }
+
+/* === NOVO: PICKER DE EMOJIS === */
+.emoji-picker-container {
+    position: absolute; bottom: 50px; left: 0;
+    background: white; border: 1px solid #dbdbdb; border-radius: 8px;
+    padding: 10px; width: 280px; height: 200px;
+    overflow-y: auto; display: grid; grid-template-columns: repeat(6, 1fr);
+    gap: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); z-index: 1000;
+}
+.emoji-picker-container.hidden { display: none; }
+.emoji-item { font-size: 1.5rem; cursor: pointer; text-align: center; padding: 5px; border-radius: 4px; }
+.emoji-item:hover { background-color: #efefef; }
+
+/* === NOVO: PREVIEW DA IMAGEM ANTES DE ENVIAR === */
+.comment-file-preview {
+    position: absolute; bottom: 50px; left: 40px;
+    background: white; border: 1px solid #efefef; padding: 6px;
+    border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex; align-items: flex-start; z-index: 900;
+}
+.comment-file-preview.hidden { display: none; }
+.comment-file-preview img { height: 60px; width: auto; border-radius: 4px; }
+.btn-remove-preview {
+    background: #333; color: white; border: none;
+    border-radius: 50%; width: 20px; height: 20px;
+    font-size: 10px; cursor: pointer; margin-left: -8px; margin-top: -8px;
 }
 
-.inst-footer-section { padding: 15px; border-top: 1px solid #efefef; background: white; margin-top: auto; }
-.inst-action-icons { display: flex; gap: 15px; margin-bottom: 10px; font-size: 1.5rem; }
-.inst-likes-count { font-weight: 600; font-size: 0.9rem; margin-bottom: 10px; display: block; }
-.inst-input-wrapper { display: flex; align-items: center; gap: 10px; position: relative; }
-#inst-comment-input { flex: 1; border: none; outline: none; font-size: 0.9rem; height: 36px; }
-.inst-post-btn { background: none; border: none; color: #0095f6; font-weight: 600; cursor: pointer; }
-
-.hidden { display: none !important; }
-#inst-emoji-picker-container { position: absolute; bottom: 50px; left: 0; z-index: 100; }
-.comment-img-preview { position: absolute; bottom: 50px; left: 50px; background: white; padding: 5px; border: 1px solid #ddd; border-radius: 5px; }
-.btn-remove-comment-img { position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; }
-
-@media (max-width: 768px) {
-    .profile-feed-sections { gap: 14px; }
-    .feed-section-header h3 { font-size: 0.98rem; }
-    .gallery-grid { gap: 10px; padding-bottom: 110px; }
-    .tweet-card { border-radius: 14px; padding: 12px; }
-    .tweet-avatar { width: 40px; height: 40px; }
-    .tweet-actions { gap: 14px; }
-    .tweet-media { padding: 8px; }
-    .tweet-media img { max-height: 340px; }
-    .modal-instagram-container { flex-direction: column; height: 100%; width: 100%; border-radius: 0; max-height: 100vh; }
-    .inst-left-side { display: none; }
-    .inst-right-side { flex: 1; border-left: none; height: 100%; }
+/* Mobile */
+@media (max-width: 850px) {
+    .modal-instagram-container { flex-direction: column; height: 100%; width: 100%; border-radius: 0; }
+    .inst-left-side { height: 40vh; flex: none; background: #000; width: 100%; border-radius: 0; }
+    .inst-right-side { width: 100%; flex: 1; border-left: none; min-width: 0; border-radius: 0; }
+    .btn-close-modal-inst { position: fixed; top: 10px; right: 10px; z-index: 9999; }
 }
