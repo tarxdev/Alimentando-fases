@@ -1,60 +1,68 @@
 // admin/js/index.js
+// V2.0 - PROFESSIONAL EDITION
+// Autor: Tarciso (via Gemini)
+// Data: Janeiro 2026
 
 import { getRoleBadgeHTML } from '../../sistema-cargos/cargos.js';
-// Importa auth e db da configuração central
 import { auth, db } from '../../firebase-config.js'; 
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { 
+    collection, query, orderBy, limit, getDocs, getDoc, doc, updateDoc, deleteDoc, 
+    getCountFromServer 
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-// --- SEU UID (BACKDOOR DO DONO) ---
 const OWNER_UID = "1Sfw2sVb7RVuKqCsNs2PUy8pIs33"; 
 
 document.addEventListener('DOMContentLoaded', async () => {
-
     let currentUser = null;
+    let allUsersCache = []; // Cache local para filtragem instantânea no cliente
 
     // ============================================================
-    // 1. SEGURANÇA E INICIALIZAÇÃO
+    // 0. AUTH & SECURITY GATEKEEPER
     // ============================================================
-    auth.onAuthStateChanged(async (user) => {
-        if (!user) {
-            window.location.href = '../login/index.html';
-            return;
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) { 
+            window.location.href = '../login/index.html'; 
+            return; 
         }
 
         try {
-            const doc = await db.collection('users').doc(user.uid).get();
-            if (!doc.exists) {
-                alert("Usuário não encontrado.");
-                window.location.href = '../login/index.html';
-                return;
-            }
-            
-            const userData = doc.data();
+            const userRef = doc(db, 'users', user.uid);
+            const userSnap = await getDoc(userRef);
 
-            // Lógica de Proteção
+            if (!userSnap.exists()) throw new Error("Usuário não encontrado na base de dados.");
+            
+            const userData = userSnap.data();
             const isOwner = user.uid === OWNER_UID;
             const isMaster = userData.role === 'admin_master';
 
             if (!isMaster && !isOwner) {
-                alert("ACESSO NEGADO: Área restrita.");
+                console.warn(`Tentativa de acesso não autorizado: ${user.uid}`);
+                alert("ACESSO NEGADO: Você não tem permissão de Administrador.");
                 window.location.href = '../perfil/index.html';
                 return;
             }
 
             currentUser = { uid: user.uid, ...userData };
+            
+            // Inicializa Dashboard apenas após validação
             initDashboard();
 
         } catch (error) {
-            console.error("Erro de autenticação:", error);
-            alert("Erro ao verificar credenciais.");
+            console.error("Auth Critical Error:", error);
+            alert("Erro crítico de autenticação: " + error.message);
         }
     });
 
     function initDashboard() {
+        console.info("Dashboard Iniciado. Modo Deus: ON");
         renderMyPreview();
-        loadAllUsers();     
-        setupNavigation();  
+        updateDashboardStats(); // Carrega analytics do topo
+        loadAllUsers();         // Carrega tabela principal
+        setupNavigation();      // Configura abas
+        setupFilters();         // Configura busca dinâmica
 
-        // Botão do Card "Meu Status Atual"
+        // Configura botão de "Simular Cargo" (Para testes do próprio admin)
         const btnUpdateMe = document.getElementById('btn-update-me');
         if (btnUpdateMe) {
             btnUpdateMe.onclick = async () => {
@@ -63,242 +71,352 @@ document.addEventListener('DOMContentLoaded', async () => {
                 window.location.reload();
             };
         }
+    }
 
-        // Busca em tempo real
-        const searchInput = document.getElementById('search-users');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                const term = e.target.value.toLowerCase();
-                document.querySelectorAll('#users-table-body tr').forEach(row => {
-                    const text = row.innerText.toLowerCase();
-                    row.style.display = text.includes(term) ? '' : 'none';
-                });
-            });
+    // ============================================================
+    // 1. ANALYTICS (CONTAGEM SERVER-SIDE OTIMIZADA)
+    // ============================================================
+    async function updateDashboardStats() {
+        try {
+            const usersColl = collection(db, 'users');
+            const postsColl = collection(db, 'posts');
+
+            // Executa contagens leves (meta-dados) em paralelo
+            const [totalUsersSnap, postsSnap] = await Promise.all([
+                getCountFromServer(usersColl),
+                getCountFromServer(postsColl)
+            ]);
+
+            animateCounter('stat-total-users', totalUsersSnap.data().count);
+            animateCounter('stat-total-posts', postsSnap.data().count);
+
+        } catch (e) {
+            console.warn("Analytics Warning:", e);
+            document.getElementById('stat-total-users').innerText = '-';
+            document.getElementById('stat-total-posts').innerText = '-';
         }
     }
 
-    // ============================================================
-    // 2. NAVEGAÇÃO ENTRE ABAS
-    // ============================================================
-    function setupNavigation() {
-        const links = document.querySelectorAll('.nav-links li');
-        const sections = document.querySelectorAll('.admin-section');
-
-        links.forEach(link => {
-            link.addEventListener('click', (e) => {
-                if(link.querySelector('a').getAttribute('href').includes('../perfil')) return;
-
-                e.preventDefault();
-                links.forEach(l => l.classList.remove('active'));
-                sections.forEach(s => s.style.display = 'none');
-
-                link.classList.add('active');
-                
-                const targetId = link.querySelector('a').getAttribute('data-target');
-                if (targetId) {
-                    const targetSection = document.getElementById(targetId);
-                    if(targetSection) {
-                        targetSection.style.display = 'block';
-                        if(targetId === 'section-posts') loadAllPosts();
-                    }
-                }
-            });
-        });
+    function animateCounter(id, target) {
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.innerText = target; 
+        // Futuro: Implementar countUp.js se desejar animação
     }
 
     // ============================================================
-    // 3. GERENCIAMENTO DE USUÁRIOS
+    // 2. GESTÃO DE USUÁRIOS (CORE)
     // ============================================================
     async function loadAllUsers() {
         const tbody = document.getElementById('users-table-body');
-        if (!tbody) return;
-
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Buscando dados...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px;"><i class="fa-solid fa-spinner fa-spin"></i> Carregando base de dados...</td></tr>';
 
         try {
-            const snapshot = await db.collection('users').orderBy('realname').limit(50).get(); 
-            tbody.innerHTML = '';
-
-            snapshot.forEach(doc => {
-                const u = doc.data();
-                const uid = doc.id;
-                
-                if (uid === currentUser.uid) return; 
-
-                const isBanned = u.isBanned === true;
-                const tr = document.createElement('tr');
-                if (isBanned) tr.style.backgroundColor = "#ffebee"; 
-
-                const professionalRoles = ['nutri', 'doctor', 'nurse', 'pe_teacher', 'teacher'];
-                const isProfessional = professionalRoles.includes(u.role);
-
-                const userCell = `
-                    <div class="user-cell">
-                        <img src="${u.photo || 'https://ui-avatars.com/api/?name=U'}" class="table-avatar">
-                        <div class="user-info-text">
-                            <strong>${u.realname || 'Sem nome'} ${isBanned ? '<span style="color:red;font-weight:bold">(BANIDO)</span>' : ''}</strong>
-                            <small>${u.username || uid}</small>
-                        </div>
-                    </div>
-                `;
-
-                const actionsCell = `
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <select class="admin-select role-changer" style="width: 140px;">
-                            <option value="user" ${u.role === 'user' ? 'selected' : ''}>Usuário</option>
-                            <option value="student" ${u.role === 'student' ? 'selected' : ''}>Estudante</option>
-                            <optgroup label="Profissionais">
-                                <option value="nutri" ${u.role === 'nutri' ? 'selected' : ''}>Nutricionista</option>
-                                <option value="doctor" ${u.role === 'doctor' ? 'selected' : ''}>Médico</option>
-                                <option value="nurse" ${u.role === 'nurse' ? 'selected' : ''}>Enfermeiro</option>
-                                <option value="pe_teacher" ${u.role === 'pe_teacher' ? 'selected' : ''}>Personal</option>
-                                <option value="teacher" ${u.role === 'teacher' ? 'selected' : ''}>Professor</option>
-                            </optgroup>
-                            <option value="admin_master" ${u.role === 'admin_master' ? 'selected' : ''}>👑 Master</option>
-                        </select>
-                        
-                        <input type="text" class="admin-input crn-input" 
-                               value="${u.crn || ''}" placeholder="Registro" style="width: 100px;"
-                               ${!isProfessional ? 'disabled' : ''}>
-
-                        <button class="btn-icon-save btn-save-role" data-uid="${uid}" title="Salvar Alterações">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                        </button>
-
-                        <div style="width:1px; height:20px; background:#ccc; margin:0 5px;"></div>
-
-                        <button class="btn-ban-action ${isBanned ? 'banned' : ''}" data-uid="${uid}" title="${isBanned ? 'Desbanir' : 'Banir Usuário'}">
-                            <i class="fa-solid ${isBanned ? 'fa-lock-open' : 'fa-ban'}"></i>
-                        </button>
-                    </div>
-                `;
-
-                tr.innerHTML = `<td>${userCell}</td><td>${getRoleBadgeHTML(u)}</td><td>${actionsCell}</td>`;
-                tbody.appendChild(tr);
+            const usersRef = collection(db, 'users');
+            // Busca os primeiros 100 usuários ordenados por nome real
+            const q = query(usersRef, orderBy('realname'), limit(100)); 
+            const snapshot = await getDocs(q);
+            
+            allUsersCache = [];
+            
+            snapshot.forEach(docSnap => {
+                allUsersCache.push({ uid: docSnap.id, ...docSnap.data() });
             });
 
-            attachUserListeners();
+            // Calcula estatísticas baseadas no snapshot carregado
+            updateSpecificStats(allUsersCache);
+            
+            // Renderiza tabela inicial
+            renderUsersTable(allUsersCache);
 
-        } catch (error) { console.error(error); }
+        } catch (error) { 
+            console.error("Erro ao carregar usuários:", error); 
+            tbody.innerHTML = `<tr><td colspan="3" style="color:#e74c3c; text-align:center; padding:20px;">Erro de conexão: ${error.message}</td></tr>`;
+        }
     }
 
-    function attachUserListeners() {
+    function updateSpecificStats(users) {
+        const pros = users.filter(u => ['nutri','doctor','nurse','pe_teacher','teacher'].includes(u.role)).length;
+        const students = users.filter(u => u.role === 'student').length;
+        
+        const elPro = document.getElementById('stat-pro-users');
+        const elStudent = document.getElementById('stat-student-users');
+        
+        if(elPro) elPro.innerText = pros;
+        if(elStudent) elStudent.innerText = students;
+    }
+
+    // Renderização Pura (Stateless UI)
+    function renderUsersTable(usersList) {
+        const tbody = document.getElementById('users-table-body');
+        tbody.innerHTML = '';
+
+        if (usersList.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:30px; color:#95a5a6">Nenhum usuário encontrado para estes filtros.</td></tr>';
+            return;
+        }
+
+        usersList.forEach(u => {
+            if (u.uid === currentUser.uid) return; // Não listar a si mesmo
+
+            const isBanned = u.isBanned === true;
+            const tr = document.createElement('tr');
+            if (isBanned) tr.style.backgroundColor = "#fff5f5"; 
+
+            const professionalRoles = ['nutri', 'doctor', 'nurse', 'pe_teacher', 'teacher'];
+            const isProfessional = professionalRoles.includes(u.role);
+
+            // Coluna 1: Info Básica
+            const userCell = `
+                <div class="user-cell">
+                    <img src="${u.photo || 'https://ui-avatars.com/api/?name=User&background=random'}" class="table-avatar" loading="lazy" alt="avatar">
+                    <div class="user-info-text">
+                        <strong>${u.realname || 'Sem nome'} ${isBanned ? '<span style="color:#e74c3c;font-size:0.7em;border:1px solid #e74c3c;padding:1px 4px;border-radius:4px;margin-left:5px;">BANIDO</span>' : ''}</strong>
+                        <small title="${u.uid}">${u.username || u.email || 'UID: ' + u.uid.substring(0,8)+'...'}</small>
+                    </div>
+                </div>
+            `;
+
+            // Coluna 3: Ações (Select + Inputs + Botões)
+            const actionsCell = `
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <select class="admin-select role-changer" style="width: 130px; padding: 5px; font-size:0.85rem;">
+                        <option value="user" ${u.role === 'user' ? 'selected' : ''}>Usuário</option>
+                        <option value="student" ${u.role === 'student' ? 'selected' : ''}>Estudante</option>
+                        <optgroup label="Saúde">
+                            <option value="nutri" ${u.role === 'nutri' ? 'selected' : ''}>Nutricionista</option>
+                            <option value="doctor" ${u.role === 'doctor' ? 'selected' : ''}>Médico</option>
+                            <option value="nurse" ${u.role === 'nurse' ? 'selected' : ''}>Enfermeiro</option>
+                        </optgroup>
+                         <optgroup label="Educação">
+                            <option value="pe_teacher" ${u.role === 'pe_teacher' ? 'selected' : ''}>Personal</option>
+                            <option value="teacher" ${u.role === 'teacher' ? 'selected' : ''}>Professor</option>
+                        </optgroup>
+                        <option value="admin_master" ${u.role === 'admin_master' ? 'selected' : ''}>👑 Master</option>
+                    </select>
+                    
+                    <input type="text" class="admin-input crn-input" 
+                           value="${u.crn || ''}" placeholder="CRN/Reg." style="width: 80px; padding: 5px; font-size:0.85rem;"
+                           ${!isProfessional ? 'disabled' : ''}>
+
+                    <button class="btn-icon-save btn-save-role" data-uid="${u.uid}" title="Salvar Alterações">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+
+                    <button class="btn-ban-action ${isBanned ? 'banned' : ''}" data-uid="${u.uid}" title="${isBanned ? 'Desbanir' : 'Banir'}">
+                        <i class="fa-solid ${isBanned ? 'fa-lock-open' : 'fa-ban'}"></i>
+                    </button>
+                </div>
+            `;
+
+            tr.innerHTML = `<td>${userCell}</td><td>${getRoleBadgeHTML(u)}</td><td>${actionsCell}</td>`;
+            tbody.appendChild(tr);
+        });
+
+        attachRowListeners(); // Reconecta listeners do DOM recém-criado
+    }
+
+    // ============================================================
+    // 3. FILTRAGEM INTELIGENTE (CLIENT-SIDE)
+    // ============================================================
+    function setupFilters() {
+        const searchInput = document.getElementById('search-users');
+        const roleFilter = document.getElementById('filter-role');
+        const countInfo = document.getElementById('table-count-info');
+
+        const applyFilters = () => {
+            const term = searchInput.value.toLowerCase();
+            const role = roleFilter.value;
+
+            const filtered = allUsersCache.filter(u => {
+                // Filtro 1: Texto (Nome, Email, UID)
+                const matchesText = (u.realname || '').toLowerCase().includes(term) || 
+                                    (u.email || '').toLowerCase().includes(term) ||
+                                    (u.uid || '').includes(term);
+                
+                // Filtro 2: Categoria/Cargo
+                let matchesRole = true;
+                if (role === 'pro') matchesRole = ['nutri','doctor','nurse','pe_teacher','teacher'].includes(u.role);
+                else if (role === 'banned') matchesRole = u.isBanned === true;
+                else if (role !== 'all') matchesRole = u.role === role;
+
+                return matchesText && matchesRole;
+            });
+
+            renderUsersTable(filtered);
+            countInfo.innerText = `Exibindo ${filtered.length} de ${allUsersCache.length} carregados`;
+        };
+
+        searchInput.addEventListener('input', applyFilters);
+        roleFilter.addEventListener('change', applyFilters);
+    }
+
+    // ============================================================
+    // 4. LISTENERS DE AÇÃO (CRUD)
+    // ============================================================
+    function attachRowListeners() {
         const professionalRoles = ['nutri', 'doctor', 'nurse', 'pe_teacher', 'teacher'];
         
+        // UX: Habilita campo CRN dinamicamente
         document.querySelectorAll('.role-changer').forEach(select => {
             select.addEventListener('change', (e) => {
                 const row = e.target.closest('tr');
                 const crnInput = row.querySelector('.crn-input');
+                const isPro = professionalRoles.includes(e.target.value);
                 
-                if (professionalRoles.includes(e.target.value)) {
-                    crnInput.disabled = false;
+                crnInput.disabled = !isPro;
+                if(isPro) {
                     crnInput.focus();
-                    if(!crnInput.value) crnInput.placeholder = "Digite...";
                 } else {
-                    crnInput.disabled = true;
-                    crnInput.value = ''; 
+                    crnInput.value = '';
                 }
             });
         });
 
+        // AÇÃO: Salvar Cargo
         document.querySelectorAll('.btn-save-role').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const btnEl = e.target.closest('button');
+            btn.onclick = async (e) => {
+                const btnEl = e.currentTarget;
                 const uid = btnEl.dataset.uid;
-                
                 const row = btnEl.closest('tr');
-                const roleSelect = row.querySelector('.role-changer');
-                const crnInput = row.querySelector('.crn-input');
                 
-                const newRole = roleSelect.value;
-                const newCrn = crnInput.value;
-
+                const newRole = row.querySelector('.role-changer').value;
+                const newCrn = row.querySelector('.crn-input').value;
                 const icon = btnEl.querySelector('i');
+
+                // UI Feedback: Loading
                 const originalClass = icon.className;
                 icon.className = 'fa-solid fa-spinner fa-spin';
 
                 try {
-                    await db.collection('users').doc(uid).update({ 
-                        role: newRole, 
-                        crn: newCrn || null 
-                    });
+                    await updateUserRole(uid, newRole, newCrn);
                     
+                    // Atualiza Cache Local (Otimisticamente)
+                    const userInCache = allUsersCache.find(u => u.uid === uid);
+                    if(userInCache) {
+                        userInCache.role = newRole;
+                        userInCache.crn = newCrn;
+                    }
+                    
+                    // Sucesso
                     icon.className = 'fa-solid fa-check';
-                    const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
-                    Toast.fire({ icon: 'success', title: 'Atualizado com sucesso!' });
-                    setTimeout(() => icon.className = originalClass, 2000);
                     
-                } catch (error) {
-                    console.error("Erro ao salvar:", error);
-                    icon.className = 'fa-solid fa-xmark';
-                    let msg = "Erro ao atualizar.";
-                    if (error.code === 'permission-denied') msg = "Permissão negada. Verifique as Regras.";
-                    alert(msg);
-                    setTimeout(() => icon.className = originalClass, 3000);
+                    // Reset visual após 1s
+                    setTimeout(() => {
+                        icon.className = 'fa-solid fa-floppy-disk';
+                        // Re-renderiza para atualizar Badges
+                        if(document.getElementById('search-users').value === '') {
+                             renderUsersTable(allUsersCache); 
+                        }
+                    }, 1000);
+
+                } catch (err) {
+                    console.error(err);
+                    icon.className = 'fa-solid fa-triangle-exclamation';
+                    alert("Erro ao salvar: " + err.message);
+                    setTimeout(() => icon.className = originalClass, 2000);
                 }
-            });
+            };
         });
 
+        // AÇÃO: Banir/Desbanir
         document.querySelectorAll('.btn-ban-action').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const btnEl = e.target.closest('button');
+            btn.onclick = async (e) => {
+                const btnEl = e.currentTarget;
                 const uid = btnEl.dataset.uid;
-                const isCurrentlyBanned = btnEl.classList.contains('banned');
+                const isBanned = btnEl.classList.contains('banned');
+                const actionText = isBanned ? "Desbloquear" : "BANIR";
 
-                const action = isCurrentlyBanned ? "Desbloquear" : "BANIR";
-                
                 const confirm = await Swal.fire({
-                    title: `${action} Usuário?`,
-                    text: isCurrentlyBanned ? "O acesso será restaurado." : "O usuário será desconectado imediatamente.",
-                    icon: isCurrentlyBanned ? 'question' : 'warning',
+                    title: `${actionText} Usuário?`,
+                    text: isBanned ? "O acesso será restaurado imediatamente." : "O usuário será desconectado e impedido de entrar.",
+                    icon: isBanned ? 'question' : 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: isCurrentlyBanned ? '#2ecc71' : '#d33',
-                    confirmButtonText: `Sim, ${action}`
+                    confirmButtonColor: isBanned ? '#2ecc71' : '#d33',
+                    confirmButtonText: `Sim, ${actionText}`,
+                    cancelButtonText: 'Cancelar'
                 });
 
                 if (confirm.isConfirmed) {
                     try {
-                        await db.collection('users').doc(uid).update({ isBanned: !isCurrentlyBanned });
-                        Swal.fire('Atualizado!', '', 'success');
-                        loadAllUsers(); 
+                        const userRef = doc(db, 'users', uid);
+                        await updateDoc(userRef, { isBanned: !isBanned });
+                        
+                        // Atualiza Cache
+                        const userInCache = allUsersCache.find(u => u.uid === uid);
+                        if(userInCache) userInCache.isBanned = !isBanned;
+
+                        renderUsersTable(allUsersCache); 
+                        
+                        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+                        Toast.fire({ icon: 'success', title: 'Status atualizado!' });
+
                     } catch (err) {
                         console.error(err);
-                        alert("Erro ao alterar status.");
+                        Swal.fire('Erro', 'Falha ao atualizar status.', 'error');
                     }
                 }
-            });
+            };
         });
     }
 
     // ============================================================
-    // 4. LIMPEZA DE CONTEÚDO
+    // 5. NAVEGAÇÃO E MODERAÇÃO DE POSTS
     // ============================================================
+    function setupNavigation() {
+        const links = document.querySelectorAll('.nav-links li a');
+        links.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const targetId = link.getAttribute('data-target');
+                if(!targetId) return; // Links externos
+
+                e.preventDefault();
+                // Reset ativo
+                document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
+                document.querySelectorAll('.nav-links li').forEach(l => l.classList.remove('active'));
+                
+                // Ativa novo
+                document.getElementById(targetId).style.display = 'block';
+                link.parentElement.classList.add('active');
+
+                // Carregamento Lazy para Posts
+                if(targetId === 'section-posts') loadAllPosts();
+            });
+        });
+    }
+
     async function loadAllPosts() {
         const grid = document.getElementById('admin-feed-grid');
-        if (!grid) return;
+        grid.innerHTML = '<p style="text-align:center; padding:20px; color:#95a5a6"><i class="fa-solid fa-spinner fa-spin"></i> Carregando feed recente...</p>';
         
-        grid.innerHTML = '<p>Carregando...</p>';
-
         try {
-            const snapshot = await db.collection('posts').orderBy('timestamp', 'desc').limit(20).get();
+            const q = query(collection(db, 'posts'), orderBy('timestamp', 'desc'), limit(20));
+            const snap = await getDocs(q);
+            
             grid.innerHTML = '';
+            
+            if(snap.empty) { 
+                grid.innerHTML = '<p style="text-align:center; width:100%; color:#95a5a6">Nenhuma postagem encontrada.</p>'; 
+                return; 
+            }
 
-            snapshot.forEach(doc => {
-                const post = doc.data();
+            snap.forEach(d => {
+                const post = d.data();
                 const div = document.createElement('div');
                 div.className = 'admin-post-card';
                 
+                // Tratamento seguro de imagem
                 let imgSrc = '';
-                if(post.images && post.images.length > 0) imgSrc = post.images[0];
+                if(post.images && Array.isArray(post.images) && post.images.length > 0) imgSrc = post.images[0];
                 else if(post.image) imgSrc = post.image;
 
-                const imgHTML = imgSrc ? `<img src="${imgSrc}" class="admin-post-img">` : '';
-                const textHTML = post.content ? `<p class="admin-post-text">${post.content.substring(0, 100)}...</p>` : '<p class="admin-post-text"><i>Sem texto</i></p>';
+                const imgHTML = imgSrc ? `<img src="${imgSrc}" class="admin-post-img" loading="lazy">` : '';
+                const textHTML = post.content ? `<p class="admin-post-text">${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}</p>` : '<p class="admin-post-text" style="color:#ccc; font-style:italic;">Sem texto</p>';
 
                 div.innerHTML = `
                     <div class="admin-post-header">
-                        <small>${post.authorName || 'Anonimo'}</small>
-                        <button class="btn-delete-post" data-id="${doc.id}"><i class="fa-solid fa-trash"></i></button>
+                        <small><strong>${post.authorName || 'Anônimo'}</strong></small> 
+                        <button class="btn-delete-post" data-id="${d.id}" title="Apagar Postagem"><i class="fa-solid fa-trash"></i></button>
                     </div>
                     ${imgHTML}
                     ${textHTML}
@@ -306,50 +424,56 @@ document.addEventListener('DOMContentLoaded', async () => {
                 grid.appendChild(div);
             });
 
-            document.querySelectorAll('.btn-delete-post').forEach(btn => {
-                btn.onclick = async (e) => {
-                    const pid = e.target.closest('button').dataset.id;
+            // Listeners de Delete Post
+             document.querySelectorAll('.btn-delete-post').forEach(btn => {
+                btn.onclick = async (ev) => {
+                    const btnEl = ev.currentTarget;
+                    const pid = btnEl.dataset.id;
+
                     const confirm = await Swal.fire({
-                        title: 'Apagar Post?', text: "Irreversível.", icon: 'error', showCancelButton: true, confirmButtonColor: '#d33'
+                        title: 'Apagar Post?', 
+                        text: "Esta ação é irreversível.", 
+                        icon: 'warning', 
+                        showCancelButton: true, 
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Sim, Apagar'
                     });
 
                     if(confirm.isConfirmed) {
                         try {
-                            await db.collection('posts').doc(pid).delete();
-                            e.target.closest('.admin-post-card').remove();
-                            Swal.fire('Deletado!', '', 'success');
+                            await deleteDoc(doc(db, 'posts', pid));
+                            btnEl.closest('.admin-post-card').remove();
+                            
+                            const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+                            Toast.fire({ icon: 'success', title: 'Post apagado.' });
                         } catch(err) {
-                            alert("Erro ao deletar post.");
+                            console.error(err);
+                            Swal.fire('Erro', 'Não foi possível apagar.', 'error');
                         }
                     }
                 }
             });
 
-        } catch (err) { console.error(err); }
+        } catch(e) { 
+            console.error(e);
+            grid.innerHTML = `<p style="color:red; text-align:center;">Erro ao carregar feed: ${e.message}</p>`;
+        }
     }
 
     // ============================================================
-    // 5. AUXILIARES
+    // AUXILIARES
     // ============================================================
     function renderMyPreview() {
         const preview = document.getElementById('my-preview-area');
-        if(preview) preview.innerHTML = `${getRoleBadgeHTML(currentUser)}`;
+        if(preview && currentUser) preview.innerHTML = getRoleBadgeHTML(currentUser);
     }
     
-    // CORREÇÃO: Adicionada a palavra 'function' aqui
     async function updateUserRole(uid, role, crn) {
-        try {
-            await db.collection('users').doc(uid).update({ 
-                role: role, 
-                crn: crn || null 
-            });
-            const Toast = Swal.mixin({
-                toast: true, position: 'top-end', showConfirmButton: false, timer: 3000
-            });
-            Toast.fire({ icon: 'success', title: 'Cargo atualizado!' });
-        } catch (error) {
-            console.error(error);
-            alert("Erro ao atualizar.");
-        }
+        // Função auxiliar de update no Firestore
+        const userRef = doc(db, 'users', uid);
+        await updateDoc(userRef, { 
+            role: role, 
+            crn: crn || null 
+        });
     }
 });
