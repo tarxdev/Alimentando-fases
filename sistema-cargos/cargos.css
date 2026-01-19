@@ -1,165 +1,149 @@
 /* =======================================================
-   SISTEMA DE CARGOS (DESIGN SYSTEM)
-   Pasta: /sistema-cargos/cargos.css
+   SISTEMA DE CARGOS v4.0 (PREMIUM BADGES)
+   Author: Frontend Architecture
    ======================================================= */
 
-/* --- 1. BASE COMPARTILHADA --- */
+/* --- CONTAINER DE ALINHAMENTO --- */
 .role-badge-container {
     display: inline-flex;
     align-items: center;
     vertical-align: middle;
-    margin-left: 8px;
-    cursor: default;
-    user-select: none;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin-left: 10px;
     line-height: 1;
 }
 
-/* =======================================================
-   👑 NÍVEL MASTER (GOD MODE)
-   ======================================================= */
-.badge-master {
-    background: linear-gradient(135deg, #FFD700, #FDB931, #d4af37, #FDB931, #FFD700);
-    background-size: 300% 300%;
-    color: #1a1a1a;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 900;
-    display: flex;
+/* --- CLASSE BASE DO BADGE (A Pílula) --- */
+.role-badge {
+    display: inline-flex;
     align-items: center;
     gap: 6px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
-    animation: gold-shine 3s ease infinite;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-}
-
-@keyframes gold-shine {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.master-text-effect {
-    background: linear-gradient(90deg, #B8860B, #FFD700, #B8860B);
-    background-size: 200% auto;
-    color: #000;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 900 !important;
-    animation: text-flow 3s linear infinite;
-    display: inline-block;
-    text-shadow: 0px 0px 1px rgba(0,0,0,0.1);
-}
-
-@keyframes text-flow { to { background-position: 200% center; } }
-
-.master-avatar-frame {
-    position: relative; z-index: 1; padding: 3px;
-    background: linear-gradient(45deg, #FFD700, #B8860B, #FFD700, #FDB931);
-    background-size: 300% 300%; border-radius: 50%;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
-    animation: border-spin 4s linear infinite;
-}
-.master-avatar-frame img { border: 2px solid #fff; border-radius: 50%; display: block; background-color: #fff; }
-
-@keyframes border-spin {
-    0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; }
-}
-
-/* FIX MODAL MASTER */
-.avatar-upload-wrapper.master-avatar-frame { width: 100px; height: 100px; padding: 3px; box-sizing: content-box; }
-.avatar-upload-wrapper.master-avatar-frame .avatar-preview-large { border: 2px solid #fff !important; width: 100%; height: 100%; border-radius: 50%; }
-
-.master-post-border {
-    position: relative; border: double 3px transparent !important; border-radius: 4px;
-    background-image: linear-gradient(white, white), linear-gradient(to right, #B8860B, #FFD700, #FDB931);
-    background-origin: border-box; background-clip: content-box, border-box;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
-}
-
-/* =======================================================
-   🏥 ÁREA DA SAÚDE E EDUCAÇÃO (PROFISSIONAIS)
-   Design System: "Clean Glass" unificado
-   ======================================================= */
-
-/* CLASSE BASE PARA TODOS OS PROFISSIONAIS */
-.badge-pro-base {
-    color: #fff;
-    padding: 4px 10px 4px 4px; /* Padding assimétrico p/ ícone */
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    font-size: 0.7rem;
+    padding: 5px 12px;
+    border-radius: 99px; /* Formato Pílula Perfeito */
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem; /* Tamanho 12px */
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    min-width: fit-content;
+    white-space: nowrap;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border: 1px solid transparent;
+    user-select: none;
+    cursor: help; /* Indica que tem tooltip */
 }
 
-.badge-pro-base i {
-    background-color: #fff;
-    width: 18px; height: 18px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.7rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.role-badge i { font-size: 0.85rem; }
+
+/* Efeito Hover Genérico */
+.role-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
-
-/* Efeito Hover Geral */
-.badge-pro-base:hover { transform: translateY(-2px); filter: brightness(1.1); }
-
-/* --- 1. NUTRICIONISTA (Verde Esmeralda) --- */
-.badge-nutri {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
-    box-shadow: 0 4px 6px rgba(46, 204, 113, 0.2);
-}
-.badge-nutri i { color: #27ae60; }
-.verified-post-border { border-left: 3px solid #27ae60 !important; }
-
-/* --- 2. MÉDICO (Azul Royal) --- */
-.badge-doctor {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
-}
-.badge-doctor i { color: #2980b9; }
-
-/* --- 3. ENFERMEIRO (Azul Ciano/Teal) --- */
-.badge-nurse {
-    background: linear-gradient(135deg, #1abc9c, #16a085);
-    box-shadow: 0 4px 6px rgba(26, 188, 156, 0.2);
-}
-.badge-nurse i { color: #16a085; }
-
-/* --- 4. PROF. EDUCAÇÃO FÍSICA (Laranja Energia) --- */
-.badge-pe {
-    background: linear-gradient(135deg, #e67e22, #d35400);
-    box-shadow: 0 4px 6px rgba(230, 126, 34, 0.2);
-}
-.badge-pe i { color: #d35400; }
-
-/* --- 5. PROFESSOR (Roxo Sabedoria) --- */
-.badge-teacher {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-    box-shadow: 0 4px 6px rgba(155, 89, 182, 0.2);
-}
-.badge-teacher i { color: #8e44ad; }
-
 
 /* =======================================================
-   🎓 ESTUDANTE (BASE)
+   1. 👑 MASTER / GOD MODE (EFEITOS VISUAIS PESADOS)
    ======================================================= */
-.badge-student {
-    color: #95a5a6; /* Cinza Neutro */
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 2px 8px;
-    background-color: #f5f6fa;
-    border-radius: 4px;
-    border: 1px solid #dcdde1;
-    display: flex; align-items: center; gap: 4px;
+.role-master {
+    /* Gradiente Dourado Premium */
+    background: linear-gradient(135deg, #FFD700 0%, #FDB931 50%, #FFD700 100%);
+    background-size: 200% auto;
+    
+    color: #4a3b00; /* Texto Escuro para Contraste */
+    border: 1px solid #ffeeba;
+    
+    /* Sombras e Brilho */
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5), 
+                inset 0 1px 0 rgba(255,255,255,0.6);
+    
+    animation: master-shine 3s linear infinite;
+}
+
+.role-master i { 
+    color: #2b2200; 
+    animation: crown-bounce 2s infinite ease-in-out;
+}
+
+/* Animação de Brilho Correndo */
+@keyframes master-shine {
+    to { background-position: 200% center; }
+}
+
+/* Animação da Coroa */
+@keyframes crown-bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15) rotate(5deg); }
+}
+
+/* =======================================================
+   2. PROFISSIONAIS (DESIGN CLEAN & SEMÂNTICO)
+   ======================================================= */
+
+/* NUTRICIONISTA (Verde Clinico) */
+.role-nutri {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #6ee7b7;
+}
+.role-nutri i { color: #059669; }
+
+/* MÉDICO (Azul Hospitalar) */
+.role-doctor {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #93c5fd;
+}
+.role-doctor i { color: #2563eb; }
+
+/* ENFERMEIRO (Ciano Suave) */
+.role-nurse {
+    background: #ecfeff;
+    color: #0e7490;
+    border-color: #67e8f9;
+}
+
+/* PERSONAL (Laranja Energético) */
+.role-pe {
+    background: #fff7ed;
+    color: #c2410c;
+    border-color: #fdba74;
+}
+
+/* PROFESSOR (Roxo Acadêmico) */
+.role-teacher {
+    background: #f5f3ff;
+    color: #6d28d9;
+    border-color: #c4b5fd;
+}
+
+/* ESTUDANTE (Cinza Neutro) */
+.role-student {
+    background: #f8fafc;
+    color: #475569;
+    border-color: #cbd5e1;
+    font-weight: 700;
+}
+
+/* =======================================================
+   ESTILOS ADICIONAIS DE PERFIL (AVATAR E BORDAS)
+   ======================================================= */
+
+/* Borda Giratória do Master (Avatar) */
+.master-avatar-frame {
+    position: relative; 
+    padding: 4px !important;
+    background: linear-gradient(45deg, #FFD700, #FDB931, #FFC107, #FFD700);
+    background-size: 300% 300%;
+    border-radius: 50%;
+    animation: border-rotate 4s linear infinite;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+@keyframes border-rotate { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+
+/* Efeito de Texto Dourado (apenas para o NOME, não o badge) */
+.master-text-effect {
+    background: linear-gradient(to right, #B8860B, #FFD700, #B8860B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+    font-weight: 900;
 }
