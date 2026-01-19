@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Jornada - Alimentando Fases</title>
-    <link rel="canonical" href="https://alimentandofases.com/" />
     
     <link rel="icon" href="../Imagens/logofavicon.webp">
     
@@ -16,33 +15,28 @@
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <link rel="stylesheet" href="../style.css"> <link rel="stylesheet" href="css/core.css">
-    <link rel="stylesheet" href="css/layout.css">      <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="../style.css"> 
+    <link rel="stylesheet" href="css/core.css">
+    <link rel="stylesheet" href="css/layout.css">      
+    <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/profile.css">     
     <link rel="stylesheet" href="css/feed.css">        
 </head>
 <body class="dashboard-body"> 
 
     <header class="mobile-profile-bar">
-        <button class="mp-btn" onclick="window.location.href='../index.html'" aria-label="Voltar">
-            <i class="fa-solid fa-arrow-left"></i>
-        </button>
+        <button class="mp-btn" onclick="window.location.href='../index.html'"><i class="fa-solid fa-arrow-left"></i></button>
         <div class="mp-identity">
             <span class="mp-username" id="mobile-username">@usuario</span>
             <span class="mp-sub">Perfil</span>
         </div>
         <div class="mp-actions">
-            <button class="mp-btn" id="mp-btn-add" aria-label="Novo post">
-                <i class="fa-regular fa-square-plus"></i>
-            </button>
-            <button class="mp-btn" id="mp-btn-settings" aria-label="Configurações">
-                <i class="fa-solid fa-gear"></i>
-            </button>
+            <button class="mp-btn" id="mp-btn-add"><i class="fa-regular fa-square-plus"></i></button>
+            <button class="mp-btn" id="mp-btn-settings"><i class="fa-solid fa-gear"></i></button>
         </div>
     </header>
 
     <div class="main-layout">
-        
         <nav class="sidebar">
             <div class="logo-area">
                 <img src="../Imagens/logofavicon.webp" alt="Logo" class="sidebar-logo-img">
@@ -51,67 +45,40 @@
             <ul class="nav-links">
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> <span>Início</span></a></li>
                 <li><a href="../comunidade/index.html"><i class="fa-solid fa-earth-americas"></i> <span>Comunidade</span></a></li>
-                <li><a href="javascript:void(0)" id="btn-open-tools" role="button"><i class="fa-solid fa-screwdriver-wrench"></i> <span>Ferramentas</span></a></li>
                 <li><a href="../notificacoes/index.html"><i class="fa-regular fa-bell"></i> <span>Notificações</span></a></li>
-                <li>
-                    <a href="../mensagens/index.html">
-                        <div class="icon-container">
-                            <i class="fa-solid fa-envelope"></i>
-                            <span id="sidebar-badge" class="nav-badge hidden">0</span>
-                        </div>
-                        <span>Mensagens</span>
-                    </a>
-                </li>
+                <li><a href="../mensagens/index.html"><i class="fa-solid fa-envelope"></i> <span>Mensagens</span></a></li>
                 <li id="nav-item-admin" style="display: none;"><a href="../admin/index.html"><i class="fa-solid fa-lock"></i> <span>Painel Admin</span></a></li>
                 <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> <span>Calendário</span></a></li>
-                <li><a href="javascript:void(0)" id="btn-open-settings" role="button"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
             </ul>
             <div class="nav-footer">
                 <a href="../perfil/index.html" class="profile-pill-link">
-                    <img src="https://ui-avatars.com/api/?name=User" class="nav-avatar" id="nav-avatar-img" alt="Perfil"> 
+                    <img src="https://ui-avatars.com/api/?name=User" class="nav-avatar" id="nav-avatar-img"> 
                     <div class="profile-info-mini"><span class="p-name">Meu Perfil</span></div>
                 </a>
             </div>
         </nav>
 
         <main class="content-area">
-            
             <header class="journey-header">
                 <div class="journey-avatar-container">
-                    <img src="https://ui-avatars.com/api/?name=U" alt="Foto" class="journey-pic" id="profile-pic-main">
-                    
-                    <div class="phase-badge-wrapper">
-                        <div class="phase-badge"><i class="fa-solid fa-seedling"></i></div>
-                    </div>
+                    <img src="https://ui-avatars.com/api/?name=U" class="journey-pic" id="profile-pic-main">
+                    <div class="phase-badge-wrapper"><div class="phase-badge"><i class="fa-solid fa-seedling"></i></div></div>
                 </div>
-
                 <div class="journey-info">
                     <div class="journey-title-row">
                         <div>
                             <h2 class="journey-name" id="display-realname">Carregando...</h2>
                             <span class="journey-username" id="display-username">@usuario</span>
                         </div>
-                        
                         <div class="journey-actions">
-                            <button class="btn-icon-action" id="btn-open-edit" title="Ajustes do Perfil"><i class="fa-solid fa-gear"></i></button>
-                            
-                            <div id="visitor-actions" style="display: none; gap: 10px; align-items: center;">
-                                <button id="btn-follow" class="btn-follow-action">
-                                    <i class="fa-solid fa-user-plus"></i> <span>Seguir</span>
-                                </button>
-                                <button id="btn-back-profile" class="btn-back-profile" onclick="window.history.back()">
-                                    <i class="fa-solid fa-arrow-left"></i> <span>Voltar</span>
-                                </button>
-                            </div>
+                            <button class="btn-edit-profile" id="btn-open-edit"><i class="fa-solid fa-pen"></i> Editar Perfil</button>
                         </div>
                     </div>
-
                     <ul class="profile-stats-insta">
                         <li><span class="stat-count" id="count-posts">0</span> publicações</li>
                         <li id="btn-view-followers" class="clickable-stat"><span class="stat-count" id="count-followers">0</span> seguidores</li>
                         <li id="btn-view-following" class="clickable-stat"><span class="stat-count" id="count-following">0</span> seguindo</li>
                     </ul>
-
                     <div class="journey-bio-block">
                         <div class="bio-text" id="display-bio"></div>
                         <a href="#" class="bio-link" target="_blank" id="display-link"></a>
@@ -122,13 +89,9 @@
             <div class="journey-highlights-row" id="actions-row">
                 <div class="highlight-card primary-action" onclick="document.getElementById('modal-new-post').classList.add('open')">
                     <div class="h-icon"><i class="fa-solid fa-pen-nib"></i></div>
-                    <div class="h-info">
-                        <strong>Registrar hoje</strong>
-                        <span>Criar publicação</span>
-                    </div>
+                    <div class="h-info"><strong>Registrar hoje</strong><span>Criar publicação</span></div>
                     <i class="fa-solid fa-arrow-right action-arrow"></i>
                 </div>
-
                 <div class="highlight-card secondary-action">
                     <div class="h-icon"><i class="fa-solid fa-chart-pie"></i></div>
                     <div class="h-info"><strong>Minha Fase</strong><span>Ver status</span></div>
@@ -138,77 +101,75 @@
             <div class="journey-tabs">
                 <div class="j-tab active" id="tab-btn-timeline" data-target="tab-timeline"><i class="fa-solid fa-timeline"></i> Minha Linha do Tempo</div>
                 <div class="j-tab" id="tab-btn-saved" data-target="tab-saved"><i class="fa-regular fa-bookmark"></i> Salvos</div>
-                <div class="j-tab" id="tab-btn-achievements" data-target="tab-achievements">
-                    <i class="fa-solid fa-trophy"></i> Conquistas
-                    <span class="notification-dot" id="achievements-dot" style="display: none;"></span>
-                </div>
+                <div class="j-tab" id="tab-btn-achievements" data-target="tab-achievements"><i class="fa-solid fa-trophy"></i> Conquistas</div>
             </div>
 
             <div class="tab-content-wrapper">
                 <div id="tab-timeline" class="tab-pane active">
                     <div id="empty-state-timeline" class="empty-state-journey" style="display: none;">
-                        <div class="empty-illustration"><i class="fa-solid fa-route"></i></div>
-                        <h3>Sua jornada começa com o primeiro registro.</h3>
-                        <p>Documentar sua alimentação é o segredo da constância.</p>
-                        <button class="txt-link-brand" onclick="document.getElementById('modal-new-post').classList.add('open')">✍️ Registrar meu dia agora</button>
+                        <p style="color: #888; text-align:center; padding:30px;">Ainda não há publicações.</p>
                     </div>
                     <div id="feed-container" class="gallery-grid"></div>
                 </div>
-
                 <div id="tab-saved" class="tab-pane hidden">
                     <div class="empty-state-journey" style="background: transparent; box-shadow: none;">
-                        <p style="color: #6e513d; opacity: 0.7;">Você ainda não salvou nenhuma publicação.</p>
+                        <p style="color: #6e513d; opacity: 0.7; text-align:center; padding:30px;">Nenhum item salvo.</p>
                     </div>
                 </div>
-
                 <div id="tab-achievements" class="tab-pane hidden">
-                    <div class="achievements-header">
-                        <div class="xp-info">
-                            <span>Nível <strong id="user-level">1</strong></span>
-                            <span style="font-size: 0.8rem; opacity: 0.8;">Total XP: <span id="total-xp">0</span></span>
-                        </div>
-                        <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-bar-fill" style="width: 0%"></div></div>
-                    </div>
-                    <div class="achievements-grid" id="achievements-list-container"></div>
+                    <p style="text-align:center; padding:30px; color:#888;">Em breve.</p>
                 </div>
             </div> 
         </main>
     </div>
 
-    <nav class="bottom-nav" aria-label="Menu inferior">
-        <a href="../index.html" class="bn-item">
-            <i class="fa-solid fa-house"></i><span>Início</span>
-        </a>
-        <a href="../comunidade/index.html" class="bn-item">
-            <i class="fa-solid fa-earth-americas"></i><span>Comunidade</span>
-        </a>
-        <a href="../notificacoes/index.html" class="bn-item">
-            <i class="fa-regular fa-bell"></i><span>Notifs</span>
-        </a>
-        <a href="../mensagens/index.html" class="bn-item">
-            <i class="fa-solid fa-envelope"></i><span>Msgs</span>
-        </a>
-        <a href="javascript:void(0)" class="bn-item active">
-            <i class="fa-solid fa-user"></i><span>Perfil</span>
-        </a>
-    </nav>
-
     <div class="modal-overlay" id="edit-modal">
-        <div class="modal-content">
-            <div class="modal-header"><h3>Ajustar Jornada</h3><button class="btn-close" onclick="document.getElementById('edit-modal').classList.remove('open')">&times;</button></div>
-            <div class="modal-body">
-                <div class="edit-user-block">
-                    <div class="user-info-left"><img src="" class="modal-avatar" id="modal-avatar-preview"><div class="user-text-info"><h4 id="modal-username-display">username</h4><span id="modal-realname-display">Nome Real</span></div></div>
-                    <button class="btn-change-photo" id="btn-trigger-file">Trocar foto</button>
-                </div>
-                <h4 class="section-label">Sobre você</h4>
-                <div class="form-group"><textarea class="form-textarea" id="input-bio" maxlength="150" placeholder="Qual seu objetivo atual?"></textarea><div class="char-count"><span id="char-counter">0</span> / 150</div></div>
-                <h4 class="section-label">Link Externo</h4><div class="form-group"><input type="text" class="form-input" id="input-link" placeholder="Site ou Rede Social"></div>
-                <h4 class="section-label">Dados de Acesso</h4>
-                <div class="form-group"><label style="font-size:0.85rem;">Nome de Exibição</label><input type="text" class="form-input" id="input-realname"></div>
-                <div class="form-group"><label style="font-size:0.85rem;">Nome de Usuário (@)</label><input type="text" class="form-input" id="input-username"></div>
+        <div class="modal-content modal-modern">
+            
+            <div class="modal-header-modern">
+                <h3>Editar perfil</h3>
+                <button class="btn-close" onclick="document.getElementById('edit-modal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="modal-footer"><button class="btn-submit" id="btn-save-changes">Salvar Alterações</button></div>
+            
+            <div class="modal-body-modern">
+                
+                <div class="edit-profile-center">
+                    <img src="" id="modal-avatar-preview" class="avatar-edit-large">
+                    
+                    <button id="btn-trigger-file" class="btn-change-photo-text">Alterar foto do perfil</button>
+                </div>
+
+                <div class="form-grid">
+                    
+                    <div class="form-group">
+                        <label>Nome de Exibição</label>
+                        <input type="text" class="form-input-modern" id="input-realname" placeholder="Ex: Maria Silva">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nome de Usuário</label>
+                        <div class="input-group-modern">
+                            <span class="input-prefix">@</span>
+                            <input type="text" class="form-input-modern pl-4" id="input-username" placeholder="usuario">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Biografia</label>
+                        <textarea class="form-textarea-modern" id="input-bio" placeholder="Bio..." maxlength="150"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Link</label>
+                        <input type="text" class="form-input-modern" id="input-link" placeholder="https://...">
+                    </div>
+
+                </div>
+            </div>
+            
+            <div class="modal-footer-modern">
+                <button class="btn-save-full" id="btn-save-changes">Concluir</button>
+            </div>
         </div>
     </div>
 
@@ -224,10 +185,9 @@
             <div class="modal-header"><h3>Criar publicação</h3><button class="btn-close" onclick="document.getElementById('modal-new-post').classList.remove('open')">&times;</button></div>
             <div class="modal-body">
                 <textarea id="modal-post-input" class="form-textarea" placeholder="Compartilhe sua jornada..." style="height: 120px;"></textarea>
-                <div id="modal-image-preview-area" class="preview-grid hidden" style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;"></div>
             </div>
             <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
-                <button class="btn-icon-action" onclick="document.getElementById('modal-file-upload-post').click()" title="Adicionar Imagem"><i class="fa-regular fa-image"></i></button>
+                <button class="btn-icon-action" onclick="document.getElementById('modal-file-upload-post').click()"><i class="fa-regular fa-image"></i></button>
                 <button id="btn-submit-post" class="btn-submit" disabled>Publicar</button>
             </div>
         </div>
@@ -239,36 +199,18 @@
         <div class="modal-instagram-container">
             <div id="inst-left-content" class="inst-left-side"></div>
             <div class="inst-right-side">
-                <div class="inst-header">
-                    <img src="" id="inst-author-photo" class="inst-avatar">
-                    <div class="inst-meta"><h4 id="inst-author-name">Nome</h4></div>
-                </div>
-                
+                <div class="inst-header"><img id="inst-author-photo" class="inst-avatar"><div class="inst-meta"><h4 id="inst-author-name">Nome</h4></div></div>
                 <div id="inst-comments-list" class="inst-comments-area"></div>
-                
                 <div class="inst-footer-section">
-                    <div class="inst-action-icons">
-                        <div class="inst-icons-left">
-                            <button class="inst-icon-btn" id="inst-main-like-btn"><i class="fa-regular fa-heart"></i></button>
-                        </div>
-                    </div>
+                    <div class="inst-action-icons"><div class="inst-icons-left"><button class="inst-icon-btn" id="inst-main-like-btn"><i class="fa-regular fa-heart"></i></button></div></div>
                     <p class="inst-likes-count"><span id="inst-likes-number">0</span> curtidas</p>
-                    
                     <div class="inst-input-wrapper">
                         <button id="btn-toggle-emoji" class="inst-emoji-btn">😊</button>
                         <input type="text" id="inst-comment-input" placeholder="Adicione um comentário..." autocomplete="off">
                         <button id="btn-comment-gallery" class="inst-gallery-btn"><i class="fa-regular fa-image"></i></button>
                         <button id="inst-btn-send" class="inst-post-btn">Publicar</button>
-                        
-                        <div id="inst-emoji-picker-container" class="hidden">
-                            <emoji-picker></emoji-picker>
-                        </div>
-                        <div id="comment-image-preview-container" class="comment-img-preview hidden">
-                            <div style="position:relative; display:inline-block;">
-                               <img id="comment-img-preview">
-                               <button id="btn-remove-comment-img" class="btn-remove-comment-img">&times;</button>
-                            </div>
-                        </div>
+                        <div id="inst-emoji-picker-container" class="hidden"><emoji-picker></emoji-picker></div>
+                        <div id="comment-image-preview-container" class="comment-img-preview hidden"><div style="position:relative; display:inline-block;"><img id="comment-img-preview"><button id="btn-remove-comment-img" class="btn-remove-comment-img">&times;</button></div></div>
                     </div>
                 </div>
             </div>
@@ -280,6 +222,5 @@
 
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     <script type="module" src="js/index.js"></script>
-
 </body>
 </html>
