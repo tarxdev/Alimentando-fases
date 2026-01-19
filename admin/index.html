@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Master | God Mode</title>
+    <title>Painel Master | Gestão Profissional</title>
     <link rel="icon" href="../Imagens/logofavicon.webp">
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Lato:wght@400;700&display=block" rel="stylesheet">
@@ -13,8 +13,7 @@
 
     <link rel="stylesheet" href="../perfil/css/core.css">
     <link rel="stylesheet" href="../perfil/css/layout.css">
-    <link rel="stylesheet" href="../sistema-cargos/cargos.css">
-    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="../sistema-cargos/cargos.css"> <link rel="stylesheet" href="css/admin.css">
 </head>
 <body class="dashboard-body admin-mode">
 
@@ -27,63 +26,120 @@
 
             <ul class="nav-links">
                 <li><a href="../perfil/index.html"><i class="fa-solid fa-arrow-left"></i> <span>Voltar ao App</span></a></li>
-                <li class="active"><a href="#" data-target="section-users"><i class="fa-solid fa-users-gear"></i> <span>Gerenciar Cargos</span></a></li>
-                <li><a href="#" data-target="section-users"><i class="fa-solid fa-ban"></i> <span>Banimentos</span></a></li>
-                <li><a href="#" data-target="section-posts"><i class="fa-solid fa-trash-can"></i> <span>Limpeza de Conteúdo</span></a></li>
+                <li class="active"><a href="#" data-target="section-users"><i class="fa-solid fa-users-gear"></i> <span>Gestão Geral</span></a></li>
+                <li><a href="#" data-target="section-posts"><i class="fa-solid fa-shield-cat"></i> <span>Moderação</span></a></li>
             </ul>
         </nav>
 
         <main class="content-area">
             <header class="admin-header">
-                <h1>Painel de Controle</h1>
-                <p>Você está no modo Deus. Cuidado com as alterações.</p>
+                <div>
+                    <h1>Painel de Controle</h1>
+                    <p>Visão geral do sistema e métricas em tempo real.</p>
+                </div>
+                <div class="header-actions">
+                     <span class="badge-status-system"><i class="fa-solid fa-server"></i> Sistema Online</span>
+                </div>
             </header>
+
+            <section class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                    <div class="stat-info">
+                        <h3>Total Usuários</h3>
+                        <span id="stat-total-users">--</span>
+                    </div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon"><i class="fa-solid fa-user-doctor"></i></div>
+                    <div class="stat-info">
+                        <h3>Profissionais</h3>
+                        <span id="stat-pro-users">--</span>
+                    </div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <div class="stat-info">
+                        <h3>Estudantes</h3>
+                        <span id="stat-student-users">--</span>
+                    </div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="stat-info">
+                        <h3>Postagens</h3>
+                        <span id="stat-total-posts">--</span>
+                    </div>
+                </div>
+            </section>
 
             <section id="section-users" class="admin-section active">
                 
-                <div class="admin-card my-status-card">
-                    <div class="card-header">
-                        <h3><i class="fa-solid fa-user-astronaut"></i> Meu Status Atual</h3>
-                    </div>
-                    <div class="card-body flex-row">
-                        <div id="my-preview-area" class="preview-box"></div>
+                <div class="admin-card compact-card">
+                    <div class="card-body flex-row justify-between">
+                        <div class="flex-row">
+                            <div id="my-preview-area"></div>
+                            <div>
+                                <strong>Modo Deus Ativo</strong><br>
+                                <small style="color:#7f8c8d">Permissão total de leitura e escrita.</small>
+                            </div>
+                        </div>
                         <div class="controls-area">
-                            <label>Alterar meu cargo para testes:</label>
-                            <select id="select-my-role" class="admin-select">
-                                <option value="user">Usuário Comum</option>
-                                <option value="student">Estudante</option>
-                                <optgroup label="Profissionais">
+                            <label style="font-size:0.8rem; color:#7f8c8d;">Simular Cargo:</label>
+                            <select id="select-my-role" class="admin-select small-select">
+                                <option value="admin_master">👑 ADMIN MASTER</option>
+                                <optgroup label="Saúde">
                                     <option value="nutri">Nutricionista</option>
                                     <option value="doctor">Médico</option>
                                     <option value="nurse">Enfermeiro</option>
+                                </optgroup>
+                                <optgroup label="Educação">
                                     <option value="pe_teacher">Personal Trainer</option>
                                     <option value="teacher">Professor</option>
+                                    <option value="student">Estudante</option>
                                 </optgroup>
-                                <option value="admin_master" selected>👑 ADMIN MASTER</option>
+                                <option value="user">Usuário Comum</option>
                             </select>
-                            <button id="btn-update-me" class="btn-admin-action">Atualizar</button>
+                            <button id="btn-update-me" class="btn-admin-action small-btn">Aplicar</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="admin-card">
                     <div class="card-header">
-                        <h3><i class="fa-solid fa-users"></i> Base de Usuários</h3>
-                        <input type="text" id="search-users" placeholder="Buscar por nome ou email..." class="admin-search">
+                        <h3><i class="fa-solid fa-users-gear"></i> Base de Usuários</h3>
+                        
+                        <div class="filter-group">
+                            <select id="filter-role" class="admin-select">
+                                <option value="all">Todos os Cargos</option>
+                                <option value="pro">Profissionais (Saúde/Ed)</option>
+                                <option value="student">Estudantes</option>
+                                <option value="user">Usuários Comuns</option>
+                                <option value="banned">🚫 Banidos</option>
+                            </select>
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="search-users" placeholder="Buscar nome, email ou UID..." class="admin-search-input">
+                            </div>
+                        </div>
                     </div>
+                    
                     <div class="table-responsive">
                         <table class="admin-table">
                             <thead>
                                 <tr>
                                     <th>Usuário</th>
-                                    <th>Cargo</th>
-                                    <th>Status / Ações</th>
+                                    <th>Cargo & Credencial</th>
+                                    <th>Ações Administrativas</th>
                                 </tr>
                             </thead>
                             <tbody id="users-table-body">
-                                <tr><td colspan="3" style="text-align:center">Carregando dados...</td></tr>
+                                <tr><td colspan="3" style="text-align:center; padding:20px;">Carregando...</td></tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="table-footer">
+                        <small id="table-count-info">Calculando registros...</small>
                     </div>
                 </div>
             </section>
@@ -91,12 +147,12 @@
             <section id="section-posts" class="admin-section" style="display: none;">
                 <div class="admin-card">
                     <div class="card-header">
-                        <h3><i class="fa-solid fa-trash-can"></i> Gerenciar Postagens Recentes</h3>
-                        <button class="btn-admin-action" onclick="window.location.reload()"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+                        <h3><i class="fa-solid fa-trash-can"></i> Moderação de Conteúdo</h3>
+                        <button class="btn-admin-action" onclick="window.location.reload()"><i class="fa-solid fa-rotate"></i> Atualizar Feed</button>
                     </div>
                     <div class="card-body">
                         <div id="admin-feed-grid" class="admin-feed-grid">
-                            <p style="color:#888;">Carregando feed...</p>
+                            <p style="color:#888;">Carregando postagens...</p>
                         </div>
                     </div>
                 </div>
