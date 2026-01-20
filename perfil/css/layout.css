@@ -2,8 +2,7 @@
 
 /* Match sidebar styling to comunidade */
 
-:root { --sidebar-width: 260px; }
-
+/* Sidebar igual ao da Comunidade */
 .main-layout { display: flex; flex-direction: row; width: 100vw; min-height: 100vh; max-width: none; margin: 0; padding: 0; gap: 0; background: #fff; }
 
 .sidebar {
@@ -115,23 +114,19 @@
 .bottom-nav .bn-item:hover { background: #f6f6f6; color: #333; }
 .bottom-nav .bn-item.active { color: #53954a; background: #e8f5e9; }
 
-/* RESPONSIVIDADE */
-@media (max-width: 900px) { 
-    :root { --sidebar-width: 80px; }
-    .sidebar { width: var(--sidebar-width) !important; padding: 20px 10px; align-items: center; }
-    .brand-text, .nav-links span, .footer-info { display: none; }
-    .nav-links a { justify-content: center; padding: 10px; }
-    
-    .nav-footer { flex-direction: column; gap: 15px; padding-top: 15px; }
-    .profile-link-footer { justify-content: center; padding: 5px; background: transparent; }
-    
-    .content-area { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); padding: 20px; }
+/* RESPONSIVIDADE (igual à Comunidade) */
+@media (max-width: 992px) {
+    .right-sidebar { display: none; }
+    .main-layout { grid-template-columns: 80px 1fr; }
+    .brand-text, .nav-links span, .profile-info-mini { display: none; }
+    .sidebar { width: 80px; align-items: center; padding: 20px 10px; }
 }
 
-@media (max-width: 768px) { 
-    .sidebar { display: none; } 
-    .content-area { margin-left: 0; width: 100%; padding: 16px; padding-bottom: 110px; } 
+@media (max-width: 700px) {
+    .sidebar { display: none; }
+    .right-sidebar { display: none; }
     .mobile-profile-bar { display: flex; }
     .main-layout { flex-direction: column; }
+    .content-area { padding: 20px 16px; padding-bottom: 110px; margin-left: 0; width: 100%; }
     .bottom-nav { display: flex; }
 }
