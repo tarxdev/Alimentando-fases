@@ -38,22 +38,23 @@ img { max-width: 100%; height: auto; display: block; }
     background: #fff;
 }
 
-/* SIDEBAR - CLONE PERFEITO */
+/* SIDEBAR - igual à Comunidade */
 .sidebar {
-    width: var(--sidebar-width) !important;
-    background: #fff !important;
-    border-right: 1px solid var(--border-light) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    padding: 22px 16px !important;
-    flex-shrink: 0 !important;
+    width: 260px;
+    background: #fff;
+    border-right: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    padding: 22px 16px;
+    flex-shrink: 0;
     z-index: 100;
-    height: 100vh !important;
-    overflow-y: hidden !important;
-    scrollbar-width: none !important;
+    height: 100vh;
+    overflow-y: hidden;
+    scrollbar-width: none;
     position: sticky;
     top: 0;
 }
+.sidebar::-webkit-scrollbar { display: none; }
 
 .logo-area {
     display: flex;
@@ -92,7 +93,7 @@ img { max-width: 100%; height: auto; display: block; }
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 11px 12px !important;
+    padding: 10px 14px;
     border-radius: 12px;
     font-weight: 700;
     font-size: 0.9rem;
@@ -115,8 +116,8 @@ img { max-width: 100%; height: auto; display: block; }
 /* Icon Container - Apenas onde usado */
 .icon-container {
     position: relative;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -142,15 +143,15 @@ img { max-width: 100%; height: auto; display: block; }
 .nav-badge.hidden { display: none; }
 
 .nav-links a i {
-    font-size: 1.15rem !important;
-    text-align: center !important;
-    min-width: 22px !important;
+    font-size: 1.15rem;
+    text-align: center;
+    min-width: 22px;
 }
 
 .nav-footer {
     margin-top: auto;
     border-top: 1px solid var(--border-light);
-    padding-top: 14px;
+    padding-top: 16px;
     flex-shrink: 0;
 }
 
@@ -159,7 +160,7 @@ img { max-width: 100%; height: auto; display: block; }
     align-items: center;
     gap: 12px;
     text-decoration: none;
-    color: var(--text-main);
+    color: var(--text-color, var(--text-main));
     padding: 10px;
     border-radius: 12px;
 }
@@ -208,6 +209,6 @@ img { max-width: 100%; height: auto; display: block; }
 .modal-content-tools { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 600px; }
 .hidden { display: none !important; }
 
-@media (max-width: 900px) { .right-sidebar { display: none; } .sidebar { width: 80px !important; align-items: center; padding: 20px 10px !important; } .brand-text, .nav-links span, .profile-info-mini { display: none; } .logo-area { justify-content: center; padding: 0; width: 100%; } .nav-links a { justify-content: center; padding: 15px; } }
-@media (max-width: 700px) { .sidebar { display: none; } .main-layout { flex-direction: column; } .top-search-bar { display: none; } }
+@media (max-width: 992px) { .right-sidebar { display: none; } .sidebar { width: 80px; align-items: center; padding: 20px 10px; } .brand-text, .nav-links span, .profile-info-mini { display: none; } .logo-area { justify-content: center; padding: 0; width: 100%; } .nav-links a { justify-content: center; padding: 15px; } }
+@media (max-width: 700px) { .sidebar { display: none; } .right-sidebar { display: none; } .main-layout { flex-direction: column; } .top-search-bar { display: none; } }
 @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
