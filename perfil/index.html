@@ -10,11 +10,91 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
+    <style>
+        /* CORES DO SISTEMA */
+        :root { --af-primary: #53954a; --af-secondary: #6e513d; }
+
+        /* OVERLAY TELA CHEIA */
+        #af-global-loader {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #f9efd4; /* Cor Creme Fundo */
+            z-index: 9999999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+        #af-global-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        /* ANIMAÇÃO DO SPINNER */
+        .af-spinner-box { position: relative; width: 80px; height: 80px; }
+        .af-ring {
+            position: absolute; width: 100%; height: 100%; border-radius: 50%;
+            border: 4px solid transparent; border-top-color: var(--af-primary);
+            animation: af-spin 1s linear infinite;
+        }
+        .af-ring-inner {
+            position: absolute; top: 15px; left: 15px; width: 50px; height: 50px; border-radius: 50%;
+            border: 4px solid transparent; border-bottom-color: var(--af-secondary);
+            animation: af-spin-reverse 1.5s linear infinite;
+        }
+        .af-icon-center {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: var(--af-primary); font-size: 1.5rem; animation: af-pulse 2s infinite;
+        }
+        .af-loader-text {
+            margin-top: 20px; font-family: 'Montserrat', sans-serif; font-weight: 700;
+            color: var(--af-secondary); letter-spacing: 1px; text-transform: uppercase; font-size: 0.9rem;
+        }
+
+        @keyframes af-spin { 100% { transform: rotate(360deg); } }
+        @keyframes af-spin-reverse { 100% { transform: rotate(-360deg); } }
+        @keyframes af-pulse { 0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.9); } }
+
+        /* SKELETON (FUNDO CINZA ENQUANTO CARREGA POR BAIXO) */
+        .skeleton {
+            background: #e0e0e0;
+            background: linear-gradient(90deg, #e0e0e0 0%, #f5f5f5 50%, #e0e0e0 100%);
+            background-size: 200% 100%;
+            animation: sk-loading 1.5s infinite;
+            color: transparent !important; border-radius: 6px; user-select: none;
+        }
+        @keyframes sk-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    </style>
+
+    <script>
+        // GERENCIADOR DO LOADER (DISPONÍVEL GLOBALMENTE)
+        window.GlobalLoader = {
+            element: null,
+            init: function() {
+                this.element = document.getElementById('af-global-loader');
+            },
+            show: function(msg) {
+                if(!this.element) this.init();
+                if(this.element) {
+                    if(msg) document.getElementById('af-loader-msg').innerText = msg;
+                    this.element.classList.remove('hidden');
+                }
+            },
+            hide: function() {
+                if(!this.element) this.init();
+                if(this.element) {
+                    // Pequeno delay para suavidade
+                    setTimeout(() => {
+                        this.element.classList.add('hidden');
+                    }, 500);
+                }
+            }
+        };
+
+        // TRAVA DE SEGURANÇA: Remove o loader após 10s se algo travar
+        setTimeout(() => {
+            if(window.GlobalLoader) window.GlobalLoader.hide();
+        }, 10000);
+    </script>
+
     <link rel="stylesheet" href="../style.css"> 
     <link rel="stylesheet" href="css/core.css">
     <link rel="stylesheet" href="css/layout.css">      
@@ -24,17 +104,14 @@
 </head>
 <body class="dashboard-body"> 
 
-    <header class="mobile-profile-bar">
-        <button class="mp-btn" onclick="window.location.href='../index.html'"><i class="fa-solid fa-arrow-left"></i></button>
-        <div class="mp-identity">
-            <span class="mp-username" id="mobile-username">@usuario</span>
-            <span class="mp-sub">Perfil</span>
+    <div id="af-global-loader">
+        <div class="af-spinner-box">
+            <div class="af-ring"></div>
+            <div class="af-ring-inner"></div>
+            <i class="fa-solid fa-leaf af-icon-center"></i>
         </div>
-        <div class="mp-actions">
-            <button class="mp-btn" id="mp-btn-add"><i class="fa-regular fa-square-plus"></i></button>
-            <button class="mp-btn" id="mp-btn-settings"><i class="fa-solid fa-gear"></i></button>
-        </div>
-    </header>
+        <div class="af-loader-text" id="af-loader-msg">Carregando Perfil...</div>
+    </div>
 
     <div class="main-layout">
         <nav class="sidebar">
@@ -59,27 +136,39 @@
         </nav>
 
         <main class="content-area">
+            
             <header class="journey-header">
-                <div class="journey-avatar-container">
-                    <img src="https://ui-avatars.com/api/?name=U" class="journey-pic" id="profile-pic-main">
-                    <div class="phase-badge-wrapper"><div class="phase-badge"><i class="fa-solid fa-seedling"></i></div></div>
+                <div class="journey-avatar-container skeleton-avatar-wrapper">
+                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
+                         class="journey-pic skeleton" 
+                         id="profile-pic-main" 
+                         style="background: #eee;">
+                    <div class="phase-badge-wrapper">
+                        <div class="phase-badge"><i class="fa-solid fa-seedling"></i></div>
+                    </div>
                 </div>
+                
                 <div class="journey-info">
                     <div class="journey-title-row">
                         <div>
-                            <h2 class="journey-name" id="display-realname">Carregando...</h2>
-                            <span class="journey-username" id="display-username">@usuario</span>
+                            <h2 class="journey-name skeleton" id="display-realname" style="width: 250px; height: 32px; display:block; margin-bottom: 8px;"></h2>
+                            <span class="journey-username skeleton" id="display-username" style="width: 120px; height: 20px; display: block;"></span>
                         </div>
+                        
                         <div class="journey-actions">
-                            <button class="btn-edit-profile" id="btn-open-edit"><i class="fa-solid fa-pen"></i> Editar Perfil</button>
+                            <button class="btn-edit-profile" id="btn-open-edit">
+                                <i class="fa-solid fa-pen"></i> Editar Perfil
+                            </button>
                         </div>
                     </div>
+
                     <ul class="profile-stats-insta">
                         <li><span class="stat-count" id="count-posts">0</span> publicações</li>
                         <li id="btn-view-followers" class="clickable-stat"><span class="stat-count" id="count-followers">0</span> seguidores</li>
                         <li id="btn-view-following" class="clickable-stat"><span class="stat-count" id="count-following">0</span> seguindo</li>
                     </ul>
-                    <div class="journey-bio-block">
+
+                    <div class="journey-bio-block" style="display:none;">
                         <div class="bio-text" id="display-bio"></div>
                         <a href="#" class="bio-link" target="_blank" id="display-link"></a>
                     </div>
@@ -123,77 +212,43 @@
         </main>
     </div>
 
+    <header class="mobile-profile-bar" style="position:fixed; top:0; left:0; width:100%; z-index:1000; display:none;">
+        <button class="mp-btn" onclick="window.location.href='../index.html'"><i class="fa-solid fa-arrow-left"></i></button>
+        <div class="mp-identity">
+            <span class="mp-username" id="mobile-username">@usuario</span>
+            <span class="mp-sub">Perfil</span>
+        </div>
+        <div class="mp-actions">
+            <button class="mp-btn" id="mp-btn-add"><i class="fa-regular fa-square-plus"></i></button>
+            <button class="mp-btn" id="mp-btn-settings"><i class="fa-solid fa-gear"></i></button>
+        </div>
+    </header>
+
     <div class="modal-overlay" id="edit-modal">
         <div class="modal-content modal-modern">
-            
             <div class="modal-header-modern">
                 <h3>Editar perfil</h3>
                 <button class="btn-close" onclick="document.getElementById('edit-modal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
             <div class="modal-body-modern">
-                
                 <div class="edit-profile-center">
                     <img src="" id="modal-avatar-preview" class="avatar-edit-large">
-                    
                     <button id="btn-trigger-file" class="btn-change-photo-text">Alterar foto do perfil</button>
                 </div>
-
                 <div class="form-grid">
-                    
-                    <div class="form-group">
-                        <label>Nome de Exibição</label>
-                        <input type="text" class="form-input-modern" id="input-realname" placeholder="Ex: Maria Silva">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Nome de Usuário</label>
-                        <div class="input-group-modern">
-                            <span class="input-prefix">@</span>
-                            <input type="text" class="form-input-modern pl-4" id="input-username" placeholder="usuario">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Biografia</label>
-                        <textarea class="form-textarea-modern" id="input-bio" placeholder="Bio..." maxlength="150"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Link</label>
-                        <input type="text" class="form-input-modern" id="input-link" placeholder="https://...">
-                    </div>
-
+                    <div class="form-group"><label>Nome de Exibição</label><input type="text" class="form-input-modern" id="input-realname"></div>
+                    <div class="form-group"><label>Nome de Usuário</label><div class="input-group-modern"><span class="input-prefix">@</span><input type="text" class="form-input-modern pl-4" id="input-username"></div></div>
+                    <div class="form-group"><label>Biografia</label><textarea class="form-textarea-modern" id="input-bio"></textarea></div>
+                    <div class="form-group"><label>Link</label><input type="text" class="form-input-modern" id="input-link"></div>
                 </div>
             </div>
-            
-            <div class="modal-footer-modern">
-                <button class="btn-save-full" id="btn-save-changes">Concluir</button>
-            </div>
+            <div class="modal-footer-modern"><button class="btn-save-full" id="btn-save-changes">Concluir</button></div>
         </div>
     </div>
-
-    <div class="modal-overlay" id="list-modal">
-        <div class="modal-content" style="height: 70vh;">
-            <div class="modal-header"><h3 id="list-modal-title">Lista</h3><button class="btn-close" id="btn-close-list">&times;</button></div>
-            <div class="modal-body" id="list-modal-body" style="padding: 10px;"></div>
-        </div>
-    </div>
-
     <div class="modal-overlay" id="modal-new-post">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header"><h3>Criar publicação</h3><button class="btn-close" onclick="document.getElementById('modal-new-post').classList.remove('open')">&times;</button></div>
-            <div class="modal-body">
-                <textarea id="modal-post-input" class="form-textarea" placeholder="Compartilhe sua jornada..." style="height: 120px;"></textarea>
-            </div>
-            <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
-                <button class="btn-icon-action" onclick="document.getElementById('modal-file-upload-post').click()"><i class="fa-regular fa-image"></i></button>
-                <button id="btn-submit-post" class="btn-submit" disabled>Publicar</button>
-            </div>
-        </div>
+        <div class="modal-content"><div class="modal-header"><h3>Criar</h3></div><div class="modal-body"><p style="padding:20px;text-align:center;">Use a aba Comunidade.</p></div></div>
     </div>
-    <input type="file" id="modal-file-upload-post" accept="image/*" style="display: none;">
-
+    <input type="file" id="file-upload" hidden accept="image/*">
     <div class="modal-overlay" id="modal-post-detail">
         <button class="btn-close" id="btn-close-post-detail" style="position: absolute; top: 20px; right: 20px; z-index: 3000; color: white; font-size: 2rem;">&times;</button>
         <div class="modal-instagram-container">
@@ -216,9 +271,7 @@
             </div>
         </div>
     </div>
-
-    <input type="file" id="file-upload" accept="image/*" style="display: none;">
-    <input type="file" id="input-comment-file" accept="image/*" style="display: none;">
+    <input type="file" id="input-comment-file" hidden accept="image/*">
 
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     <script type="module" src="js/index.js"></script>
