@@ -11,27 +11,34 @@ import { AuthService } from './services/authService.js';
 import { renderCommentItem } from './utils/dom.js';
 import { getRoleBadgeHTML, isMasterUser } from '../../sistema-cargos/cargos.js';
 
-const COMMON_EMOJIS = ["😂","❤️","😍","🔥","👏","🙌","😭","👀","✨","💯","🥰","🤣","🥺","🙏","😎","✅","🚀","🤔","💀","🤡","🤢","🤮","🥳","🤯","🤬","😡","👋","💪","👍","👎"];
+const COMMON_EMOJIS = ["😂","❤️","😍","🔥","👏","🙌","😭","👀","✨","💯","🥰","🤣","🥺","🙏","😎","✅","🚀","🤔","💀","🤡","🤮","🥳","🤯","🤬","😡","👋","💪","👍","👎"];
 
 document.addEventListener('DOMContentLoaded', () => {
     
+    // Inicialização de Serviços
     const authService = new AuthService();
+    
+    // Estado Local
     let myOriginalData = null;
     let currentProfileUid = null;
     let currentOpenPostId = null;
     let currentPostAuthorId = null; 
     let replyTarget = null;
     let commentImageBase64 = null;
-    
-    // UI ELEMENTS
+    let tempProfileImage = null;
+
+    // Cache de Elementos DOM
     const els = {
         feedContainer: document.getElementById('feed-container'),
         modal: document.getElementById('modal-post-detail'),
+        
+        // Header Info
         username: document.getElementById('display-username'),
         realname: document.getElementById('display-realname'),
         bio: document.getElementById('display-bio'),
         bioBlock: document.querySelector('.journey-bio-block'),
         picMain: document.getElementById('profile-pic-main'),
+        link: document.getElementById('display-link'),
         
         // Sidebar & Mobile
         navAvatar: document.getElementById('nav-avatar-img'),
@@ -43,9 +50,14 @@ document.addEventListener('DOMContentLoaded', () => {
         btnCloseMobile: document.getElementById('btn-close-mobile-menu'),
         btnSairMobile: document.getElementById('btn-sair-mobile'),
         btnSairSidebar: document.getElementById('btn-sair-perfil'),
+        adminLink: document.getElementById('nav-item-admin'),
 
         // Stats
-        counts: { posts: document.getElementById('count-posts'), followers: document.getElementById('count-followers'), following: document.getElementById('count-following') },
+        counts: { 
+            posts: document.getElementById('count-posts'), 
+            followers: document.getElementById('count-followers'), 
+            following: document.getElementById('count-following') 
+        },
         
         // Edit & Others
         emptyState: document.getElementById('empty-state-timeline'),
@@ -54,21 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSaveEdit: document.getElementById('btn-save-changes'),
         btnCamera: document.getElementById('btn-trigger-file'),
         inputGlobalUpload: document.getElementById('file-upload'), 
-        imgPreviewEdit: document.getElementById('modal-avatar-preview'),
-        adminLink: document.getElementById('nav-item-admin'),
-        link: document.getElementById('display-link')
+        imgPreviewEdit: document.getElementById('modal-avatar-preview')
     };
 
-    // 1. MOBILE MENU LOGIC (NOVO)
-    if(els.btnMobileMenu) {
-        els.btnMobileMenu.onclick = () => els.mobileOverlay.classList.add('open');
-    }
-    if(els.btnCloseMobile) {
-        els.btnCloseMobile.onclick = () => els.mobileOverlay.classList.remove('open');
-    }
-    if(els.mobileOverlay) {
-        els.mobileOverlay.onclick = (e) => { if(e.target === els.mobileOverlay) els.mobileOverlay.classList.remove('open'); };
-    }
+    // Mobile Menu Listeners
+    if(els.btnMobileMenu) els.btnMobileMenu.onclick = () => els.mobileOverlay.classList.add('open');
+    if(els.btnCloseMobile) els.btnCloseMobile.onclick = () => els.mobileOverlay.classList.remove('open');
+    if(els.mobileOverlay) els.mobileOverlay.onclick = (e) => { if(e.target === els.mobileOverlay) els.mobileOverlay.classList.remove('open'); };
     
     const logoutAction = async () => {
         if(confirm("Sair da conta?")) {
@@ -79,34 +83,77 @@ document.addEventListener('DOMContentLoaded', () => {
     if(els.btnSairSidebar) els.btnSairSidebar.onclick = logoutAction;
     if(els.btnSairMobile) els.btnSairMobile.onclick = logoutAction;
 
-
-    // 2. AUTH & LOAD
+    // =========================================================================
+    // LÓGICA DE CARREGAMENTO SINCRONIZADA (PERFIL + FEED)
+    // =========================================================================
     authService.monitorAuth(async (user) => {
         if (user) {
+            // 1. Inicia Loader Global (Bloqueia tela)
+            if(window.GlobalLoader) window.GlobalLoader.show("Carregando Perfil...");
+
             try {
-                const docSnap = await getDoc(doc(db, 'users', user.uid));
-                if (docSnap.exists()) {
-                    currentProfileUid = user.uid;
-                    myOriginalData = docSnap.data();
-                    updateHeaderUI(myOriginalData);
-                    loadFeed(user.uid);
+                currentProfileUid = user.uid;
+
+                // 2. Dispara Requisições em Paralelo (Promise.all)
+                // O código só continua quando AMBAS as buscas terminarem
+                const [userDocSnap, feedSnap] = await Promise.all([
+                    getDoc(doc(db, 'users', user.uid)),
+                    getDocs(query(collection(db, 'posts'), where('authorId', '==', user.uid), orderBy('timestamp', 'desc'), limit(50)))
+                ]);
+
+                // 3. Processa Usuário
+                if (userDocSnap.exists()) {
+                    myOriginalData = userDocSnap.data();
                 } else {
+                    // Criação automática para usuários legados
                     const fallback = { realname: user.displayName || "Usuário", username: "", email: user.email, role: "user", postsCount: 0 };
                     await setDoc(doc(db, 'users', user.uid), fallback);
-                    window.location.reload();
+                    myOriginalData = fallback;
                 }
-            } catch (err) { console.error("Erro perfil:", err); }
-        } else { window.location.href = '../login/index.html'; }
+                updateHeaderUI(myOriginalData); // Atualiza HTML do header
+
+                // 4. Processa Feed
+                renderFeed(feedSnap); // Atualiza HTML do grid
+
+            } catch (err) {
+                console.error("Erro crítico ao carregar:", err);
+                alert("Ocorreu um erro ao carregar seus dados.");
+            } finally {
+                // 5. Remove Loader Global (Tela desbloqueada)
+                if(window.GlobalLoader) window.GlobalLoader.hide();
+            }
+
+        } else { 
+            window.location.href = '../login/index.html'; 
+        }
     });
 
-    // 3. UI UPDATE (Inclui Sidebar)
+    /**
+     * Atualiza o cabeçalho e REMOVE os esqueletos de carregamento.
+     */
     function updateHeaderUI(data) {
         if (!data) return;
+
+        // Limpeza dos Skeletons (Remove classes de animação e larguras fixas)
+        [els.realname, els.username, els.picMain].forEach(el => {
+            if(el) {
+                el.classList.remove('skeleton');
+                el.style.width = ''; 
+                el.style.height = '';
+            }
+        });
+
         const isMaster = isMasterUser(data);
+        
+        // Textos
         if(els.realname) els.realname.innerHTML = `${isMaster ? `<span class="master-text-effect">${data.realname}</span>` : data.realname} ${getRoleBadgeHTML(data)}`;
         if(els.username) els.username.innerText = `@${data.username}`;
         if(els.bio) els.bio.innerText = data.bio || "";
         
+        // Toggle Bio (Esconde se vazio)
+        if(els.bioBlock) els.bioBlock.style.display = data.bio ? 'block' : 'none';
+
+        // Link
         if(els.link) {
             if (data.link) {
                 els.link.style.display = 'inline-flex';
@@ -116,16 +163,18 @@ document.addEventListener('DOMContentLoaded', () => {
             } else { els.link.style.display = 'none'; }
         }
 
+        // Fotos
         const photo = data.photo || "https://ui-avatars.com/api/?name=User";
-        
-        // Atualiza todas as fotos (Perfil, Sidebar, Mobile)
-        if(els.picMain) els.picMain.src = photo;
+        if(els.picMain) {
+            els.picMain.src = photo;
+            els.picMain.style.background = 'transparent'; // Remove fundo cinza do loader
+        }
         if(els.navAvatar) els.navAvatar.src = photo;
         if(els.navAvatarMobile) els.navAvatarMobile.src = photo;
         if(els.mobileMenuAvatar) els.mobileMenuAvatar.src = photo;
         if(els.mobileMenuName) els.mobileMenuName.innerText = data.realname;
 
-        // Badge Master
+        // Moldura Master
         const badgeIcon = document.querySelector('.phase-badge');
         const avatarContainer = document.querySelector('.journey-avatar-container');
         if(avatarContainer) {
@@ -133,26 +182,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 avatarContainer.classList.add('master-avatar-frame');
                 if(badgeIcon) { badgeIcon.className = 'phase-badge master-crown'; badgeIcon.innerHTML = '<i class="fa-solid fa-crown"></i>'; }
             } else {
+                avatarContainer.classList.remove('master-avatar-frame');
                 if(badgeIcon) { badgeIcon.className = 'phase-badge'; badgeIcon.innerHTML = '<i class="fa-solid fa-seedling"></i>'; }
             }
         }
 
         if(els.adminLink) els.adminLink.style.display = isMaster ? 'block' : 'none';
+        
+        // Contadores
         if(els.counts.posts) els.counts.posts.innerText = data.postsCount || 0;
         if(els.counts.followers) els.counts.followers.innerText = data.followers?.length || 0;
         if(els.counts.following) els.counts.following.innerText = data.following?.length || 0;
     }
 
-    // ... (RESTO DO CÓDIGO: loadFeed, openPostModal, addComment, ETC... MANTIDO IGUAL AO ANTERIOR) ...
-    // Vou reincluir a função loadFeed e openPostModal para garantir integridade, 
-    // mas são idênticas ao último envio.
-
-    async function loadFeed(uid) {
+    /**
+     * Renderiza o grid de posts a partir do snapshot já carregado.
+     */
+    function renderFeed(snapshot) {
         if(!els.feedContainer) return;
         els.feedContainer.innerHTML = ''; 
         els.feedContainer.className = 'gallery-grid'; 
-        const q = query(collection(db, 'posts'), where('authorId', '==', uid), orderBy('timestamp', 'desc'), limit(50));
-        const snapshot = await getDocs(q);
+
         if(snapshot.empty) { 
             if(els.emptyState) els.emptyState.style.display = 'block'; 
             return;
@@ -162,13 +212,17 @@ document.addEventListener('DOMContentLoaded', () => {
         snapshot.forEach(docSnap => {
             const post = docSnap.data();
             const item = document.createElement('div');
-            item.className = 'gallery-item';
+            item.className = 'gallery-item fade-in';
+            
             let contentHtml = '';
             if (post.images && post.images.length > 0) {
                 contentHtml = `<img src="${post.images[0]}" class="gallery-image" loading="lazy">`;
                 if(post.images.length > 1) contentHtml += `<div class="multi-image-icon"><i class="fa-solid fa-clone"></i></div>`;
-            } else if (post.image) contentHtml = `<img src="${post.image}" class="gallery-image" loading="lazy">`;
-            else contentHtml = `<div class="gallery-text-only">${post.content?.substring(0,50)}...</div>`;
+            } else if (post.image) {
+                contentHtml = `<img src="${post.image}" class="gallery-image" loading="lazy">`;
+            } else {
+                contentHtml = `<div class="gallery-text-only">${post.content?.substring(0,50)}...</div>`;
+            }
 
             item.innerHTML = `${contentHtml}<div class="gallery-overlay"><span><i class="fa-solid fa-heart"></i> ${post.likes?.length || 0}</span></div>`;
             item.onclick = () => openPostModal(docSnap.id, post);
@@ -176,6 +230,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // =========================================================================
+    // MODAL DE DETALHES DO POST (Insta-style)
+    // =========================================================================
     async function openPostModal(postId, postData) {
         if (!els.modal) return;
         currentOpenPostId = postId;
@@ -285,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 else await addComment(postId, user, txt, commentImageBase64);
                 inp.value = ''; commentImageBase64 = null; previewBox.classList.add('hidden'); replyTarget = null; checkInput();
                 await loadComments(postId, document.getElementById('dynamic-comments'));
-            } catch(e) { alert("Erro."); }
+            } catch(e) { alert("Erro ao enviar."); }
         };
 
         const likeBtn = document.getElementById('modal-like-btn');
@@ -307,7 +364,9 @@ document.addEventListener('DOMContentLoaded', () => {
         await loadComments(postId, document.getElementById('dynamic-comments'));
     }
 
-    // Funcões Auxiliares (loadComments, addComment, timeAgo, etc... mantidas do anterior)
+    // =========================================================================
+    // FUNÇÕES AUXILIARES DE COMENTÁRIOS E DADOS
+    // =========================================================================
     async function loadComments(postId, container) {
         if(!container) return;
         const q = query(collection(db, 'posts', postId, 'comments'), orderBy('timestamp', 'asc'));
@@ -317,6 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const authorIds = new Set();
         const commentsRaw = [];
+        
         for (const docSnap of snap.docs) {
             const cData = docSnap.data();
             authorIds.add(cData.authorId);
@@ -327,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const userPhotosMap = {};
         if(myOriginalData) userPhotosMap[currentProfileUid] = myOriginalData.photo;
+        
         await Promise.all(Array.from(authorIds).map(async (uid) => {
             if(userPhotosMap[uid]) return;
             try { const u = await getDoc(doc(db, 'users', uid)); if(u.exists()) userPhotosMap[uid] = u.data().photo; } catch(e){}
@@ -355,6 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await addDoc(collection(db, 'posts', postId, 'comments'), { authorId: user.uid, authorName: user.displayName, authorPhoto: user.photoURL, text: text, image: image||null, timestamp: serverTimestamp(), likes: [] });
         await updateDoc(doc(db, 'posts', postId), { commentsCount: increment(1) });
     }
+    
     async function addReply(postId, commentId, user, text, image) {
         await addDoc(collection(db, 'posts', postId, 'comments', commentId, 'replies'), { authorId: user.uid, authorName: user.displayName, authorPhoto: user.photoURL, text: text, image: image||null, timestamp: serverTimestamp(), likes: [] });
         await updateDoc(doc(db, 'posts', postId), { commentsCount: increment(1) });
@@ -382,10 +444,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function compressImage(file, w, q) { return new Promise(resolve => { const r = new FileReader(); r.onload=e=>{ const i=new Image(); i.onload=()=>{ const c=document.createElement('canvas'); let nw=i.width, nh=i.height; if(nw>w){nh=Math.round(nh*(w/nw)); nw=w;} c.width=nw; c.height=nh; c.getContext('2d').drawImage(i,0,0,nw,nh); resolve(c.toDataURL('image/jpeg',q)); }; i.src=e.target.result; }; r.readAsDataURL(file); }); }
 
-    // Edit Profile Logic
-    if(els.btnEdit) els.btnEdit.onclick = () => { document.getElementById('input-realname').value = myOriginalData.realname; document.getElementById('input-username').value = myOriginalData.username; document.getElementById('input-bio').value = myOriginalData.bio || ""; document.getElementById('input-link').value = myOriginalData.link || ""; if(els.imgPreviewEdit) els.imgPreviewEdit.src = myOriginalData.photo; els.modalEdit.classList.add('open'); };
-    if(els.btnSaveEdit) els.btnSaveEdit.onclick = async () => { const newData = { realname: document.getElementById('input-realname').value, username: document.getElementById('input-username').value, bio: document.getElementById('input-bio').value, link: document.getElementById('input-link').value }; if(tempProfileImage) newData.photo = tempProfileImage; await updateDoc(doc(db, 'users', currentProfileUid), newData, {merge:true}); window.location.reload(); };
+    // =========================================================================
+    // EDIÇÃO DE PERFIL
+    // =========================================================================
+    if(els.btnEdit) els.btnEdit.onclick = () => { 
+        document.getElementById('input-realname').value = myOriginalData.realname; 
+        document.getElementById('input-username').value = myOriginalData.username; 
+        document.getElementById('input-bio').value = myOriginalData.bio || ""; 
+        document.getElementById('input-link').value = myOriginalData.link || ""; 
+        if(els.imgPreviewEdit) els.imgPreviewEdit.src = myOriginalData.photo; 
+        tempProfileImage = null; 
+        els.modalEdit.classList.add('open'); 
+    };
+
+    if(els.btnSaveEdit) els.btnSaveEdit.onclick = async () => { 
+        // Feedback de salvamento com Loader Global
+        if(window.GlobalLoader) window.GlobalLoader.show("Salvando Perfil...");
+        
+        try {
+            const newData = { 
+                realname: document.getElementById('input-realname').value, 
+                username: document.getElementById('input-username').value, 
+                bio: document.getElementById('input-bio').value, 
+                link: document.getElementById('input-link').value 
+            }; 
+            if(tempProfileImage) newData.photo = tempProfileImage; 
+            
+            await updateDoc(doc(db, 'users', currentProfileUid), newData, {merge:true}); 
+            window.location.reload(); 
+        } catch(e) {
+            console.error(e);
+            alert("Erro ao salvar.");
+            if(window.GlobalLoader) window.GlobalLoader.hide();
+        }
+    };
+
     if(els.btnCamera) els.btnCamera.onclick = () => { els.inputGlobalUpload.click(); };
-    if(els.inputGlobalUpload) els.inputGlobalUpload.onchange = async (e) => { if(e.target.files[0]) { const b64 = await compressImage(e.target.files[0], 800, 0.7); els.imgPreviewEdit.src = b64; tempProfileImage = b64; } };
+    if(els.inputGlobalUpload) els.inputGlobalUpload.onchange = async (e) => { 
+        if(e.target.files[0]) { 
+            const b64 = await compressImage(e.target.files[0], 800, 0.7); 
+            els.imgPreviewEdit.src = b64; 
+            tempProfileImage = b64; 
+        } 
+    };
+
     document.querySelectorAll('.btn-close').forEach(b => b.onclick = (e) => e.target.closest('.modal-overlay').classList.remove('open'));
 });
