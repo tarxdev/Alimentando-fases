@@ -4,18 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notificações - Alimentando Fases</title>
-    <link rel="canonical" href="https://alimentandofases.com/" />
     
     <link rel="icon" href="../Imagens/logofavicon.webp">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
-    <link rel="stylesheet" href="../style.css"> 
     <link rel="stylesheet" href="style.css">   
+
+    <style>
+        /* LOADER SYSTEM */
+        :root { --af-primary: #53954a; --af-secondary: #6e513d; }
+        #af-global-loader {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #f9efd4; z-index: 9999999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+        #af-global-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .af-spinner-box { position: relative; width: 80px; height: 80px; }
+        .af-ring { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 4px solid transparent; border-top-color: var(--af-primary); animation: af-spin 1s linear infinite; }
+        .af-ring-inner { position: absolute; top: 15px; left: 15px; width: 50px; height: 50px; border-radius: 50%; border: 4px solid transparent; border-bottom-color: var(--af-secondary); animation: af-spin-reverse 1.5s linear infinite; }
+        .af-icon-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--af-primary); font-size: 1.5rem; animation: af-pulse 2s infinite; }
+        .af-loader-text { margin-top: 20px; font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--af-secondary); letter-spacing: 1px; text-transform: uppercase; font-size: 0.9rem; }
+        @keyframes af-spin { 100% { transform: rotate(360deg); } }
+        @keyframes af-spin-reverse { 100% { transform: rotate(-360deg); } }
+        @keyframes af-pulse { 0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.9); } }
+    </style>
+
+    <script>
+        window.GlobalLoader = {
+            element: null,
+            init: function() { this.element = document.getElementById('af-global-loader'); },
+            show: function(msg) { if(!this.element) this.init(); if(this.element) { if(msg) document.getElementById('af-loader-msg').innerText = msg; this.element.classList.remove('hidden'); } },
+            hide: function() { if(!this.element) this.init(); if(this.element) { setTimeout(() => { this.element.classList.add('hidden'); }, 800); } }
+        };
+        // Trava de segurança
+        setTimeout(() => { if(window.GlobalLoader) window.GlobalLoader.hide(); }, 8000);
+    </script>
 </head>
 <body class="dashboard-body">
+
+    <div id="af-global-loader">
+        <div class="af-spinner-box">
+            <div class="af-ring"></div>
+            <div class="af-ring-inner"></div>
+            <i class="fa-regular fa-bell af-icon-center"></i>
+        </div>
+        <div class="af-loader-text" id="af-loader-msg">Carregando Notificações...</div>
+    </div>
 
     <div class="main-layout">
         <nav class="sidebar">
@@ -23,16 +62,11 @@
                 <img src="../Imagens/logofavicon.webp" alt="Logo" class="sidebar-logo-img">
                 <div class="brand-text">ALIMENTANDO <span>FASES</span></div>
             </div>
-            
             <ul class="nav-links">
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> <span>Início</span></a></li>
-                
                 <li><a href="../comunidade/index.html"><i class="fa-solid fa-earth-americas"></i> <span>Comunidade</span></a></li>
-                
                 <li><a href="javascript:void(0)" id="btn-open-tools" role="button"><i class="fa-solid fa-screwdriver-wrench"></i> <span>Ferramentas</span></a></li>
-                
-                <li><a href="#" class="active"><i class="fa-regular fa-bell"></i> <span>Notificações</span></a></li>
-                
+                <li><a href="javascript:void(0)" class="active"><i class="fa-regular fa-bell"></i> <span>Notificações</span></a></li>
                 <li>
                     <a href="../mensagens/index.html">
                         <div class="icon-container">
@@ -42,17 +76,14 @@
                         <span>Mensagens</span>
                     </a>
                 </li>
-                <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> <span>Calendário</span></a></li>
                 <li id="nav-item-admin" style="display: none;"><a href="../admin/index.html"><i class="fa-solid fa-lock"></i> <span>Painel Admin</span></a></li>
+                <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> <span>Calendário</span></a></li>
                 <li><a href="javascript:void(0)" id="btn-open-settings" role="button"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
             </ul>
-
             <div class="nav-footer">
                 <a href="../perfil/index.html" class="profile-pill-link">
                     <img src="https://ui-avatars.com/api/?name=User" class="nav-avatar" id="nav-avatar-img"> 
-                    <div class="profile-info-mini">
-                        <span class="p-name">Meu Perfil</span>
-                    </div>
+                    <div class="profile-info-mini"><span class="p-name">Meu Perfil</span></div>
                 </a>
             </div>
         </nav>
@@ -92,7 +123,7 @@
                     <p style="font-size:0.8rem; color:#888; text-align:center;">Interaja para aparecer aqui.</p>
                 </div>
             </div>
-            <div class="footer-links-mini"><p>© 2025 Alimentando Fases</p></div>
+            <div class="footer-links-mini"><p>© 2026 Alimentando Fases</p></div>
         </aside>
     </div>
 
@@ -142,13 +173,9 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="../firebase-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script type="module" src="../sistema-cargos/admin-guard.js"></script>
-    <script src="script.js"></script>
+    
+    <script type="module" src="script.js"></script>
 
 </body>
 </html>
