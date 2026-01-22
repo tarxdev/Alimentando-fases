@@ -16,8 +16,47 @@
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/chat.css">
     <link rel="stylesheet" href="css/call.css">
+
+    <style>
+        /* LOADER SYSTEM (PADRÃO) */
+        :root { --af-primary: #53954a; --af-secondary: #6e513d; }
+        #af-global-loader {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #f9efd4; z-index: 9999999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+        #af-global-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .af-spinner-box { position: relative; width: 80px; height: 80px; }
+        .af-ring { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 4px solid transparent; border-top-color: var(--af-primary); animation: af-spin 1s linear infinite; }
+        .af-ring-inner { position: absolute; top: 15px; left: 15px; width: 50px; height: 50px; border-radius: 50%; border: 4px solid transparent; border-bottom-color: var(--af-secondary); animation: af-spin-reverse 1.5s linear infinite; }
+        .af-icon-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--af-primary); font-size: 1.5rem; animation: af-pulse 2s infinite; }
+        .af-loader-text { margin-top: 20px; font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--af-secondary); letter-spacing: 1px; text-transform: uppercase; font-size: 0.9rem; }
+        @keyframes af-spin { 100% { transform: rotate(360deg); } }
+        @keyframes af-spin-reverse { 100% { transform: rotate(-360deg); } }
+        @keyframes af-pulse { 0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.9); } }
+    </style>
+
+    <script>
+        window.GlobalLoader = {
+            element: null,
+            init: function() { this.element = document.getElementById('af-global-loader'); },
+            show: function(msg) { if(!this.element) this.init(); if(this.element) { if(msg) document.getElementById('af-loader-msg').innerText = msg; this.element.classList.remove('hidden'); } },
+            hide: function() { if(!this.element) this.init(); if(this.element) { setTimeout(() => { this.element.classList.add('hidden'); }, 800); } }
+        };
+        setTimeout(() => { if(window.GlobalLoader) window.GlobalLoader.hide(); }, 8000);
+    </script>
 </head>
 <body class="dashboard-body chat-body-lock">
+
+    <div id="af-global-loader">
+        <div class="af-spinner-box">
+            <div class="af-ring"></div>
+            <div class="af-ring-inner"></div>
+            <i class="fa-solid fa-envelope af-icon-center"></i>
+        </div>
+        <div class="af-loader-text" id="af-loader-msg">Carregando Mensagens...</div>
+    </div>
 
     <div class="main-layout chat-layout">
         
@@ -133,46 +172,42 @@
         </section>
     </div>
 
-            <nav class="bottom-nav" aria-label="Menu inferior">
-                <a href="../index.html" class="bn-item">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Início</span>
-                </a>
-                <a href="../comunidade/index.html" class="bn-item">
-                    <i class="fa-solid fa-earth-americas"></i>
-                    <span>Comunidade</span>
-                </a>
-                <a href="../notificacoes/index.html" class="bn-item">
-                    <i class="fa-regular fa-bell"></i>
-                    <span>Notifs</span>
-                </a>
-                <a href="javascript:void(0)" class="bn-item active">
-                    <i class="fa-solid fa-envelope"></i>
-                    <span>Mensagens</span>
-                </a>
-                <a href="../perfil/index.html" class="bn-item">
-                    <i class="fa-solid fa-user"></i>
-                    <span>Perfil</span>
-                </a>
-            </nav>
+    <nav class="bottom-nav" aria-label="Menu inferior">
+        <a href="../index.html" class="bn-item">
+            <i class="fa-solid fa-house"></i>
+            <span>Início</span>
+        </a>
+        <a href="../comunidade/index.html" class="bn-item">
+            <i class="fa-solid fa-earth-americas"></i>
+            <span>Comunidade</span>
+        </a>
+        <a href="../notificacoes/index.html" class="bn-item">
+            <i class="fa-regular fa-bell"></i>
+            <span>Notifs</span>
+        </a>
+        <a href="javascript:void(0)" class="bn-item active">
+            <i class="fa-solid fa-envelope"></i>
+            <span>Mensagens</span>
+        </a>
+        <a href="../perfil/index.html" class="bn-item">
+            <i class="fa-solid fa-user"></i>
+            <span>Perfil</span>
+        </a>
+    </nav>
 
     <div id="modal-media-selector" class="modal-overlay">
         <div class="modal-content-media">
             <div class="modal-header-nc">
                 <button class="btn-close-nc"><i class="fa-solid fa-xmark"></i></button>
-                <h3>Selecionar GIF</h3>
-                <div style="width:30px;"></div>
+                <h3>Selecionar GIF</h3><div style="width:30px;"></div>
             </div>
-            
             <div class="modal-search-nc">
                 <i class="fa-solid fa-magnifying-glass" style="color:#999;"></i>
                 <input type="text" id="giphy-search-input" placeholder="Pesquise no Giphy...">
             </div>
-
             <div class="media-grid" id="media-grid-content">
                 <div class="loading-spinner">Carregando...</div>
             </div>
-            
             <div style="padding: 5px; text-align: center;">
                 <img src="https://developers.giphy.com/static/img/powered_by_giphy.png" alt="Powered by Giphy" style="height: 15px; opacity: 0.5;">
             </div>
@@ -203,11 +238,8 @@
     </div>
 
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script type="module" src="../sistema-cargos/admin-guard.js"></script>
+    
     <script type="module" src="js/main.js"></script>
 
 </body>
