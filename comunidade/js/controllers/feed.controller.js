@@ -2,7 +2,7 @@
 import { PostService } from '../services/post.service.js';
 import { InteractionService } from '../services/interaction.service.js';
 import { escapeHtml, getTimeAgo } from '../utils/formatters.js';
-import { auth, onAuthStateChanged, db, getDoc, doc } from '../config/firebase.proxy.js'; // +Imports
+import { auth, onAuthStateChanged, db, getDoc, doc } from '../config/firebase.proxy.js';
 
 export class FeedController {
     constructor() {
@@ -48,7 +48,7 @@ export class FeedController {
         const authorIds = new Set(posts.map(p => p.authorId));
         const photosMap = {};
 
-        // Busca fotos atualizadas em paralelo
+        // Busca fotos atualizadas em paralelo para consistência
         await Promise.all(Array.from(authorIds).map(async (uid) => {
             try {
                 const uDoc = await getDoc(doc(db, 'users', uid));
@@ -56,7 +56,6 @@ export class FeedController {
             } catch(e) {}
         }));
 
-        // Atualiza objetos do post
         posts.forEach(p => {
             if (photosMap[p.authorId]) p.authorPhoto = photosMap[p.authorId];
         });
@@ -73,6 +72,9 @@ export class FeedController {
         if (post.images && post.images.length > 0) mediaHtml = `<img src="${post.images[0]}" class="fp-image" data-action="comment" data-id="${post.id}">`;
         else if (post.image) mediaHtml = `<img src="${post.image}" class="fp-image" data-action="comment" data-id="${post.id}">`;
 
+        // Encoding seguro do conteúdo
+        const safeContent = encodeURIComponent(post.content || "");
+
         return `
             <article class="feed-post" id="post-${post.id}">
                 <div class="fp-header">
@@ -80,7 +82,7 @@ export class FeedController {
                         <img src="${post.authorPhoto || 'https://ui-avatars.com/api/?name=User'}" class="fp-avatar">
                         <div class="fp-info"><h4>${escapeHtml(post.authorName)}</h4><span>${getTimeAgo(post.timestamp)}</span></div>
                     </div>
-                    <button class="fp-options-btn" data-action="options" data-id="${post.id}" data-author="${post.authorId}" data-content="${encodeURIComponent(post.content || "")}"><i class="fa-solid fa-ellipsis"></i></button>
+                    <button class="fp-options-btn" data-action="options" data-id="${post.id}" data-author="${post.authorId}" data-content="${safeContent}"><i class="fa-solid fa-ellipsis"></i></button>
                 </div>
                 <div class="fp-content" id="content-${post.id}">${escapeHtml(post.content)}</div>
                 ${mediaHtml}
@@ -95,13 +97,10 @@ export class FeedController {
             </article>`;
     }
 
-    // ... (Métodos de interação handleLike, handleOptions mantêm-se iguais) ...
-    // Estou omitindo para brevidade, pois não mudam a lógica principal, 
-    // mas se precisar, copie do arquivo original enviado anteriormente.
-    
     async handleInteractions(e) {
         const target = e.target.closest('[data-action]');
         if (!target) return;
+        
         const action = target.dataset.action;
         const postId = target.dataset.id;
 
@@ -115,52 +114,172 @@ export class FeedController {
     }
 
     async handleLike(postId, btn) {
-        if (!this.currentUser) return alert("Faça login.");
+        if (!this.currentUser) return Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Faça login para curtir', showConfirmButton: false, timer: 1500 });
+        
         btn.classList.toggle('liked');
         const icon = btn.querySelector('i');
-        icon.className = btn.classList.contains('liked') ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+        const countSpan = btn.querySelector('.like-count');
+        let currentCount = parseInt(countSpan.innerText) || 0;
+
+        if (btn.classList.contains('liked')) {
+            icon.className = 'fa-solid fa-heart';
+            currentCount++;
+        } else {
+            icon.className = 'fa-regular fa-heart';
+            currentCount = Math.max(0, currentCount - 1);
+        }
+        
+        countSpan.innerText = currentCount;
         
         const isLiking = btn.classList.contains('liked');
-        await this.postService.toggleLike(postId, this.currentUser.uid, isLiking);
+        try {
+            await this.postService.toggleLike(postId, this.currentUser.uid, isLiking);
+        } catch (error) {
+            console.error("Erro ao curtir:", error);
+            btn.classList.toggle('liked'); 
+            countSpan.innerText = isLiking ? currentCount - 1 : currentCount + 1;
+        }
     }
 
+    /**
+     * MENU DE OPÇÕES (Action Sheet)
+     * Captura nome/foto do DOM para passar ao editor
+     */
     handleOptions(postId, authorId, currentContent) {
         const isOwner = (this.currentUser && this.currentUser.uid === authorId);
-        let html = `<div class="custom-options-list">`;
         
-        if (isOwner) {
-            html += `<button id="opt-edit" class="option-btn">Editar</button>`;
-            html += `<button id="opt-delete" class="option-btn danger">Excluir</button>`;
-        } else {
-            html += `<button class="option-btn" onclick="Swal.close()">Denunciar</button>`;
+        // Tenta capturar dados visuais do autor para o modal de edição
+        const postElement = document.getElementById(`post-${postId}`);
+        let authorPhoto = 'https://ui-avatars.com/api/?name=User';
+        let authorName = 'Usuário';
+
+        if (postElement) {
+            const imgTag = postElement.querySelector('.fp-avatar');
+            const nameTag = postElement.querySelector('.fp-info h4');
+            if (imgTag) authorPhoto = imgTag.src;
+            if (nameTag) authorName = nameTag.innerText;
         }
-        html += `<button id="opt-cancel" class="option-btn cancel">Cancelar</button></div>`;
-        
-        Swal.fire({ html, showConfirmButton: false, padding: 0, width: 300 });
-        
+
+        let html = `<div class="af-options-menu">`;
+        if (isOwner) {
+            html += `
+                <button id="opt-edit" class="af-option-item">
+                    <i class="fa-regular fa-pen-to-square"></i> Editar
+                </button>
+                <button id="opt-delete" class="af-option-item danger">
+                    <i class="fa-regular fa-trash-can"></i> Excluir
+                </button>
+            `;
+        } else {
+            html += `
+                <button id="opt-report" class="af-option-item danger">
+                    <i class="fa-regular fa-flag"></i> Denunciar
+                </button>
+                <button id="opt-copy" class="af-option-item">
+                    <i class="fa-solid fa-link"></i> Copiar Link
+                </button>
+            `;
+        }
+        html += `<button id="opt-cancel" class="af-option-item cancel">Cancelar</button></div>`;
+
+        Swal.fire({
+            html: html,
+            showConfirmButton: false, showCloseButton: false,
+            width: 300, padding: 0,
+            customClass: { popup: 'af-options-modal' },
+            backdrop: `rgba(0,0,0,0.6)`
+        });
+
         setTimeout(() => {
-            const edit = document.getElementById('opt-edit');
-            const del = document.getElementById('opt-delete');
-            const cancel = document.getElementById('opt-cancel');
+            const get = (id) => document.getElementById(id);
+            if (get('opt-cancel')) get('opt-cancel').onclick = () => Swal.close();
+            if (get('opt-delete')) get('opt-delete').onclick = () => { Swal.close(); this.confirmDelete(postId); };
             
-            if(cancel) cancel.onclick = () => Swal.close();
-            if(edit) edit.onclick = () => { Swal.close(); this.openEditModal(postId, currentContent); };
-            if(del) del.onclick = () => { Swal.close(); this.confirmDelete(postId); };
+            // Passa os dados capturados para o editor
+            if (get('opt-edit')) get('opt-edit').onclick = () => { 
+                Swal.close(); 
+                this.openEditModal(postId, currentContent, authorName, authorPhoto); 
+            };
+
+            if (get('opt-report')) get('opt-report').onclick = () => { Swal.close(); Swal.fire({ icon: 'success', title: 'Denúncia enviada', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false }); };
+            if (get('opt-copy')) get('opt-copy').onclick = () => { 
+                Swal.close(); 
+                if (navigator.clipboard) navigator.clipboard.writeText(window.location.href);
+                Swal.fire({ icon: 'success', title: 'Link copiado!', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
+            };
         }, 50);
     }
 
-    openEditModal(postId, content) {
+    /**
+     * EDITOR ESTILO INSTAGRAM
+     */
+    openEditModal(postId, content, authorName, authorPhoto) {
+        const customHtml = `
+            <div class="insta-content-body">
+                <div class="insta-user-header">
+                    <img src="${authorPhoto}" class="i-avatar-small" alt="Foto">
+                    <span class="i-username">${authorName}</span>
+                </div>
+                <textarea id="swal-edit-content" class="insta-textarea-seamless" placeholder="Escreva sua legenda...">${content}</textarea>
+            </div>
+        `;
+
         Swal.fire({
-            title: 'Editar Post', input: 'textarea', inputValue: content,
-            showCancelButton: true, confirmButtonText: 'Salvar'
-        }).then(async res => {
-            if(res.isConfirmed) await this.postService.updatePost(postId, res.value);
+            title: 'Editar informações',
+            html: customHtml,
+            showCancelButton: true,
+            confirmButtonText: 'Concluir',
+            cancelButtonText: 'Cancelar',
+            customClass: { popup: 'insta-edit-modal' },
+            width: 400,
+            didOpen: () => {
+                const textarea = Swal.getPopup().querySelector('#swal-edit-content');
+                if (textarea) {
+                    textarea.focus();
+                    const val = textarea.value;
+                    textarea.value = '';
+                    textarea.value = val;
+                    // Auto-resize
+                    textarea.style.height = 'auto';
+                    textarea.style.height = (textarea.scrollHeight) + 'px';
+                    textarea.addEventListener('input', function() {
+                        this.style.height = 'auto';
+                        this.style.height = (this.scrollHeight) + 'px';
+                    });
+                }
+            },
+            preConfirm: () => {
+                const newContent = Swal.getPopup().querySelector('#swal-edit-content').value;
+                if (!newContent.trim()) {
+                    Swal.showValidationMessage('A legenda não pode ficar vazia.');
+                    return false;
+                }
+                return newContent;
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed && result.value !== content) {
+                try {
+                    Swal.fire({ title: 'Salvando...', didOpen: () => Swal.showLoading(), background: 'transparent', backdrop: 'rgba(0,0,0,0.3)', showConfirmButton: false, allowOutsideClick: false });
+                    await this.postService.updatePost(postId, result.value);
+                    Swal.fire({ icon: 'success', title: 'Salvo!', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire('Erro', 'Não foi possível salvar.', 'error');
+                }
+            }
         });
     }
 
     confirmDelete(postId) {
-        Swal.fire({ title: 'Tem certeza?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sim, excluir' }).then(async res => {
-            if(res.isConfirmed) await this.postService.deletePost(postId);
+        Swal.fire({ 
+            title: 'Excluir publicação?', text: "Essa ação não pode ser desfeita.", icon: 'warning', 
+            showCancelButton: true, confirmButtonText: 'Sim, excluir', cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#d33', reverseButtons: true
+        }).then(async res => {
+            if(res.isConfirmed) {
+                await this.postService.deletePost(postId);
+                Swal.fire({ icon: 'success', title: 'Post excluído.', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false });
+            }
         });
     }
 }
