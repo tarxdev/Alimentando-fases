@@ -4,21 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Criar Conta - Alimentando Fases</title>
-    <link rel="canonical" href="https://alimentandofases.com/" />
-    
     <link rel="icon" href="../Imagens/logofavicon.webp">
-    <link rel="apple-touch-icon" href="../Imagens/logofavicon.webp">
-
+    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="login-container">
-        
         <div class="login-image-side">
-            <img src="../Imagens/loginsscreen.webp" alt="Pessoas em diversas fases da vida" class="cover-image">
+            <img src="../Imagens/loginsscreen.webp" alt="Ambiente Saudável" class="cover-image">
             <div class="image-overlay"></div>
         </div>
 
@@ -31,100 +28,160 @@
                         <span class="brand-name">Alimentando Fases</span>
                     </div>
                     
-                    <h2 class="welcome-title" id="page-title">Crie sua conta</h2>
-                    <p class="welcome-subtitle" id="page-subtitle">Passo 1 de 2: Identificação</p>
+                    <h2 class="welcome-title" id="page-title">Boas-vindas!</h2>
+                    <p class="welcome-subtitle" id="page-subtitle">Vamos personalizar sua experiência:</p>
                 </div>
 
                 <form action="#" class="main-form" id="registerForm">
                     
-                    <div class="form-step active" id="step-1">
-                        <div class="input-group">
-                            <div class="input-wrapper">
-                                <i class="fa-regular fa-user input-icon"></i>
-                                <input type="text" id="username" placeholder="Nome Completo" required>
-                            </div>
-                        </div>
+                    <div class="form-step active" id="step-0">
+                        <div class="account-type-grid">
+                            <label class="type-card" data-role="user">
+                                <input type="radio" name="accountType" value="user" hidden>
+                                <div class="card-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                                <div class="card-info"><span class="card-title">Pessoal</span><span class="card-desc">Foco na minha saúde.</span></div>
+                                <div class="check-circle"><i class="fa-solid fa-check"></i></div>
+                            </label>
 
-                        <div class="input-group">
-                            <div class="input-wrapper">
-                                <i class="fa-regular fa-envelope input-icon"></i>
-                                <input type="email" id="email" placeholder="Seu melhor e-mail" required>
-                            </div>
-                        </div>
+                            <label class="type-card" data-role="student">
+                                <input type="radio" name="accountType" value="student" hidden>
+                                <div class="card-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                                <div class="card-info"><span class="card-title">Estudante</span><span class="card-desc">Acadêmico da área.</span></div>
+                                <div class="check-circle"><i class="fa-solid fa-check"></i></div>
+                            </label>
 
-                        <button type="button" class="btn-primary" id="btn-next-1">Continuar <i class="fa-solid fa-arrow-right"></i></button>
-                        
-                        <div class="signup-footer">
-                            Já tem uma conta? <a href="../login/index.html">Entrar</a>
+                            <label class="type-card" data-role="professional">
+                                <input type="radio" name="accountType" value="professional" hidden>
+                                <div class="card-icon"><i class="fa-solid fa-user-doctor"></i></div>
+                                <div class="card-info"><span class="card-title">Profissional</span><span class="card-desc">Atuação clínica/técnica.</span></div>
+                                <div class="check-circle"><i class="fa-solid fa-check"></i></div>
+                            </label>
                         </div>
+                        <button type="button" class="btn-primary" id="btn-next-0">Continuar <i class="fa-solid fa-arrow-right"></i></button>
+                        <div class="signup-footer">Já possui cadastro? <a href="../login/index.html">Entrar</a></div>
                     </div>
 
-                    <div class="form-step" id="step-3">
+                    <div class="form-step" id="step-pro-selection">
+                        <div class="alert-box"><i class="fa-solid fa-stethoscope"></i><p>Qual a sua especialidade?</p></div>
                         
-                        <div class="input-group">
-                            <div class="input-wrapper password-type">
-                                <i class="fa-solid fa-lock input-icon"></i>
-                                <input type="password" id="reg-password" placeholder="Crie uma senha forte" required>
-                                <i class="fa-regular fa-eye-slash toggle-password" data-target="reg-password"></i>
-                            </div>
-                        </div>
+                        <div class="account-type-grid" id="grid-specialties">
+                            <label class="type-card pro-card" data-pro="nutricionista">
+                                <div class="card-icon"><i class="fa-solid fa-apple-whole"></i></div>
+                                <div class="card-info"><span class="card-title">Nutricionista</span></div>
+                                <div class="check-circle"><i class="fa-solid fa-check"></i></div>
+                            </label>
 
-                        <div class="input-group">
-                            <div class="input-wrapper password-type">
-                                <i class="fa-solid fa-lock input-icon"></i>
-                                <input type="password" id="confirm-password" placeholder="Confirme a senha" required>
-                            </div>
-                        </div>
+                            <label class="type-card pro-card" data-pro="personal">
+                                <div class="card-icon"><i class="fa-solid fa-dumbbell"></i></div>
+                                <div class="card-info"><span class="card-title">Personal Trainer</span></div>
+                                <div class="check-circle"><i class="fa-solid fa-check"></i></div>
+                            </label>
 
-                        <div class="password-strength-meter">
-                            <div class="strength-bar">
-                                <div class="strength-fill" id="strength-fill"></div>
-                            </div>
-                            <span class="strength-text" id="strength-text">Digite sua senha</span>
-                        </div>
+                            <label class="type-card pro-card" data-pro="medico">
+                                <div class="card-icon"><i class="fa-solid fa-user-doctor"></i></div>
+                                <div class="card-info"><span class="card-title">Médico(a)</span></div>
+                                <div class="check-circle"><i class="fa-solid fa-check"></i></div>
+                            </label>
 
-                        <ul class="password-requirements">
-                            <li id="req-length" class="requirement">
-                                <i class="fa-regular fa-circle"></i> Mínimo 8 caracteres
-                            </li>
-                            <li id="req-number" class="requirement">
-                                <i class="fa-regular fa-circle"></i> Pelo menos 1 número
-                            </li>
-                            <li id="req-special" class="requirement">
-                                <i class="fa-regular fa-circle"></i> 1 caractere especial (!@#$...)
-                            </li>
-                        </ul>
-
-                        <div class="form-options">
-                            <label class="remember-me">
-                                <input type="checkbox" required>
-                                <span class="text" style="font-size: 0.8rem;">Li e concordo com os Termos.</span>
+                            <label class="type-card pro-card" data-pro="psicologo">
+                                <div class="card-icon"><i class="fa-solid fa-brain"></i></div>
+                                <div class="card-info"><span class="card-title">Psicólogo(a)</span></div>
+                                <div class="check-circle"><i class="fa-solid fa-check"></i></div>
                             </label>
                         </div>
 
-                        <button type="submit" class="btn-primary">Finalizar Cadastro</button>
+                        <button type="button" class="btn-primary" id="btn-next-pro-select">Continuar <i class="fa-solid fa-arrow-right"></i></button>
+                        <a href="#" class="back-step-link" id="back-to-0-from-pro">Voltar</a>
+                    </div>
+
+                    <div class="form-step" id="step-1">
+                        <div class="social-login-container">
+                            <button type="button" class="btn-social google" id="btn-google-reg">
+                                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G"> Google
+                            </button>
+                            <button type="button" class="btn-social facebook" id="btn-facebook-reg">
+                                <i class="fa-brands fa-facebook-f"></i> Facebook
+                            </button>
+                        </div>
+                        <div class="separator"><span>ou e-mail</span></div>
+
+                        <div class="input-group"><div class="input-wrapper"><i class="fa-regular fa-envelope input-icon"></i><input type="email" id="email" placeholder="Seu e-mail principal" required></div></div>
+                        <div class="input-group"><div class="input-wrapper"><i class="fa-solid fa-lock input-icon"></i><input type="password" id="reg-password" placeholder="Crie uma senha" required><i class="fa-regular fa-eye-slash toggle-password" data-target="reg-password"></i></div></div>
+                        <div class="input-group"><div class="input-wrapper"><i class="fa-solid fa-lock input-icon"></i><input type="password" id="confirm-password" placeholder="Confirme a senha" required></div></div>
                         
+                        <div class="password-strength-meter"><div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div></div>
+
+                        <button type="button" class="btn-primary" id="btn-next-1">Próximo</button>
+                        <a href="#" class="back-step-link" id="back-to-prev-1">Voltar</a>
+                    </div>
+
+                    <div class="form-step" id="step-2">
+                        <div class="input-group">
+                            <div class="input-wrapper"><i class="fa-regular fa-user input-icon"></i><input type="text" id="fullname" placeholder="Nome Completo" required></div>
+                        </div>
+                        
+                        <div class="split-inputs">
+                            <div class="input-group">
+                                <div class="input-wrapper"><i class="fa-regular fa-calendar input-icon"></i><input type="tel" id="birthdate" placeholder="DD/MM/AAAA" maxlength="10" required></div>
+                            </div>
+                            <div class="input-group"><div class="input-wrapper"><i class="fa-brands fa-whatsapp input-icon"></i><input type="tel" id="phone" placeholder="Celular / WhatsApp" maxlength="15" required></div></div>
+                        </div>
+
+                        <button type="button" class="btn-primary" id="btn-next-2">Próximo</button>
                         <a href="#" class="back-step-link" id="back-to-1">Voltar</a>
                     </div>
 
+                    <div class="form-step" id="step-3">
+                        <div class="alert-box" id="dynamic-alert-box">
+                            <i class="fa-solid fa-certificate" id="dynamic-icon"></i>
+                            <p id="dynamic-msg">Valide seu registro.</p>
+                        </div>
+
+                        <div class="split-inputs">
+                            <div class="input-group"><div class="input-wrapper"><i class="fa-solid fa-id-card input-icon"></i><input type="text" id="pro-register" placeholder="Registro Profissional"></div></div>
+                            <div class="input-group" style="flex: 0.6;"><div class="input-wrapper">
+                                <select id="pro-uf" class="custom-select">
+                                    <option value="" disabled selected>UF</option>
+                                    <option value="PE">PE</option><option value="SP">SP</option><option value="RJ">RJ</option><option value="MG">MG</option><option value="BA">BA</option><option value="RS">RS</option>
+                                </select>
+                            </div></div>
+                        </div>
+
+                        <button type="button" class="btn-primary" id="btn-next-3">Próximo</button>
+                        <a href="#" class="back-step-link" id="back-to-2">Voltar</a>
+                    </div>
+
+                    <div class="form-step" id="step-4">
+                        <div class="alert-box"><i class="fa-solid fa-store"></i><p>Como seus clientes te encontrarão?</p></div>
+
+                        <div class="input-group"><div class="input-wrapper"><i class="fa-solid fa-tag input-icon"></i><input type="text" id="display-name" placeholder="Nome de Exibição"></div></div>
+                        <div class="input-group"><div class="input-wrapper"><span class="input-icon" style="font-weight:800">@</span><input type="text" id="username-handle" placeholder="usuario_profissional"></div></div>
+
+                        <div class="form-options"><label class="remember-me"><input type="checkbox" id="terms-check"><span>Li e concordo com os Termos.</span></label></div>
+
+                        <button type="submit" class="btn-primary" id="btn-finish-pro">Criar Conta</button>
+                        <a href="#" class="back-step-link" id="back-to-3">Voltar</a>
+                    </div>
+
                 </form>
-
+                
                 <div class="footer-links" id="legal-footer">
-                    <p>
-                        Ao se cadastrar, você concorda com nossos 
-                        <a href="../termos/index.html#termos">Termos de Uso</a> e nossa 
-                        <a href="../termos/index.html#privacidade">Política de Privacidade</a>.
-                    </p>
+                    <p>Ao continuar, você concorda com nossos <a href="#">Termos de Uso</a>.</p>
                 </div>
-
             </div>
         </div>
-
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="../firebase-config.js"></script>
-    <script src="script.js"></script>
+    <div class="luxury-overlay" id="luxury-modal">
+        <div class="luxury-card">
+            <div class="luxury-icon-pulse" id="lux-icon-container"><i class="fa-solid fa-check" id="lux-icon"></i></div>
+            <div class="luxury-text"><h3 id="lux-title">Título</h3><p id="lux-msg">Mensagem</p></div>
+            <div class="luxury-actions"><button class="btn-lux-confirm" id="btn-lux-close">Entendi</button></div>
+        </div>
+    </div>
+
+    <button id="btn-dev-fill" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: #222; color: #fff; border: 1px solid #555; padding: 10px 20px; border-radius: 50px; font-weight: bold; cursor: pointer;">⚡ Dev Fill</button>
+
+    <script type="module" src="script.js"></script>
 </body>
 </html>
