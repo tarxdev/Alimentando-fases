@@ -249,10 +249,74 @@
         </div>
     </div>
     
-    <div id="modal-new-post" class="modal-overlay"><div class="modal-content-post"><div class="modal-header-post"><button id="btn-close-modal" class="btn-icon-close-round"><i class="fa-solid fa-xmark"></i></button><h3>Criar publicação</h3><div style="width:32px;"></div></div><div class="modal-body-post"><div class="cp-user-row"><img src="" id="modal-user-avatar" class="cp-avatar"><div class="cp-user-info"><span class="cp-username">Você</span></div></div><textarea id="modal-post-input" placeholder="Escreva uma legenda..."></textarea><div id="modal-image-preview-area" class="preview-grid hidden"></div></div><div class="modal-footer-post"><div class="cp-tools"><label for="modal-file-upload" class="tool-btn"><i class="fa-regular fa-image"></i></label><input type="file" id="modal-file-upload" accept="image/*" hidden></div><button id="btn-submit-post" class="btn-publish" disabled>Publicar</button></div></div></div>
+    <div id="modal-create-luxury" class="luxury-modal-overlay">
+        <div class="luxury-glow-effect"></div>
+        
+        <div class="luxury-modal-card luxury-create-card">
+            <div class="luxury-create-header">
+                <h3 class="luxury-gradient-text">Criar Experiência</h3>
+                <button class="luxury-close-btn" id="btn-close-create-luxury">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="luxury-create-body">
+                <div class="luxury-user-row">
+                    <div class="luxury-avatar-frame">
+                        <img src="https://ui-avatars.com/api/?name=User" id="modal-user-avatar" class="luxury-user-avatar">
+                    </div>
+                    <div class="luxury-user-info">
+                        <span class="luxury-username">Você</span>
+                        <button class="luxury-privacy-pill">
+                            <i class="fa-solid fa-earth-americas"></i> Público
+                        </button>
+                    </div>
+                </div>
+
+                <textarea id="luxury-post-input" class="luxury-textarea" placeholder="Compartilhe sua jornada..."></textarea>
+                
+                <div id="luxury-preview-area" class="luxury-preview-grid hidden"></div>
+            </div>
+
+            <div class="luxury-create-footer">
+                <div class="luxury-tools-wrapper">
+                    <button class="luxury-tool-btn" onclick="document.getElementById('luxury-file-upload').click()" title="Adicionar Foto">
+                        <i class="fa-regular fa-image"></i>
+                    </button>
+                    <div class="luxury-divider-vertical"></div>
+                    <button class="luxury-tool-btn" disabled style="opacity: 0.5;">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </button>
+                    <button class="luxury-tool-btn" disabled style="opacity: 0.5;">
+                        <i class="fa-regular fa-face-smile"></i>
+                    </button>
+                    <input type="file" id="luxury-file-upload" accept="image/*" hidden>
+                </div>
+                
+                <button id="btn-submit-luxury" class="luxury-btn-publish" disabled>
+                    Publicar <i class="fa-solid fa-paper-plane" style="font-size: 0.8em; margin-left: 4px;"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-image-editor" class="modal-overlay" style="z-index: 20001;"><div class="editor-container"><div class="editor-header"><h3>Editar</h3><button id="btn-close-editor" class="btn-icon-close" style="color:white;"><i class="fa-solid fa-xmark"></i></button></div><div class="editor-preview-area"><canvas id="editor-canvas"></canvas></div><div class="editor-controls"><div class="filters-row"><button class="filter-btn active" data-preset="normal">Normal</button><button class="filter-btn" data-preset="grayscale">P&B</button><button class="filter-btn" data-preset="sepia">Sépia</button></div><div class="sliders-column"><div class="slider-group"><label>Brilho</label><input type="range" id="edit-brightness" min="0" max="200" value="100"></div><div class="slider-group"><label>Contraste</label><input type="range" id="edit-contrast" min="0" max="200" value="100"></div></div><div class="editor-footer"><button id="btn-cancel-edit-img" class="btn-cancel-edit" style="color:white; border-color:#555;">Cancelar</button><button id="btn-save-edit-img" class="btn-save-edit">Salvar</button></div></div></div></div>
     <div id="modal-usda" class="modal-overlay"><div class="modal-content-usda"><div class="usda-header"><div class="usda-brand"><i class="fa-solid fa-leaf" style="color: #53954a;"></i><div><h3>USDA FoodData Central</h3><span>Base de dados oficial</span></div></div><button id="btn-close-usda" class="btn-icon-close"><i class="fa-solid fa-xmark"></i></button></div><div class="usda-body"><div class="usda-search-box"><input type="text" id="usda-search-input" placeholder="Pesquise um alimento..."><button id="btn-usda-search"><i class="fa-solid fa-magnifying-glass"></i></button></div><div id="usda-loader" class="usda-loader hidden"><div class="spinner"></div><p>Consultando...</p></div><div id="usda-results-list" class="usda-list"></div></div></div></div>
     <div id="modal-tools" class="modal-overlay"><div class="modal-content-tools"><div class="modal-header-tools"><h3><i class="fa-solid fa-screwdriver-wrench"></i> Ferramentas</h3><button id="btn-close-tools" class="btn-icon-close"><i class="fa-solid fa-xmark"></i></button></div><div class="tools-grid"><div class="tool-card"><div class="tool-icon water-icon"><i class="fa-solid fa-droplet"></i></div><h4>Água</h4><div class="tool-input-area"><input type="number" id="user-weight-water" placeholder="Peso (kg)"><div id="calc-result-area" class="tool-result hidden"><strong id="water-result-text">0 L</strong></div></div></div><div class="tool-card"><div class="tool-icon imc-icon"><i class="fa-solid fa-weight-scale"></i></div><h4>IMC</h4><div class="tool-input-area"><div class="input-row"><input type="number" id="imc-height" placeholder="Alt" class="mini-input"><input type="number" id="imc-weight" placeholder="Peso" class="mini-input"></div><button class="btn-tool-action" id="btn-calc-imc">Calcular</button><div id="imc-result-area" class="tool-result hidden"><span>IMC: </span><strong id="imc-value">0.0</strong><div id="imc-status-badge" class="status-badge-mini"></div></div></div></div></div></div></div>
+
+    <div id="modal-delete-luxury" class="luxury-modal-overlay">
+        <div class="luxury-modal-card">
+            <div class="luxury-modal-icon-wrapper delete-accent">
+                <i class="fa-solid fa-trash-can luxury-icon-pulse"></i>
+            </div>
+            <h3 class="luxury-modal-title">Excluir Publicação?</h3>
+            <p class="luxury-modal-text">Essa ação é irreversível. O conteúdo será removido permanentemente da comunidade.</p>
+            <div class="luxury-modal-actions">
+                <button class="luxury-btn-cancel" onclick="window.closeDeleteModal()">Cancelar</button>
+                <button class="luxury-btn-confirm delete-accent-btn" id="confirmDeleteLuxuryBtn">Sim, Excluir</button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="../sistema-cargos/admin-guard.js"></script>
@@ -260,8 +324,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // O loader é controlado pelo GlobalLoader. Oculte-o quando seus dados reais chegarem.
-            // Aqui simulamos um tempo de resposta de API.
             setTimeout(() => {
                 if(window.GlobalLoader) window.GlobalLoader.hide();
             }, 1000);
