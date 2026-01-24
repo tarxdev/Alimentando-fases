@@ -7,9 +7,93 @@ import { UsdaController } from './controllers/usda.controller.js';
 import { Calculators } from './utils/calculators.js';
 import { InteractionService } from './services/interaction.service.js';
 import { IdentityService } from './services/identity.service.js';
-import { auth, db, doc, updateDoc } from './config/firebase.proxy.js'; // Importações críticas adicionadas
+import { auth, db, doc, updateDoc } from './config/firebase.proxy.js'; 
+
+// =================================================================
+// 🗑️ SISTEMA DE MODAL LUXURY (Global)
+// =================================================================
+let postToDeleteId = null;
+
+// Abre o modal com animação
+window.openDeleteModal = (postId) => {
+    postToDeleteId = postId;
+    const modal = document.getElementById('modal-delete-luxury');
+    const card = modal.querySelector('.luxury-modal-card');
+    
+    modal.style.display = 'flex';
+    // Delay para permitir reflow e transição CSS
+    setTimeout(() => {
+        modal.classList.add('active');
+        card.classList.add('active');
+    }, 10);
+};
+
+// Fecha o modal com animação reversa
+window.closeDeleteModal = () => {
+    const modal = document.getElementById('modal-delete-luxury');
+    const card = modal.querySelector('.luxury-modal-card');
+    
+    modal.classList.remove('active');
+    card.classList.remove('active');
+    
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300); // Sincronizado com CSS transition
+};
+
+// Compatibilidade Legacy (se existir algum código chamando confirmDelete antigo)
+window.confirmDelete = window.openDeleteModal;
 
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // Listener do Botão de Confirmação (Luxury)
+    const btnConfirm = document.getElementById('confirmDeleteLuxuryBtn');
+    if (btnConfirm) {
+        btnConfirm.addEventListener('click', async function() {
+            if (!postToDeleteId) return;
+            
+            // Estado de Loading no Botão
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Excluindo...';
+            this.disabled = true;
+
+            try {
+                // Tenta encontrar a função de exclusão nos controladores ou escopo global
+                // NOTA: Como deletePost pode não estar global, disparamos um evento customizado
+                // que o FeedController ou PostController deve ouvir.
+                if (typeof window.deletePost === 'function') {
+                    await window.deletePost(postToDeleteId);
+                } else {
+                    // Fallback: Dispara evento para quem estiver ouvindo
+                    console.log("[Modal] Disparando evento 'request-delete-post' para ID:", postToDeleteId);
+                    document.dispatchEvent(new CustomEvent('request-delete-post', { detail: { postId: postToDeleteId } }));
+                    
+                    // Pequeno delay artificial se for evento, para UX
+                    await new Promise(r => setTimeout(r, 500)); 
+                }
+                
+                window.closeDeleteModal();
+            } catch (error) {
+                console.error("Erro ao excluir:", error);
+                alert("Não foi possível excluir. Tente novamente.");
+            } finally {
+                // Restaura botão
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                }, 300);
+            }
+        });
+    }
+
+    // Fechar ao clicar fora
+    const modalLuxury = document.getElementById('modal-delete-luxury');
+    if (modalLuxury) {
+        modalLuxury.addEventListener('click', (e) => {
+            if (e.target === modalLuxury) window.closeDeleteModal();
+        });
+    }
+
     try {
         console.log("[System] Booting Application Core (V9 Stable)...");
 
@@ -25,16 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Event Bus
         document.addEventListener('post-created', () => { if (feed) feed.loadFeed(); });
+        
+        // Ouve o evento do modal para atualizar feed após exclusão (se necessário)
+        document.addEventListener('post-deleted', () => { if (feed) feed.loadFeed(); });
 
         // =================================================================
         // 🛠️ KIT DE FERRAMENTAS DE EMERGÊNCIA (CONSOLE)
         // =================================================================
 
-        /**
-         * FERRAMENTA 1: Reparar Perfil Completo
-         * Uso: window.recoverProfile('URL_DA_SUA_FOTO')
-         * Ação: Salva a foto no banco E atualiza todos os comentários antigos.
-         */
         window.recoverProfile = async (photoUrl) => {
             const user = auth.currentUser;
             if (!user) return alert("Erro: Aguarde o login ou recarregue a página.");
@@ -43,16 +125,14 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`[Recovery] Iniciando recuperação total para: ${user.displayName}...`);
             
             try {
-                // Passo 1: Consertar o "Agora" (Perfil do Usuário)
                 const userRef = doc(db, 'users', user.uid);
                 await updateDoc(userRef, { 
                     photo: photoUrl,
-                    avatar: photoUrl, // Redundância para garantir compatibilidade
+                    avatar: photoUrl,
                     updatedAt: new Date()
                 });
                 console.log("✅ Passo 1/2: Perfil atual salvo no banco.");
 
-                // Passo 2: Consertar o "Passado" (Histórico de Comentários)
                 const service = new IdentityService();
                 const count = await service.propagateImage(user.uid, photoUrl);
                 console.log(`✅ Passo 2/2: Histórico propagado para ${count} itens.`);
@@ -66,10 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        /**
-         * FERRAMENTA 2: Consertar Contadores de Comentários
-         * Uso: window.fixPostCount('ID_DO_POST')
-         */
         window.fixPostCount = async (postId) => {
             if (!postId) return console.warn("ID do post obrigatório.");
             const service = new InteractionService();
@@ -80,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (e) { console.error(e); }
         };
 
-        console.log("[System] Ferramentas de Admin carregadas. Digite 'window.recoverProfile(url)' para corrigir sua foto.");
+        console.log("[System] Ferramentas de Admin carregadas.");
 
     } catch (error) {
         console.error("[CRITICAL] Falha no boot:", error);
