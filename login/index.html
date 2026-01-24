@@ -61,12 +61,24 @@
                         <a href="#" class="forgot-link" id="forgot-btn">Esqueceu a senha?</a>
                     </div>
 
-                    <button type="submit" class="btn-primary" id="btnSubmit">Entrar</button>
-
-                    <button type="button" class="btn-google" id="google-login-btn">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google G">
-                        Entrar com Google
+                    <button type="submit" class="btn-primary" id="btnSubmit">
+                        <span class="btn-text">Entrar</span>
+                        <i class="fa-solid fa-spinner fa-spin btn-loader hidden"></i>
                     </button>
+
+                    <div class="separator">
+                        <span>ou entre com</span>
+                    </div>
+
+                    <div class="social-login-container">
+                        <button type="button" class="btn-social google" id="btn-google">
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
+                            Google
+                        </button>
+                        <button type="button" class="btn-social facebook" id="btn-facebook">
+                            <i class="fa-brands fa-facebook-f"></i> Facebook
+                        </button>
+                    </div>
 
                 </form>
 
@@ -75,21 +87,13 @@
                 </div>
 
                 <div class="footer-links">
-                    <p>
-                        Ao continuar, você concorda com nossos 
-                        <a href="../termos/index.html#termos">Termos de Uso</a> e nossa 
-                        <a href="../termos/index.html#privacidade">Política de Privacidade</a>.
-                    </p>
+                    <p>Ao continuar, você concorda com nossos <a href="../termos/index.html#termos">Termos</a> e <a href="../termos/index.html#privacidade">Política</a>.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script type="module" src="./js/index.js"></script>
 
 </body>
