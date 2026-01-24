@@ -1,188 +1,292 @@
+import { auth, db } from '../firebase-config.js'; 
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- CONFIGURAÇÃO DE TEMAS ---
+    const CONFIG_PRO = {
+        'nutricionista': {
+            label: 'Número do CRN',
+            placeholder: 'Ex: 12345',
+            msg: 'Para prescrever dietas, precisamos validar seu CRN.',
+            icon: 'fa-apple-whole',
+            themeColor: '#53954a', // Verde
+            welcomeTitle: 'Área do Nutricionista'
+        },
+        'personal': {
+            label: 'Número do CREF',
+            placeholder: 'Ex: 000000-G/PE',
+            msg: 'Para prescrever treinos, precisamos validar seu CREF.',
+            icon: 'fa-dumbbell',
+            themeColor: '#e67e22', // Laranja
+            welcomeTitle: 'Área do Treinador'
+        },
+        'medico': {
+            label: 'Número do CRM',
+            placeholder: 'Ex: 123456',
+            msg: 'Para acompanhamento clínico, valide seu CRM.',
+            icon: 'fa-user-doctor',
+            themeColor: '#3498db', // Azul
+            welcomeTitle: 'Área Médica'
+        },
+        'psicologo': {
+            label: 'Número do CRP',
+            placeholder: 'Ex: 00/12345',
+            msg: 'Para terapia, valide seu CRP.',
+            icon: 'fa-brain',
+            themeColor: '#9b59b6', // Roxo
+            welcomeTitle: 'Área da Psicologia'
+        }
+    };
+
+    let selectedRole = null;
+    let selectedProfession = null;
+
+    // --- FUNÇÃO DE NAVEGAÇÃO ---
+    const showStep = (stepId, title, sub) => {
+        document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+        document.getElementById(stepId).classList.add('active');
+        document.getElementById('page-title').innerText = title;
+        document.getElementById('page-subtitle').innerText = sub;
+        document.getElementById('legal-footer').style.display = (stepId === 'step-0') ? 'block' : 'none';
+    };
+
+    // --- MÁSCARAS DE INPUT (SÊNIOR) ---
     
-    // --- REFERÊNCIAS ---
-    const step1 = document.getElementById('step-1');
-    const step3 = document.getElementById('step-3'); // O passo da senha agora é o 'step-3' no HTML
+    // Data de Nascimento (DD/MM/AAAA)
+    document.getElementById('birthdate').addEventListener('input', (e) => {
+        let v = e.target.value.replace(/\D/g, ""); // Remove tudo que não é dígito
+        
+        if (v.length > 8) v = v.slice(0, 8); // Limita a 8 números
 
-    const btnNext1 = document.getElementById('btn-next-1');
-    const btnBack1 = document.getElementById('back-to-1');
-    
-    const title = document.getElementById('page-title');
-    const subtitle = document.getElementById('page-subtitle');
-    const legalFooter = document.getElementById('legal-footer');
-
-    const inputName = document.getElementById('username');
-    const inputEmail = document.getElementById('email');
-
-    // --- NAVEGAÇÃO ENTRE OS PASSOS ---
-
-    // Passo 1 -> Passo da Senha (antigo Passo 3)
-    btnNext1.addEventListener('click', () => {
-        if(inputName.value.trim() === "" || inputEmail.value.trim() === "") {
-            alert("Por favor, preencha todos os campos.");
-            return;
+        // Máscara 00/00/0000
+        if (v.length > 4) {
+            v = v.replace(/^(\d{2})(\d{2})(\d{0,4})/, "$1/$2/$3");
+        } else if (v.length > 2) {
+            v = v.replace(/^(\d{2})(\d{0,2})/, "$1/$2");
         }
         
-        step1.classList.remove('active');
-        step3.classList.add('active');
-        
-        title.textContent = "Proteja sua conta";
-        subtitle.textContent = "Passo 2 de 2: Senha"; // ATUALIZADO
-        if(legalFooter) legalFooter.style.display = 'none';
+        e.target.value = v;
     });
 
-    // Passo da Senha -> Passo 1 (Voltar)
-    btnBack1.addEventListener('click', (e) => {
-        e.preventDefault();
-        
-        step3.classList.remove('active');
-        step1.classList.add('active');
-        
-        title.textContent = "Crie sua conta";
-        subtitle.textContent = "Passo 1 de 2: Identificação"; // ATUALIZADO
-        if(legalFooter) legalFooter.style.display = 'block';
+    // Telefone
+    document.getElementById('phone').addEventListener('input', e => {
+        let v = e.target.value.replace(/\D/g,"");
+        if(v.length > 11) v = v.slice(0,11);
+        v=v.replace(/^(\d{2})(\d)/g,"($1) $2");
+        v=v.replace(/(\d)(\d{4})$/,"$1-$2");
+        e.target.value = v;
     });
 
-    // --- FORÇA DA SENHA (MANTIDO) ---
-    const passwordInput = document.getElementById('reg-password');
-    const strengthMeter = document.querySelector('.password-strength-meter');
-    const strengthFill = document.getElementById('strength-fill');
-    const strengthText = document.getElementById('strength-text');
-    
-    const reqLengthItem = document.getElementById('req-length');
-    const reqNumberItem = document.getElementById('req-number');
-    const reqSpecialItem = document.getElementById('req-special');
+    // --- FLUXO DE NAVEGAÇÃO ---
 
-    if(passwordInput) {
-        passwordInput.addEventListener('input', () => {
-            const password = passwordInput.value;
-            
-            if (password.length > 0) strengthMeter.style.display = 'block';
-            else strengthMeter.style.display = 'none';
-
-            // 1. Validar Regras
-            const hasLength = password.length >= 8;
-            updateRequirement(reqLengthItem, hasLength);
-
-            const hasNumber = /\d/.test(password);
-            updateRequirement(reqNumberItem, hasNumber);
-
-            const hasSpecial = /[^A-Za-z0-9]/.test(password);
-            updateRequirement(reqSpecialItem, hasSpecial);
-
-            // 2. Calcular % da Barra
-            let strength = 0;
-            let checks = 0;
-            if (hasLength) checks++;
-            if (hasNumber) checks++;
-            if (hasSpecial) checks++;
-
-            if (password.length > 0) strength = 10;
-            if (checks === 1) strength = 33;
-            if (checks === 2) strength = 66;
-            if (checks === 3) strength = 100;
-
-            strengthFill.style.width = `${strength}%`;
-
-            // 3. Cores
-            if (strength <= 33) {
-                strengthFill.style.backgroundColor = '#e74c3c'; // Fraca
-                strengthText.textContent = "Fraca";
-            } else if (strength <= 66) {
-                strengthFill.style.backgroundColor = '#f1c40f'; // Moderada
-                strengthText.textContent = "Moderada";
-            } else {
-                strengthFill.style.backgroundColor = '#53954a'; // Forte
-                strengthText.textContent = "Forte";
+    // 1. SELEÇÃO DE PERFIL
+    document.querySelectorAll('#step-0 .type-card').forEach(card => {
+        card.addEventListener('click', () => {
+            selectedRole = card.getAttribute('data-role');
+            if(selectedRole !== 'professional') {
+                document.documentElement.style.setProperty('--color-primary', '#53954a');
             }
+            document.querySelectorAll('#step-0 .type-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
         });
-    }
+    });
 
-    function updateRequirement(element, isValid) {
-        const icon = element.querySelector('i');
-        if (isValid) {
-            element.classList.add('valid');
-            icon.classList.remove('fa-circle');
-            icon.classList.remove('fa-regular');
-            icon.classList.add('fa-solid');
-            icon.classList.add('fa-circle-check');
+    document.getElementById('btn-next-0').onclick = () => {
+        if(!selectedRole) return showLuxuryModal("Atenção", "Selecione um perfil.", "warning");
+        if (selectedRole === 'professional') {
+            showStep('step-pro-selection', 'Sua Especialidade', 'Qual sua área de atuação?');
         } else {
-            element.classList.remove('valid');
-            icon.classList.remove('fa-circle-check');
-            icon.classList.remove('fa-solid');
-            icon.classList.add('fa-regular');
-            icon.classList.add('fa-circle');
+            showStep('step-1', 'Criar Acesso', 'Defina seu e-mail e senha');
         }
-    }
+    };
 
-    // --- FUNÇÃO DO OLHO DA SENHA (MANTIDO) ---
-    const togglePass = document.querySelector('.toggle-password');
-    if(togglePass) {
-        togglePass.addEventListener('click', function() {
-            const targetId = this.dataset.target;
-            const input = document.getElementById(targetId);
-            if(input) {
-                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-                input.setAttribute('type', type);
-                this.classList.toggle('fa-eye');
-                this.classList.toggle('fa-eye-slash');
-            }
+    // 2. SELEÇÃO DE ESPECIALIDADE
+    document.querySelectorAll('#step-pro-selection .pro-card').forEach(card => {
+        card.addEventListener('click', () => {
+            selectedProfession = card.getAttribute('data-pro');
+            document.querySelectorAll('#step-pro-selection .pro-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            const config = CONFIG_PRO[selectedProfession];
+            if(config) document.documentElement.style.setProperty('--color-primary', config.themeColor);
         });
+    });
+
+    document.getElementById('btn-next-pro-select').onclick = () => {
+        if(!selectedProfession) return showLuxuryModal("Atenção", "Selecione sua profissão.", "warning");
+        
+        const config = CONFIG_PRO[selectedProfession];
+        document.getElementById('pro-register').placeholder = config.placeholder;
+        document.getElementById('dynamic-msg').innerText = config.msg;
+        document.getElementById('dynamic-icon').className = `fa-solid ${config.icon}`;
+        
+        showStep('step-1', config.welcomeTitle, 'Crie suas credenciais');
+    };
+    
+    document.getElementById('back-to-0-from-pro').onclick = (e) => { 
+        e.preventDefault(); 
+        document.documentElement.style.setProperty('--color-primary', '#53954a');
+        showStep('step-0', 'Boas-vindas!', 'Selecione seu perfil:'); 
+    };
+
+    // 3. CREDENCIAIS
+    document.getElementById('btn-next-1').onclick = () => {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('reg-password').value;
+        const conf = document.getElementById('confirm-password').value;
+        
+        if(!email || !pass) return showLuxuryModal("Campos Vazios", "Preencha tudo.", "warning");
+        if(pass.length < 6) return showLuxuryModal("Senha Curta", "Mínimo 6 caracteres.", "warning");
+        if(pass !== conf) return showLuxuryModal("Erro", "Senhas não conferem.", "error");
+
+        showStep('step-2', 'Dados Pessoais', 'Identificação básica');
+    };
+    
+    document.getElementById('back-to-prev-1').onclick = (e) => {
+        e.preventDefault();
+        if(selectedRole === 'professional') showStep('step-pro-selection', 'Sua Especialidade', 'Qual sua área de atuação?');
+        else showStep('step-0', 'Boas-vindas!', 'Selecione seu perfil:');
+    };
+
+    // 4. DADOS PESSOAIS (Agora com Data Manual)
+    document.getElementById('btn-next-2').onclick = () => {
+        const nome = document.getElementById('fullname').value;
+        const nasc = document.getElementById('birthdate').value;
+        const tel = document.getElementById('phone').value;
+
+        if(!nome || !nasc || tel.length < 14) return showLuxuryModal("Dados Incompletos", "Preencha nome, data e celular.", "warning");
+        // Validação simples de data (tamanho)
+        if(nasc.length < 10) return showLuxuryModal("Data Inválida", "Use o formato DD/MM/AAAA", "warning");
+
+        if(selectedRole === 'professional') {
+            const config = CONFIG_PRO[selectedProfession];
+            showStep('step-3', 'Validação Profissional', config.msg);
+        } else {
+            submitRegistration();
+        }
+    };
+    document.getElementById('back-to-1').onclick = (e) => { e.preventDefault(); showStep('step-1', 'Criar Acesso', 'Defina e-mail e senha'); };
+
+    // 5. TÉCNICO
+    document.getElementById('btn-next-3').onclick = () => {
+        const reg = document.getElementById('pro-register').value;
+        const uf = document.getElementById('pro-uf').value;
+        if(!reg || !uf) return showLuxuryModal("Faltam Dados", "Informe registro e UF.", "warning");
+        showStep('step-4', 'Perfil Público', 'Como você será visto?');
+    };
+    document.getElementById('back-to-2').onclick = (e) => { e.preventDefault(); showStep('step-2', 'Dados Pessoais', 'Identificação básica'); };
+
+    // 6. PERFIL
+    document.getElementById('btn-finish-pro').onclick = (e) => {
+        e.preventDefault();
+        const disp = document.getElementById('display-name').value;
+        const user = document.getElementById('username-handle').value;
+        const term = document.getElementById('terms-check').checked;
+        
+        if(!disp || !user) return showLuxuryModal("Perfil", "Defina nome e @usuario.", "warning");
+        if(!term) return showLuxuryModal("Termos", "Aceite os termos.", "warning");
+        
+        submitRegistration();
+    };
+    document.getElementById('back-to-3').onclick = (e) => { e.preventDefault(); showStep('step-3', 'Validação Profissional', 'Informe seus dados'); };
+
+
+    // --- SUBMIT ---
+    async function submitRegistration() {
+        const btn = selectedRole === 'professional' ? document.getElementById('btn-finish-pro') : document.getElementById('btn-next-2');
+        const oldTxt = btn.innerText;
+        btn.innerText = "Criando..."; btn.disabled = true;
+
+        try {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('reg-password').value;
+            const name = document.getElementById('fullname').value;
+
+            const cred = await createUserWithEmailAndPassword(auth, email, pass);
+            await updateProfile(cred.user, { displayName: name });
+
+            const userData = {
+                uid: cred.user.uid,
+                realname: name,
+                email: email,
+                birthDate: document.getElementById('birthdate').value,
+                phone: document.getElementById('phone').value,
+                role: selectedRole,
+                createdAt: new Date(),
+                photo: "https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff"
+            };
+
+            if (selectedRole === 'professional') {
+                userData.professionType = selectedProfession;
+                userData.registerNumber = document.getElementById('pro-register').value;
+                userData.registerUF = document.getElementById('pro-uf').value;
+                userData.displayName = document.getElementById('display-name').value;
+                userData.username = document.getElementById('username-handle').value;
+                userData.isVerified = false;
+            } else {
+                userData.username = email.split('@')[0] + Math.floor(Math.random()*9999);
+            }
+
+            await setDoc(doc(db, "users", cred.user.uid), userData);
+            showLuxuryModal("Bem-vindo(a)!", "Conta criada com sucesso.", "success");
+            setTimeout(() => window.location.href = '../login/index.html', 2000);
+
+        } catch (error) {
+            console.error(error);
+            let msg = error.message;
+            if(error.code === 'auth/email-already-in-use') msg = "E-mail já cadastrado.";
+            showLuxuryModal("Erro", msg, "error");
+            btn.innerText = oldTxt; btn.disabled = false;
+        }
     }
 
-    // --- SUBMIT FINAL (CONECTADO AO FIREBASE, MANTIDO) ---
-    const form = document.getElementById('registerForm');
-    
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const email = inputEmail.value;
-        const nome = inputName.value;
-        const p1 = document.getElementById('reg-password').value;
-        const p2 = document.getElementById('confirm-password').value;
-        
-        // Validação final de senha
-        const hasLength = p1.length >= 8;
-        const hasNumber = /\d/.test(p1);
-        const hasSpecial = /[^A-Za-z0-9]/.test(p1);
-
-        if(!hasLength || !hasNumber || !hasSpecial) {
-            alert("A senha precisa atender a todos os requisitos!");
-            return;
+    // --- UTILITÁRIOS ---
+    document.querySelectorAll('.toggle-password').forEach(i => {
+        i.onclick = function() {
+            const el = document.getElementById(this.dataset.target);
+            el.type = el.type === 'password' ? 'text' : 'password';
+            this.classList.toggle('fa-eye'); this.classList.toggle('fa-eye-slash');
         }
-
-        if(p1 !== p2) {
-            alert("As senhas não coincidem!");
-            return;
-        }
-
-        // Criar usuário no Firebase
-        auth.createUserWithEmailAndPassword(email, p1)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                
-                // Salvar o Nome do usuário
-                user.updateProfile({
-                    displayName: nome
-                }).then(() => {
-                    alert("Conta criada com sucesso! Redirecionando para o login...");
-                    window.location.href = '../login/index.html';
-                });
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                let errorMessage = error.message;
-
-                if (errorCode === 'auth/email-already-in-use') {
-                    errorMessage = "Este e-mail já está sendo usado.";
-                } else if (errorCode === 'auth/weak-password') {
-                    errorMessage = "A senha é muito fraca.";
-                } else if (errorCode === 'auth/invalid-email') {
-                    errorMessage = "O e-mail é inválido.";
-                }
-                
-                alert("Erro: " + errorMessage);
-                console.error(error);
-            });
     });
+
+    const modal = document.getElementById('luxury-modal');
+    window.showLuxuryModal = (t, m, type) => {
+        document.getElementById('lux-title').innerText = t;
+        document.getElementById('lux-msg').innerText = m;
+        const icon = document.getElementById('lux-icon');
+        const box = document.getElementById('lux-icon-container');
+        box.className = 'luxury-icon-pulse ' + type;
+        icon.className = type==='error'?'fa-solid fa-xmark':(type==='warning'?'fa-solid fa-triangle-exclamation':'fa-solid fa-check');
+        modal.style.display = 'flex'; setTimeout(()=>modal.classList.add('active'),10);
+    };
+    document.getElementById('btn-lux-close').onclick = () => {
+        modal.classList.remove('active'); setTimeout(()=>modal.style.display='none',300);
+    };
+
+    // --- DEV FILL (ATUALIZADO) ---
+    document.getElementById('btn-dev-fill').onclick = () => {
+        const card = document.querySelector('.type-card[data-role="professional"]');
+        card.click();
+        
+        setTimeout(() => {
+            const proCard = document.querySelector('.pro-card[data-pro="nutricionista"]');
+            proCard.click();
+            
+            const r = Math.floor(Math.random()*999);
+            document.getElementById('email').value = `nutri${r}@dev.com`;
+            document.getElementById('reg-password').value = "123456";
+            document.getElementById('confirm-password').value = "123456";
+            document.getElementById('fullname').value = "Nutri Dev Mode";
+            document.getElementById('birthdate').value = "20/10/1995"; // Valor direto string
+            document.getElementById('phone').value = "(11) 99999-8888";
+            document.getElementById('pro-register').value = "CRN-12345";
+            document.getElementById('pro-uf').value = "PE";
+            document.getElementById('display-name').value = "Dra. Teste";
+            document.getElementById('username-handle').value = `nutri_teste_${r}`;
+            document.getElementById('terms-check').checked = true;
+            
+            showLuxuryModal("Dev Mode", "Preenchido como Nutri.", "success");
+        }, 500);
+    };
 });
