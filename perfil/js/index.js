@@ -48,8 +48,16 @@ document.addEventListener('DOMContentLoaded', () => {
         btnMobileMenu: document.getElementById('btn-mobile-menu'),
         mobileOverlay: document.getElementById('mobile-menu-overlay'),
         btnCloseMobile: document.getElementById('btn-close-mobile-menu'),
+        
+        // LOGOUT BUTTONS
         btnSairMobile: document.getElementById('btn-sair-mobile'),
         btnSairSidebar: document.getElementById('btn-sair-perfil'),
+        
+        // NOVO MODAL DE LOGOUT
+        modalLogoutLuxury: document.getElementById('modal-logout-luxury'),
+        btnCancelLogout: document.getElementById('btn-cancel-logout'),
+        btnConfirmLogout: document.getElementById('btn-confirm-logout'),
+
         adminLink: document.getElementById('nav-item-admin'),
 
         // Stats
@@ -74,52 +82,94 @@ document.addEventListener('DOMContentLoaded', () => {
     if(els.btnCloseMobile) els.btnCloseMobile.onclick = () => els.mobileOverlay.classList.remove('open');
     if(els.mobileOverlay) els.mobileOverlay.onclick = (e) => { if(e.target === els.mobileOverlay) els.mobileOverlay.classList.remove('open'); };
     
-    const logoutAction = async () => {
-        if(confirm("Sair da conta?")) {
-            await authService.logout();
-            window.location.href = '../login/index.html';
+    // =========================================================================
+    // 🔥 LÓGICA DO NOVO MODAL DE LOGOUT 🔥
+    // =========================================================================
+    const openLogoutModal = (e) => {
+        if(e) e.preventDefault();
+        // Abre o modal de luxo
+        els.modalLogoutLuxury.style.display = 'flex'; // Garante display flex antes da anim
+        // Pequeno delay para permitir a transição CSS funcionar
+        setTimeout(() => {
+            els.modalLogoutLuxury.classList.add('active');
+        }, 10);
+    };
+
+    const closeLogoutModal = () => {
+        els.modalLogoutLuxury.classList.remove('active');
+        setTimeout(() => {
+            els.modalLogoutLuxury.style.display = 'none';
+        }, 400); // Espera a animação de saída terminar
+    };
+
+    const confirmLogout = async () => {
+        const btnText = els.btnConfirmLogout.querySelector('span');
+        const icon = els.btnConfirmLogout.querySelector('i');
+        
+        // Feedback Visual no Botão
+        btnText.textContent = "Saindo...";
+        icon.className = "fa-solid fa-circle-notch fa-spin";
+        
+        try {
+            // Loader Global para transição suave
+            if(window.GlobalLoader) window.GlobalLoader.show("Encerrando sessão...");
+            
+            // Delay estético para ver a animação
+            setTimeout(async () => {
+                await authService.logout();
+                window.location.href = '../login/index.html';
+            }, 800);
+            
+        } catch (error) { 
+            console.error("Erro ao sair:", error);
+            closeLogoutModal();
+            if(window.GlobalLoader) window.GlobalLoader.hide();
         }
     };
-    if(els.btnSairSidebar) els.btnSairSidebar.onclick = logoutAction;
-    if(els.btnSairMobile) els.btnSairMobile.onclick = logoutAction;
+
+    // Binds
+    if(els.btnSairSidebar) els.btnSairSidebar.onclick = openLogoutModal;
+    if(els.btnSairMobile) els.btnSairMobile.onclick = openLogoutModal;
+    
+    if(els.btnCancelLogout) els.btnCancelLogout.onclick = closeLogoutModal;
+    if(els.btnConfirmLogout) els.btnConfirmLogout.onclick = confirmLogout;
+
+    // Fechar ao clicar fora (no vidro)
+    if(els.modalLogoutLuxury) {
+        els.modalLogoutLuxury.onclick = (e) => {
+            if(e.target === els.modalLogoutLuxury) closeLogoutModal();
+        };
+    }
 
     // =========================================================================
     // LÓGICA DE CARREGAMENTO SINCRONIZADA (PERFIL + FEED)
     // =========================================================================
     authService.monitorAuth(async (user) => {
         if (user) {
-            // 1. Inicia Loader Global (Bloqueia tela)
             if(window.GlobalLoader) window.GlobalLoader.show("Carregando Perfil...");
 
             try {
                 currentProfileUid = user.uid;
 
-                // 2. Dispara Requisições em Paralelo (Promise.all)
-                // O código só continua quando AMBAS as buscas terminarem
                 const [userDocSnap, feedSnap] = await Promise.all([
                     getDoc(doc(db, 'users', user.uid)),
                     getDocs(query(collection(db, 'posts'), where('authorId', '==', user.uid), orderBy('timestamp', 'desc'), limit(50)))
                 ]);
 
-                // 3. Processa Usuário
                 if (userDocSnap.exists()) {
                     myOriginalData = userDocSnap.data();
                 } else {
-                    // Criação automática para usuários legados
                     const fallback = { realname: user.displayName || "Usuário", username: "", email: user.email, role: "user", postsCount: 0 };
                     await setDoc(doc(db, 'users', user.uid), fallback);
                     myOriginalData = fallback;
                 }
-                updateHeaderUI(myOriginalData); // Atualiza HTML do header
-
-                // 4. Processa Feed
-                renderFeed(feedSnap); // Atualiza HTML do grid
+                updateHeaderUI(myOriginalData);
+                renderFeed(feedSnap);
 
             } catch (err) {
                 console.error("Erro crítico ao carregar:", err);
                 alert("Ocorreu um erro ao carregar seus dados.");
             } finally {
-                // 5. Remove Loader Global (Tela desbloqueada)
                 if(window.GlobalLoader) window.GlobalLoader.hide();
             }
 
@@ -128,10 +178,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // ... [MANTIDO O RESTANTE DAS FUNÇÕES DE UI E FEED IGUAL AO ORIGINAL] ...
+    // (As funções updateHeaderUI, renderFeed, openPostModal, loadComments etc permanecem inalteradas
+    // pois a mudança solicitada foi apenas no modal de Logout)
+
     /**
      * Atualiza o cabeçalho e REMOVE os esqueletos de carregamento.
      */
-    function updateHeaderUI(data) {
+     function updateHeaderUI(data) {
         if (!data) return;
 
         // Limpeza dos Skeletons (Remove classes de animação e larguras fixas)
@@ -195,9 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(els.counts.following) els.counts.following.innerText = data.following?.length || 0;
     }
 
-    /**
-     * Renderiza o grid de posts a partir do snapshot já carregado.
-     */
     function renderFeed(snapshot) {
         if(!els.feedContainer) return;
         els.feedContainer.innerHTML = ''; 
@@ -230,9 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // =========================================================================
-    // MODAL DE DETALHES DO POST (Insta-style)
-    // =========================================================================
     async function openPostModal(postId, postData) {
         if (!els.modal) return;
         currentOpenPostId = postId;
@@ -364,9 +412,6 @@ document.addEventListener('DOMContentLoaded', () => {
         await loadComments(postId, document.getElementById('dynamic-comments'));
     }
 
-    // =========================================================================
-    // FUNÇÕES AUXILIARES DE COMENTÁRIOS E DADOS
-    // =========================================================================
     async function loadComments(postId, container) {
         if(!container) return;
         const q = query(collection(db, 'posts', postId, 'comments'), orderBy('timestamp', 'asc'));
