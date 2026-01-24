@@ -53,7 +53,7 @@
         @keyframes af-spin-reverse { 100% { transform: rotate(-360deg); } }
         @keyframes af-pulse { 0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.9); } }
 
-        /* SKELETON (FUNDO CINZA ENQUANTO CARREGA POR BAIXO) */
+        /* SKELETON */
         .skeleton {
             background: #e0e0e0;
             background: linear-gradient(90deg, #e0e0e0 0%, #f5f5f5 50%, #e0e0e0 100%);
@@ -65,12 +65,10 @@
     </style>
 
     <script>
-        // GERENCIADOR DO LOADER (DISPONÍVEL GLOBALMENTE)
+        // GERENCIADOR DO LOADER
         window.GlobalLoader = {
             element: null,
-            init: function() {
-                this.element = document.getElementById('af-global-loader');
-            },
+            init: function() { this.element = document.getElementById('af-global-loader'); },
             show: function(msg) {
                 if(!this.element) this.init();
                 if(this.element) {
@@ -80,19 +78,10 @@
             },
             hide: function() {
                 if(!this.element) this.init();
-                if(this.element) {
-                    // Pequeno delay para suavidade
-                    setTimeout(() => {
-                        this.element.classList.add('hidden');
-                    }, 500);
-                }
+                if(this.element) { setTimeout(() => { this.element.classList.add('hidden'); }, 500); }
             }
         };
-
-        // TRAVA DE SEGURANÇA: Remove o loader após 10s se algo travar
-        setTimeout(() => {
-            if(window.GlobalLoader) window.GlobalLoader.hide();
-        }, 10000);
+        setTimeout(() => { if(window.GlobalLoader) window.GlobalLoader.hide(); }, 10000);
     </script>
 
     <link rel="stylesheet" href="../style.css"> 
@@ -137,25 +126,26 @@
                 <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> <span>Calendário</span></a></li>
                 <li><a href="javascript:void(0)" id="btn-open-settings" role="button"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
             </ul>
+            
             <div class="nav-footer">
                 <a href="../perfil/index.html" class="profile-pill-link">
                     <img src="https://ui-avatars.com/api/?name=User" class="nav-avatar" id="nav-avatar-img"> 
-                    <div class="profile-info-mini"><span class="p-name">Meu Perfil</span></div>
+                    <div class="profile-info-mini">
+                        <span class="p-name">Meu Perfil</span>
+                        <span class="p-sub">Ver tudo</span>
+                    </div>
                 </a>
+                <button id="btn-sair-perfil" class="sidebar-logout-btn" title="Sair da conta">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
             </div>
         </nav>
 
         <main class="content-area">
-            
             <header class="journey-header">
                 <div class="journey-avatar-container skeleton-avatar-wrapper">
-                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-                         class="journey-pic skeleton" 
-                         id="profile-pic-main" 
-                         style="background: #eee;">
-                    <div class="phase-badge-wrapper">
-                        <div class="phase-badge"><i class="fa-solid fa-seedling"></i></div>
-                    </div>
+                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="journey-pic skeleton" id="profile-pic-main" style="background: #eee;">
+                    <div class="phase-badge-wrapper"><div class="phase-badge"><i class="fa-solid fa-seedling"></i></div></div>
                 </div>
                 
                 <div class="journey-info">
@@ -164,11 +154,8 @@
                             <h2 class="journey-name skeleton" id="display-realname" style="width: 250px; height: 32px; display:block; margin-bottom: 8px;"></h2>
                             <span class="journey-username skeleton" id="display-username" style="width: 120px; height: 20px; display: block;"></span>
                         </div>
-                        
                         <div class="journey-actions">
-                            <button class="btn-edit-profile" id="btn-open-edit">
-                                <i class="fa-solid fa-pen"></i> Editar Perfil
-                            </button>
+                            <button class="btn-edit-profile" id="btn-open-edit"><i class="fa-solid fa-pen"></i> Editar Perfil</button>
                         </div>
                     </div>
 
@@ -211,23 +198,16 @@
                     <div id="feed-container" class="gallery-grid"></div>
                 </div>
                 <div id="tab-saved" class="tab-pane hidden">
-                    <div class="empty-state-journey" style="background: transparent; box-shadow: none;">
-                        <p style="color: #6e513d; opacity: 0.7; text-align:center; padding:30px;">Nenhum item salvo.</p>
-                    </div>
+                    <div class="empty-state-journey" style="background: transparent; box-shadow: none;"><p style="color: #6e513d; opacity: 0.7; text-align:center; padding:30px;">Nenhum item salvo.</p></div>
                 </div>
-                <div id="tab-achievements" class="tab-pane hidden">
-                    <p style="text-align:center; padding:30px; color:#888;">Em breve.</p>
-                </div>
+                <div id="tab-achievements" class="tab-pane hidden"><p style="text-align:center; padding:30px; color:#888;">Em breve.</p></div>
             </div> 
         </main>
     </div>
 
     <header class="mobile-profile-bar" style="position:fixed; top:0; left:0; width:100%; z-index:1000; display:none;">
         <button class="mp-btn" onclick="window.location.href='../index.html'"><i class="fa-solid fa-arrow-left"></i></button>
-        <div class="mp-identity">
-            <span class="mp-username" id="mobile-username">@usuario</span>
-            <span class="mp-sub">Perfil</span>
-        </div>
+        <div class="mp-identity"><span class="mp-username" id="mobile-username">@usuario</span><span class="mp-sub">Perfil</span></div>
         <div class="mp-actions">
             <button class="mp-btn" id="mp-btn-add"><i class="fa-regular fa-square-plus"></i></button>
             <button class="mp-btn" id="mp-btn-settings"><i class="fa-solid fa-gear"></i></button>
@@ -236,15 +216,9 @@
 
     <div class="modal-overlay" id="edit-modal">
         <div class="modal-content modal-modern">
-            <div class="modal-header-modern">
-                <h3>Editar perfil</h3>
-                <button class="btn-close" onclick="document.getElementById('edit-modal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
-            </div>
+            <div class="modal-header-modern"><h3>Editar perfil</h3><button class="btn-close" onclick="document.getElementById('edit-modal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button></div>
             <div class="modal-body-modern">
-                <div class="edit-profile-center">
-                    <img src="" id="modal-avatar-preview" class="avatar-edit-large">
-                    <button id="btn-trigger-file" class="btn-change-photo-text">Alterar foto do perfil</button>
-                </div>
+                <div class="edit-profile-center"><img src="" id="modal-avatar-preview" class="avatar-edit-large"><button id="btn-trigger-file" class="btn-change-photo-text">Alterar foto do perfil</button></div>
                 <div class="form-grid">
                     <div class="form-group"><label>Nome de Exibição</label><input type="text" class="form-input-modern" id="input-realname"></div>
                     <div class="form-group"><label>Nome de Usuário</label><div class="input-group-modern"><span class="input-prefix">@</span><input type="text" class="form-input-modern pl-4" id="input-username"></div></div>
@@ -255,10 +229,13 @@
             <div class="modal-footer-modern"><button class="btn-save-full" id="btn-save-changes">Concluir</button></div>
         </div>
     </div>
+    
     <div class="modal-overlay" id="modal-new-post">
         <div class="modal-content"><div class="modal-header"><h3>Criar</h3></div><div class="modal-body"><p style="padding:20px;text-align:center;">Use a aba Comunidade.</p></div></div>
     </div>
+    
     <input type="file" id="file-upload" hidden accept="image/*">
+    
     <div class="modal-overlay" id="modal-post-detail">
         <button class="btn-close" id="btn-close-post-detail" style="position: absolute; top: 20px; right: 20px; z-index: 3000; color: white; font-size: 2rem;">&times;</button>
         <div class="modal-instagram-container">
@@ -283,6 +260,33 @@
     </div>
     <input type="file" id="input-comment-file" hidden accept="image/*">
 
+    <div class="modal-overlay" id="list-modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3 id="list-modal-title">Lista</h3><button class="btn-close" id="btn-close-list"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="modal-body" id="list-modal-body"></div>
+        </div>
+    </div>
+
+    <div class="luxury-logout-overlay" id="modal-logout-luxury">
+        <div class="luxury-logout-card">
+            <div class="logout-icon-pulse">
+                <i class="fa-solid fa-power-off"></i>
+            </div>
+            
+            <div class="logout-text-content">
+                <h3>Encerrar Sessão?</h3>
+                <p>Você precisará fazer login novamente para acessar sua conta.</p>
+            </div>
+
+            <div class="luxury-actions">
+                <button class="btn-cancel-lux" id="btn-cancel-logout">Cancelar</button>
+                <button class="btn-confirm-lux" id="btn-confirm-logout">
+                    <span>Desconectar</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     <script type="module" src="js/index.js"></script>
 </body>
