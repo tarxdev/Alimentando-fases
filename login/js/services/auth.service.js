@@ -2,63 +2,76 @@
  * SERVIÇO DE AUTENTICAÇÃO (Business Logic)
  * Responsável pela comunicação direta com o Firebase.
  */
+import { 
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    GoogleAuthProvider,
+    FacebookAuthProvider,
+    sendPasswordResetEmail,
+    setPersistence,
+    browserLocalPersistence,
+    browserSessionPersistence
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
 export class AuthService {
     
-    constructor() {
-        // Garante que o SDK global do Firebase foi carregado via HTML
-        if (typeof firebase === 'undefined') {
-            console.error("ERRO CRÍTICO: Firebase SDK não encontrado. Verifique o HTML.");
-            throw new Error("Firebase not initialized");
-        }
-        this.auth = firebase.auth();
-    }
+    constructor() {}
 
-    async loginEmailPassword(email, password, rememberMe) {
-        // Define persistência com base na escolha do usuário
-        const persistence = rememberMe 
-            ? firebase.auth.Auth.Persistence.LOCAL 
-            : firebase.auth.Auth.Persistence.SESSION;
-
-        await this.auth.setPersistence(persistence);
-        return await this.auth.signInWithEmailAndPassword(email, password);
-    }
-
-    async loginGoogle() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        return await this.auth.signInWithPopup(provider);
-    }
-
-    async recoverPassword(email) {
-        return await this.auth.sendPasswordResetEmail(email);
+    /**
+     * Login Tradicional
+     */
+    async loginEmailPassword(auth, email, password, rememberMe) {
+        // Define persistência (Local = mantém logado após fechar aba / Session = limpa ao fechar)
+        const persistenceType = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+        
+        await setPersistence(auth, persistenceType);
+        return await signInWithEmailAndPassword(auth, email, password);
     }
 
     /**
-     * Traduz erros técnicos do Firebase para mensagens amigáveis em PT-BR.
+     * Login com Google
+     */
+    async loginGoogle(auth) {
+        const provider = new GoogleAuthProvider();
+        // Customização opcional: força seleção de conta
+        provider.setCustomParameters({ prompt: 'select_account' });
+        
+        return await signInWithPopup(auth, provider);
+    }
+
+    /**
+     * Login com Facebook
+     */
+    async loginFacebook(auth) {
+        const provider = new FacebookAuthProvider();
+        return await signInWithPopup(auth, provider);
+    }
+
+    /**
+     * Recuperação de Senha
+     */
+    async recoverPassword(auth, email) {
+        return await sendPasswordResetEmail(auth, email);
+    }
+
+    /**
+     * Tradutor de Erros (Firebase -> PT-BR)
      */
     parseError(error) {
         const errorCode = error.code || error;
-        
-        // Log para debug em ambiente de desenvolvimento
-        console.warn("Firebase Error:", errorCode);
+        console.warn("Firebase Auth Error:", errorCode);
 
         const errors = {
-            // Códigos Legados e Comuns
             'auth/user-not-found': 'E-mail não cadastrado.',
             'auth/wrong-password': 'Senha incorreta.',
             'auth/invalid-email': 'Formato de e-mail inválido.',
             'auth/user-disabled': 'Conta desativada.',
-            
-            // Novos códigos de segurança (Firebase v9+)
             'auth/invalid-credential': 'E-mail ou senha incorretos.',
-            'auth/invalid-login-credentials': 'E-mail ou senha incorretos.',
-            
-            // Bloqueios e Rede
-            'auth/too-many-requests': 'Muitas tentativas falhas. Aguarde alguns instantes.',
-            'auth/network-request-failed': 'Sem conexão com a internet.',
-            
-            // Fluxo Google
-            'auth/popup-closed-by-user': 'Login cancelado pelo usuário.',
-            'auth/popup-blocked': 'O navegador bloqueou o pop-up.'
+            'auth/account-exists-with-different-credential': 'Este e-mail já está associado a outra conta (ex: Google/Facebook).',
+            'auth/popup-closed-by-user': 'Login cancelado.',
+            'auth/popup-blocked': 'O navegador bloqueou o popup. Permita popups para entrar.',
+            'auth/too-many-requests': 'Muitas tentativas. Aguarde alguns instantes.',
+            'auth/network-request-failed': 'Sem conexão com a internet.'
         };
 
         return errors[errorCode] || 'Ocorreu um erro inesperado. Tente novamente.';
