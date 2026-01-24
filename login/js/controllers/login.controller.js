@@ -1,27 +1,27 @@
 /**
  * LOGIN CONTROLLER
- * Path: login/js/controllers/login.controller.js
- * Descrição: Gerencia autenticação e UX do formulário (incluindo toggle de senha).
+ * Gerencia a UI e interações do usuário.
  */
-
 import { auth } from '../../../firebase-config.js'; 
-import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { AuthService } from '../services/auth.service.js';
 
 export class LoginController {
     
     constructor() {
+        this.authService = new AuthService();
+        
+        // Mapeamento do DOM
         this.dom = {
             form: document.getElementById('loginForm'),
             email: document.getElementById('email'),
             password: document.getElementById('password'),
-            
-            // NOVO: Seleciona o ícone de olho (pela classe CSS .toggle-password)
             togglePasswordIcon: document.querySelector('.toggle-password'),
+            submitBtn: document.getElementById('btnSubmit'),
+            loaderIcon: document.querySelector('.btn-loader'),
             
-            submitBtn: document.getElementById('btnSubmit') || document.querySelector('.btn-primary'),
-            loaderIcon: document.querySelector('.btn-loader'), 
-            errorModal: document.getElementById('errorModal'),
-            modalMessage: document.getElementById('modalDesc')
+            // Botões Sociais (IDs definidos no HTML novo)
+            btnGoogle: document.getElementById('btn-google'),
+            btnFacebook: document.getElementById('btn-facebook')
         };
     }
 
@@ -31,43 +31,35 @@ export class LoginController {
             return;
         }
         
-        // Listener do Login
+        // Listener do Login Tradicional
         this.dom.form.addEventListener('submit', (e) => this.handleLogin(e));
 
-        // NOVO: Listener do Olho (Ver Senha)
+        // Listener do Olho (Senha)
         if (this.dom.togglePasswordIcon) {
             this.dom.togglePasswordIcon.addEventListener('click', () => this.togglePasswordVisibility());
         }
-    }
 
-    /**
-     * NOVO MÉTODO: Alterna a visibilidade da senha
-     */
-    togglePasswordVisibility() {
-        const input = this.dom.password;
-        const icon = this.dom.togglePasswordIcon;
-
-        // 1. Verifica o estado atual
-        const isPassword = input.getAttribute('type') === 'password';
-
-        // 2. Troca o tipo do input (password <-> text)
-        input.setAttribute('type', isPassword ? 'text' : 'password');
-
-        // 3. Troca o ícone (FontAwesome classes)
-        // Remove classes antigas para evitar conflito
-        icon.classList.remove('fa-eye', 'fa-eye-slash');
-
-        if (isPassword) {
-            // Se virou texto (visível), mostra o olho cortado ou aberto (depende do seu gosto)
-            // Geralmente: Olho aberto = vendo senha. Olho cortado = senha oculta.
-            // Ajuste aqui conforme sua preferência visual:
-            icon.classList.add('fa-eye'); // Ícone de olho aberto
-        } else {
-            // Se virou password (oculto)
-            icon.classList.add('fa-eye-slash'); // Ícone de olho cortado
+        // Listeners Sociais
+        if (this.dom.btnGoogle) {
+            this.dom.btnGoogle.addEventListener('click', () => this.handleSocialLogin('google'));
+        }
+        if (this.dom.btnFacebook) {
+            this.dom.btnFacebook.addEventListener('click', () => this.handleSocialLogin('facebook'));
         }
     }
 
+    // Alterna visibilidade da senha
+    togglePasswordVisibility() {
+        const input = this.dom.password;
+        const icon = this.dom.togglePasswordIcon;
+        const isPassword = input.getAttribute('type') === 'password';
+
+        input.setAttribute('type', isPassword ? 'text' : 'password');
+        icon.classList.remove('fa-eye', 'fa-eye-slash');
+        icon.classList.add(isPassword ? 'fa-eye' : 'fa-eye-slash');
+    }
+
+    // Handler: Login Email/Senha
     async handleLogin(e) {
         e.preventDefault();
         
@@ -81,11 +73,11 @@ export class LoginController {
         try {
             const email = this.dom.email.value.trim();
             const password = this.dom.password.value;
+            const rememberMe = document.getElementById('rememberMe')?.checked || false;
 
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            console.info(`[Auth] Sucesso! UID: ${userCredential.user.uid}`);
+            await this.authService.loginEmailPassword(auth, email, password, rememberMe);
             
-            // Redirecionamento
+            // Sucesso -> Redireciona
             window.location.href = '../index.html'; 
 
         } catch (error) {
@@ -95,6 +87,30 @@ export class LoginController {
         }
     }
 
+    // Handler: Login Social
+    async handleSocialLogin(provider) {
+        this.setLoadingState(true);
+        try {
+            if (provider === 'google') {
+                await this.authService.loginGoogle(auth);
+            } else if (provider === 'facebook') {
+                await this.authService.loginFacebook(auth);
+            }
+            
+            console.info(`[Auth] Login via ${provider} realizado com sucesso.`);
+            window.location.href = '../index.html';
+
+        } catch (error) {
+            // Se o usuário fechar o popup, não mostramos erro crítico
+            if (error.code !== 'auth/popup-closed-by-user') {
+                this.handleAuthException(error);
+            }
+        } finally {
+            this.setLoadingState(false);
+        }
+    }
+
+    // UI: Controle de Estado de Carregamento
     setLoadingState(isLoading) {
         if (!this.dom.submitBtn) return;
 
@@ -109,22 +125,20 @@ export class LoginController {
         }
     }
 
+    // UI: Exibição de Erros
     handleAuthException(error) {
-        console.error(`[Auth Error] ${error.code}`);
+        const msg = this.authService.parseError(error);
         
-        let msg = 'Erro ao entrar.';
-        const errorMap = {
-            'auth/invalid-credential': 'E-mail ou senha incorretos.',
-            'auth/user-not-found': 'Usuário não encontrado.',
-            'auth/wrong-password': 'Senha incorreta.',
-            'auth/too-many-requests': 'Muitas tentativas. Aguarde.'
-        };
-
-        if (errorMap[error.code]) msg = errorMap[error.code];
-        this.renderError(msg);
-    }
-
-    renderError(message) {
-        alert(message); 
+        // Se tiver SweetAlert (Swal) disponível, usa ele. Se não, alert nativo.
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Ops!',
+                text: msg,
+                confirmButtonColor: '#53954a'
+            });
+        } else {
+            alert(msg);
+        }
     }
 }
