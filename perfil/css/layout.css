@@ -37,12 +37,59 @@
 .nav-badge { position: absolute; top: -5px; right: -6px; background-color: #ff3b30; color: white; font-size: 0.6rem; font-weight: 800; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; z-index: 10; }
 .nav-badge.hidden { display: none; }
 
-.nav-footer { margin-top: auto; border-top: 1px solid var(--border-light, #e0e0e0); padding-top: 16px; flex-shrink: 0; }
-.profile-pill-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #050505; padding: 8px; border-radius: 12px; }
+/* === SIDEBAR FOOTER (ATUALIZADO PARA INCLUIR LOGOUT) === */
+.nav-footer {
+    margin-top: auto;
+    border-top: 1px solid var(--border-light, #e0e0e0);
+    padding-top: 16px;
+    flex-shrink: 0;
+    
+    /* Layout Flex para alinhar Perfil e Botão lado a lado */
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+    gap: 8px;
+}
+
+.profile-pill-link {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #050505;
+    padding: 8px;
+    border-radius: 12px;
+    transition: background-color 0.2s;
+    min-width: 0; /* Evita quebra de layout */
+}
 .profile-pill-link:hover { background-color: #f7f9fa; }
+
 .nav-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.profile-info-mini { display: flex; align-items: center; gap: 4px; min-width: 0; }
-.profile-info-mini span { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.profile-info-mini { display: flex; flex-direction: column; justify-content: center; min-width: 0; line-height: 1.2; }
+.profile-info-mini .p-name { font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #1a1a1a; }
+.profile-info-mini .p-sub { font-size: 0.75rem; color: #888; font-weight: 500; }
+
+/* Botão de Sair (Estilo Sênior) */
+.sidebar-logout-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    color: #d92d2d; 
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    flex-shrink: 0;
+}
+.sidebar-logout-btn:hover {
+    background-color: #fee2e2;
+    transform: translateX(2px);
+}
 
 /* ÁREA DE CONTEÚDO (Mantida original do perfil) */
 .content-area { padding: 30px 40px; width: 100%; max-width: none; margin: 0; flex: 1; min-width: 0; }
@@ -123,6 +170,11 @@
     .main-layout { grid-template-columns: 80px 1fr; }
     .brand-text, .nav-links span, .profile-info-mini { display: none; }
     .sidebar { width: 80px; align-items: center; padding: 20px 10px; }
+    
+    /* Ajuste Footer no Tablet */
+    .nav-footer { flex-direction: column; gap: 15px; padding-top: 20px; align-items: center; }
+    .profile-pill-link { padding: 0; justify-content: center; flex: 0; }
+    .sidebar-logout-btn { width: 36px; height: 36px; background-color: #fafafa; }
 }
 
 @media (max-width: 700px) {
