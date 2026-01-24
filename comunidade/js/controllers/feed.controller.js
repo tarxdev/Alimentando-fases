@@ -22,6 +22,14 @@ export class FeedController {
         if (this.container) {
             this.container.addEventListener('click', (e) => this.handleInteractions(e));
         }
+
+        // --- NOVO: OUVINTE PARA EXCLUSÃO VIA MODAL LUXURY ---
+        document.addEventListener('request-delete-post', async (e) => {
+            const { postId } = e.detail;
+            if(postId) {
+                await this.performDelete(postId);
+            }
+        });
     }
 
     startRealTimeFeed() {
@@ -44,11 +52,9 @@ export class FeedController {
             return;
         }
 
-        // === SYNC FOTOS DO FEED ===
         const authorIds = new Set(posts.map(p => p.authorId));
         const photosMap = {};
 
-        // Busca fotos atualizadas em paralelo para consistência
         await Promise.all(Array.from(authorIds).map(async (uid) => {
             try {
                 const uDoc = await getDoc(doc(db, 'users', uid));
@@ -72,7 +78,6 @@ export class FeedController {
         if (post.images && post.images.length > 0) mediaHtml = `<img src="${post.images[0]}" class="fp-image" data-action="comment" data-id="${post.id}">`;
         else if (post.image) mediaHtml = `<img src="${post.image}" class="fp-image" data-action="comment" data-id="${post.id}">`;
 
-        // Encoding seguro do conteúdo
         const safeContent = encodeURIComponent(post.content || "");
 
         return `
@@ -141,14 +146,9 @@ export class FeedController {
         }
     }
 
-    /**
-     * MENU DE OPÇÕES (Action Sheet)
-     * Captura nome/foto do DOM para passar ao editor
-     */
     handleOptions(postId, authorId, currentContent) {
         const isOwner = (this.currentUser && this.currentUser.uid === authorId);
         
-        // Tenta capturar dados visuais do autor para o modal de edição
         const postElement = document.getElementById(`post-${postId}`);
         let authorPhoto = 'https://ui-avatars.com/api/?name=User';
         let authorName = 'Usuário';
@@ -193,9 +193,18 @@ export class FeedController {
         setTimeout(() => {
             const get = (id) => document.getElementById(id);
             if (get('opt-cancel')) get('opt-cancel').onclick = () => Swal.close();
-            if (get('opt-delete')) get('opt-delete').onclick = () => { Swal.close(); this.confirmDelete(postId); };
             
-            // Passa os dados capturados para o editor
+            // --- CORREÇÃO AQUI: CHAMA O NOVO MODAL LUXURY ---
+            if (get('opt-delete')) get('opt-delete').onclick = () => { 
+                Swal.close(); 
+                // Verifica se a função global existe antes de chamar
+                if(window.openDeleteModal) {
+                    window.openDeleteModal(postId); 
+                } else {
+                    console.error("Função window.openDeleteModal não encontrada!");
+                }
+            };
+            
             if (get('opt-edit')) get('opt-edit').onclick = () => { 
                 Swal.close(); 
                 this.openEditModal(postId, currentContent, authorName, authorPhoto); 
@@ -210,9 +219,6 @@ export class FeedController {
         }, 50);
     }
 
-    /**
-     * EDITOR ESTILO INSTAGRAM
-     */
     openEditModal(postId, content, authorName, authorPhoto) {
         const customHtml = `
             <div class="insta-content-body">
@@ -239,7 +245,6 @@ export class FeedController {
                     const val = textarea.value;
                     textarea.value = '';
                     textarea.value = val;
-                    // Auto-resize
                     textarea.style.height = 'auto';
                     textarea.style.height = (textarea.scrollHeight) + 'px';
                     textarea.addEventListener('input', function() {
@@ -270,16 +275,15 @@ export class FeedController {
         });
     }
 
-    confirmDelete(postId) {
-        Swal.fire({ 
-            title: 'Excluir publicação?', text: "Essa ação não pode ser desfeita.", icon: 'warning', 
-            showCancelButton: true, confirmButtonText: 'Sim, excluir', cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#d33', reverseButtons: true
-        }).then(async res => {
-            if(res.isConfirmed) {
-                await this.postService.deletePost(postId);
-                Swal.fire({ icon: 'success', title: 'Post excluído.', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false });
-            }
-        });
+    // --- NOVA FUNÇÃO DE EXCLUSÃO (CHAMADA PELO EVENTO DO MODAL) ---
+    async performDelete(postId) {
+        try {
+            await this.postService.deletePost(postId);
+            // Feedback sutil ao invés de alert
+            if(window.Swal) Swal.fire({ icon: 'success', title: 'Post excluído.', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false });
+        } catch(error) {
+            console.error(error);
+            alert("Erro ao excluir.");
+        }
     }
 }
