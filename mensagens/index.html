@@ -103,10 +103,26 @@
         <section class="chat-window-panel empty" id="chat-window-panel">
             
             <div class="empty-chat-state" id="empty-state-view">
-                <div class="empty-icon-circle"><i class="fa-brands fa-facebook-messenger"></i></div>
-                <h2>Suas mensagens</h2>
-                <p>Envie fotos e mensagens privadas para um amigo.</p>
-                <button class="btn-send-msg-primary" onclick="document.getElementById('modal-new-chat').classList.add('open')">Enviar mensagem</button>
+                <div class="empty-art-container">
+                    <div class="pulsing-circle delay-1"></div>
+                    <div class="pulsing-circle delay-2"></div>
+                    <div class="empty-icon-circle">
+                        <i class="fa-regular fa-paper-plane"></i>
+                    </div>
+                </div>
+                
+                <div class="empty-content-text">
+                    <h2>Suas Mensagens</h2>
+                    <p>Conecte-se com amigos, nutricionistas e a comunidade. Selecione uma conversa ou inicie uma nova jornada.</p>
+                </div>
+
+                <button class="btn-send-msg-primary" onclick="document.getElementById('modal-new-chat').classList.add('open')">
+                    <i class="fa-solid fa-plus"></i> Nova Conversa
+                </button>
+
+                <div class="encrypted-hint">
+                    <i class="fa-solid fa-lock"></i> <span>Protegido com criptografia de ponta-a-ponta</span>
+                </div>
             </div>
 
             <div class="active-chat-view hidden" id="active-chat-view">
