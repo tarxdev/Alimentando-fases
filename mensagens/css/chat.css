@@ -21,6 +21,9 @@ img { max-width: 100%; display: block; }
 .new-chat-btn { width: 36px; height: 36px; border-radius: 50%; border: none; background: #f0f2f5; cursor: pointer; color: #333; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
 .new-chat-btn:hover { background: #e4e6eb; }
 
+.chat-search-bar { padding: 0 20px 10px; border-bottom: 1px solid #f0f2f5; }
+.chat-search-bar h4 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 800; color: #1c1e21; }
+
 .conversations-list { flex: 1; overflow-y: auto; padding: 5px 10px; }
 
 .conversation-item { display: flex; align-items: center; gap: 12px; padding: 10px; cursor: pointer; border-radius: 12px; transition: 0.2s; }
@@ -65,7 +68,9 @@ img { max-width: 100%; display: block; }
 
 .header-info h4 { margin: 0; font-size: 1rem; font-weight: 700; }
 .header-info span { font-size: 0.75rem; color: #888; }
-.btn-back-mobile { display: none; background: none; border: none; font-size: 1.2rem; cursor: pointer; }
+.action-btn { background: none; border: none; font-size: 1.1rem; color: #53954a; cursor: pointer; padding: 8px; border-radius: 50%; transition: 0.2s; }
+.action-btn:hover { background: #f0f2f5; }
+.btn-back-mobile { display: none; background: none; border: none; font-size: 1.2rem; cursor: pointer; margin-right: 5px; }
 @media(max-width: 768px) { .btn-back-mobile { display: block; } }
 
 /* =======================================================
@@ -94,6 +99,7 @@ img { max-width: 100%; display: block; }
     max-width: 100% !important; height: auto; 
     border-radius: 12px; margin-bottom: 5px; 
 }
+.msg-time { display: block; font-size: 0.65rem; text-align: right; margin-top: 4px; opacity: 0.8; }
 
 /* =======================================================
    5. MENU DE ANEXOS (FLUTUANTE & BONITO)
@@ -151,6 +157,13 @@ img { max-width: 100%; display: block; }
 .btn-input-icon:hover { color: #53954a; }
 .btn-send-text { border: none; background: #53954a; color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; cursor: pointer; }
 .btn-send-text.hidden { display: none; }
+.right-actions { display: flex; align-items: center; gap: 5px; }
+
+/* Reply Preview */
+.reply-preview { display: flex; justify-content: space-between; align-items: center; background: #f0f2f5; padding: 8px 15px; margin-bottom: 5px; border-radius: 8px; border-left: 4px solid #53954a; }
+.reply-info { display: flex; flex-direction: column; font-size: 0.85rem; }
+.reply-label { font-weight: bold; color: #53954a; }
+.btn-close-reply { background: none; border: none; cursor: pointer; color: #666; }
 
 /* =======================================================
    7. MODAIS
@@ -166,7 +179,139 @@ img { max-width: 100%; display: block; }
     background: #fff; width: 90%; max-width: 450px; height: 80%; border-radius: 20px; 
     display: flex; flex-direction: column; overflow: hidden; 
 }
-/* Estilo simples pro resultado */
-.user-result-item { display: flex; gap: 10px; padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; align-items: center; }
+.modal-header-nc { display: flex; align-items: center; justify-content: space-between; padding: 15px; border-bottom: 1px solid #eee; }
+.modal-header-nc h3 { margin: 0; font-family: 'Montserrat', sans-serif; }
+.btn-close-nc { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
+.modal-search-nc { padding: 10px 15px; display: flex; align-items: center; gap: 10px; background: #f9f9f9; border-bottom: 1px solid #eee; }
+.modal-search-nc input { border: none; background: transparent; outline: none; flex: 1; padding: 5px; }
+.modal-results-nc, .media-grid { flex: 1; overflow-y: auto; padding: 10px; }
+.user-result-item { display: flex; gap: 10px; padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; align-items: center; transition: 0.2s; }
+.user-result-item:hover { background: #f5f5f5; }
 .user-result-item img { width: 40px; height: 40px; border-radius: 50%; }
+
+/* Media Grid Giphy */
+.media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+.media-item img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; }
+
+/* =======================================================
+   8. EMPTY STATE REDESIGN (Sênior UI)
+   ======================================================= */
+.empty-chat-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background-color: #fcfcfc;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    /* Padrão de fundo sutil */
+    background-image: 
+        radial-gradient(#e1e8e1 1.5px, transparent 1.5px), 
+        radial-gradient(#e1e8e1 1.5px, transparent 1.5px);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
+}
+
+/* Container do Ícone com Animação de Pulso */
+.empty-art-container {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-icon-circle {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #53954a, #45823d);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.8rem;
+    color: #fff;
+    box-shadow: 0 10px 25px rgba(83, 149, 74, 0.3);
+    z-index: 2;
+    position: relative;
+}
+
+.pulsing-circle {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    border: 2px solid rgba(83, 149, 74, 0.3);
+    animation: pulseWave 3s infinite;
+    z-index: 1;
+}
+.pulsing-circle.delay-1 { animation-delay: 0s; }
+.pulsing-circle.delay-2 { animation-delay: 1.5s; }
+
+@keyframes pulseWave {
+    0% { width: 100%; height: 100%; opacity: 1; }
+    100% { width: 220%; height: 220%; opacity: 0; }
+}
+
+.empty-content-text { max-width: 400px; margin-bottom: 35px; }
+
+.empty-chat-state h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin: 0 0 12px 0;
+}
+
+.empty-chat-state p {
+    font-family: 'Lato', sans-serif;
+    font-size: 1rem;
+    color: #7f8c8d;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Botão de Ação Principal */
+.btn-send-msg-primary {
+    background: linear-gradient(90deg, #53954a, #3e7a35);
+    color: #fff;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(83, 149, 74, 0.3);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-send-msg-primary:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(83, 149, 74, 0.4);
+}
+
+.btn-send-msg-primary:active { transform: translateY(1px); }
+
+/* Rodapé Criptografia */
+.encrypted-hint {
+    position: absolute;
+    bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #bdc3c7;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.encrypted-hint i { font-size: 0.7rem; }
+
+/* Auxiliares */
 .hidden { display: none !important; }
