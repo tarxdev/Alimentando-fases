@@ -18,73 +18,33 @@
     <link rel="stylesheet" href="css/editor.css">
 
     <style>
-        /* --- SISTEMA DE LOADER (Padrão Unificado) --- */
+        /* LOADER SYSTEM */
         :root { --af-primary: #53954a; --af-secondary: #6e513d; }
-
-        /* OVERLAY TELA CHEIA */
         #af-global-loader {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: #f9efd4; /* Cor Creme Fundo */
-            z-index: 9999999;
+            background-color: #f9efd4; z-index: 9999999;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: opacity 0.5s ease, visibility 0.5s;
         }
         #af-global-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-
-        /* ANIMAÇÃO DO SPINNER */
         .af-spinner-box { position: relative; width: 80px; height: 80px; }
-        .af-ring {
-            position: absolute; width: 100%; height: 100%; border-radius: 50%;
-            border: 4px solid transparent; border-top-color: var(--af-primary);
-            animation: af-spin 1s linear infinite;
-        }
-        .af-ring-inner {
-            position: absolute; top: 15px; left: 15px; width: 50px; height: 50px; border-radius: 50%;
-            border: 4px solid transparent; border-bottom-color: var(--af-secondary);
-            animation: af-spin-reverse 1.5s linear infinite;
-        }
-        .af-icon-center {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: var(--af-primary); font-size: 1.5rem; animation: af-pulse 2s infinite;
-        }
-        .af-loader-text {
-            margin-top: 20px; font-family: 'Montserrat', sans-serif; font-weight: 700;
-            color: var(--af-secondary); letter-spacing: 1px; text-transform: uppercase; font-size: 0.9rem;
-        }
-
+        .af-ring { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 4px solid transparent; border-top-color: var(--af-primary); animation: af-spin 1s linear infinite; }
+        .af-ring-inner { position: absolute; top: 15px; left: 15px; width: 50px; height: 50px; border-radius: 50%; border: 4px solid transparent; border-bottom-color: var(--af-secondary); animation: af-spin-reverse 1.5s linear infinite; }
+        .af-icon-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--af-primary); font-size: 1.5rem; animation: af-pulse 2s infinite; }
+        .af-loader-text { margin-top: 20px; font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--af-secondary); letter-spacing: 1px; text-transform: uppercase; font-size: 0.9rem; }
         @keyframes af-spin { 100% { transform: rotate(360deg); } }
         @keyframes af-spin-reverse { 100% { transform: rotate(-360deg); } }
         @keyframes af-pulse { 0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.9); } }
     </style>
 
     <script>
-        // GERENCIADOR DO LOADER
         window.GlobalLoader = {
             element: null,
-            init: function() {
-                this.element = document.getElementById('af-global-loader');
-            },
-            show: function(msg) {
-                if(!this.element) this.init();
-                if(this.element) {
-                    if(msg) document.getElementById('af-loader-msg').innerText = msg;
-                    this.element.classList.remove('hidden');
-                }
-            },
-            hide: function() {
-                if(!this.element) this.init();
-                if(this.element) {
-                    setTimeout(() => {
-                        this.element.classList.add('hidden');
-                    }, 600); // Delay suave
-                }
-            }
+            init: function() { this.element = document.getElementById('af-global-loader'); },
+            show: function(msg) { if(!this.element) this.init(); if(this.element) { if(msg) document.getElementById('af-loader-msg').innerText = msg; this.element.classList.remove('hidden'); } },
+            hide: function() { if(!this.element) this.init(); if(this.element) { setTimeout(() => { this.element.classList.add('hidden'); }, 600); } }
         };
-
-        // Trava de segurança (8s)
-        setTimeout(() => {
-            if(window.GlobalLoader) window.GlobalLoader.hide();
-        }, 8000);
+        setTimeout(() => { if(window.GlobalLoader) window.GlobalLoader.hide(); }, 8000);
     </script>
 </head>
 
@@ -100,19 +60,12 @@
     </div>
 
     <header class="mobile-header">
-        <button class="icon-btn" id="btn-mobile-menu" aria-label="Abrir menu">
-            <i class="fa-solid fa-bars"></i>
-        </button>
+        <button class="icon-btn" id="btn-mobile-menu" aria-label="Abrir menu"><i class="fa-solid fa-bars"></i></button>
         <div class="mobile-brand">
             <img src="../Imagens/logofavicon.webp" alt="Logo" class="mobile-logo">
-            <div class="mobile-brand-text">
-                <strong>Comunidade</strong>
-                <span>Alimentando Fases</span>
-            </div>
+            <div class="mobile-brand-text"><strong>Comunidade</strong><span>Alimentando Fases</span></div>
         </div>
-        <a href="../perfil/index.html" class="mobile-avatar-link" aria-label="Perfil">
-            <img src="https://ui-avatars.com/api/?name=User" class="mobile-avatar" id="mobile-nav-avatar">
-        </a>
+        <a href="../perfil/index.html" class="mobile-avatar-link" aria-label="Perfil"><img src="https://ui-avatars.com/api/?name=User" class="mobile-avatar" id="mobile-nav-avatar"></a>
     </header>
 
     <div class="mobile-menu-overlay" id="mobile-menu-overlay">
@@ -120,14 +73,9 @@
             <div class="mobile-menu-header">
                 <div class="mobile-user">
                     <img src="https://ui-avatars.com/api/?name=User" class="mobile-menu-avatar" id="mobile-menu-avatar" alt="Avatar">
-                    <div class="mobile-user-text">
-                        <strong id="mobile-menu-name">Meu Perfil</strong>
-                        <span>Gerencie sua conta</span>
-                    </div>
+                    <div class="mobile-user-text"><strong id="mobile-menu-name">Meu Perfil</strong><span>Gerencie sua conta</span></div>
                 </div>
-                <button class="icon-btn" id="btn-close-mobile-menu" aria-label="Fechar menu">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <button class="icon-btn" id="btn-close-mobile-menu" aria-label="Fechar menu"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <ul class="mobile-nav-links">
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> Início</a></li>
@@ -155,10 +103,7 @@
                 <li><a href="../notificacoes/index.html"><i class="fa-regular fa-bell"></i> <span>Notificações</span></a></li>
                 <li>
                     <a href="../mensagens/index.html">
-                        <div class="icon-container">
-                            <i class="fa-solid fa-envelope"></i>
-                            <span id="sidebar-badge" class="nav-badge hidden">0</span>
-                        </div>
+                        <div class="icon-container"><i class="fa-solid fa-envelope"></i><span id="sidebar-badge" class="nav-badge hidden">0</span></div>
                         <span>Mensagens</span>
                     </a>
                 </li>
@@ -202,8 +147,11 @@
         </main>
 
         <aside class="right-sidebar">
+            
             <div class="widget-card resources-widget">
-                <div class="widget-header"><h3><i class="fa-solid fa-layer-group"></i> Recursos Extras</h3></div>
+                <div class="widget-header">
+                    <h3><i class="fa-solid fa-layer-group"></i> Recursos Extras</h3>
+                </div>
                 <div class="resources-list">
                     <div class="resource-card usda-feature">
                         <div class="rc-cover">
@@ -218,102 +166,89 @@
                     </div>
                 </div>
             </div>
-            <div class="footer-links-mini"><p>© 2026 Alimentando Fases</p></div>
+
+            <div class="widget-card tmb-widget compact-tmb">
+                <div class="widget-header-mini">
+                    <i class="fa-solid fa-fire-flame-curved" style="color:#e74c3c;"></i>
+                    <h3>Metabolismo</h3>
+                </div>
+                
+                <div class="tmb-body-compact">
+                    <div class="gender-toggle-row">
+                        <div class="gender-option">
+                            <input type="radio" id="gender-male" name="tmb-gender" value="male" checked>
+                            <label for="gender-male" class="lbl-male"><i class="fa-solid fa-mars"></i> Homem</label>
+                        </div>
+                        <div class="gender-option">
+                            <input type="radio" id="gender-female" name="tmb-gender" value="female">
+                            <label for="gender-female" class="lbl-female"><i class="fa-solid fa-venus"></i> Mulher</label>
+                        </div>
+                    </div>
+
+                    <div class="tmb-inline-inputs">
+                        <div class="tmb-field">
+                            <label>Peso</label>
+                            <input type="number" id="tmb-weight" placeholder="kg">
+                        </div>
+                        <div class="tmb-field">
+                            <label>Alt.</label>
+                            <input type="number" id="tmb-height" placeholder="cm">
+                        </div>
+                        <div class="tmb-field">
+                            <label>Idade</label>
+                            <input type="number" id="tmb-age" placeholder="anos">
+                        </div>
+                    </div>
+
+                    <div class="tmb-field-full">
+                        <select id="tmb-activity">
+                            <option value="1.2">Sedentário (Pouco)</option>
+                            <option value="1.375">Leve (1-3 dias)</option>
+                            <option value="1.55">Moderado (3-5 dias)</option>
+                            <option value="1.725">Intenso (6-7 dias)</option>
+                            <option value="1.9">Atleta (2x dia)</option>
+                        </select>
+                    </div>
+
+                    <button id="btn-calc-tmb" class="btn-calc-compact">CALCULAR AGORA</button>
+                </div>
+            </div>
+
+            <div class="footer-links-mini" style="margin-top: 15px;"><p>© 2026 Alimentando Fases</p></div>
         </aside>
     </div>
 
-    <div id="modal-post-detail" class="modal-overlay">
-        <div class="modal-instagram-container">
-            <div class="inst-left-side" id="inst-left-content"></div>
-            <div class="inst-right-side">
-                <div class="inst-header">
-                    <div class="inst-header-left"><img src="" id="inst-author-photo" class="inst-avatar"><div class="inst-meta"><h4 id="inst-author-name">Nome</h4></div></div>
-                    <button class="btn-close-modal-inst"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="inst-comments-area" id="inst-comments-list"></div>
-                <div class="inst-footer-section">
-                    <div class="inst-action-icons">
-                        <div class="inst-icons-left"><button id="inst-btn-like" class="inst-icon-btn"><i class="fa-regular fa-heart"></i></button></div>
-                    </div>
-                    <span class="inst-likes-count" id="inst-likes-number">0 curtidas</span>
-                    <div id="comment-img-preview-container" class="comment-img-preview hidden"></div>
-                    <div class="inst-input-wrapper">
-                        <button class="inst-emoji-btn"><i class="fa-regular fa-face-smile"></i></button>
-                        <textarea id="inst-comment-input" placeholder="Adicione um comentário..." rows="1"></textarea>
-                        <button id="btn-add-comment-img" class="inst-gallery-btn"><i class="fa-regular fa-image"></i></button>
-                        <input type="file" id="input-comment-img" accept="image/*" hidden>
-                        <button id="inst-btn-send" class="inst-post-btn" disabled>Publicar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div id="modal-create-luxury" class="luxury-modal-overlay">
-        <div class="luxury-glow-effect"></div>
-        
-        <div class="luxury-modal-card luxury-create-card">
-            <div class="luxury-create-header">
-                <h3 class="luxury-gradient-text">Criar Experiência</h3>
-                <button class="luxury-close-btn" id="btn-close-create-luxury">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="luxury-create-body">
-                <div class="luxury-user-row">
-                    <div class="luxury-avatar-frame">
-                        <img src="https://ui-avatars.com/api/?name=User" id="modal-user-avatar" class="luxury-user-avatar">
-                    </div>
-                    <div class="luxury-user-info">
-                        <span class="luxury-username">Você</span>
-                        <button class="luxury-privacy-pill">
-                            <i class="fa-solid fa-earth-americas"></i> Público
-                        </button>
-                    </div>
-                </div>
-
-                <textarea id="luxury-post-input" class="luxury-textarea" placeholder="Compartilhe sua jornada..."></textarea>
-                
-                <div id="luxury-preview-area" class="luxury-preview-grid hidden"></div>
-            </div>
-
-            <div class="luxury-create-footer">
-                <div class="luxury-tools-wrapper">
-                    <button class="luxury-tool-btn" onclick="document.getElementById('luxury-file-upload').click()" title="Adicionar Foto">
-                        <i class="fa-regular fa-image"></i>
-                    </button>
-                    <div class="luxury-divider-vertical"></div>
-                    <button class="luxury-tool-btn" disabled style="opacity: 0.5;">
-                        <i class="fa-solid fa-location-dot"></i>
-                    </button>
-                    <button class="luxury-tool-btn" disabled style="opacity: 0.5;">
-                        <i class="fa-regular fa-face-smile"></i>
-                    </button>
-                    <input type="file" id="luxury-file-upload" accept="image/*" hidden>
-                </div>
-                
-                <button id="btn-submit-luxury" class="luxury-btn-publish" disabled>
-                    Publicar <i class="fa-solid fa-paper-plane" style="font-size: 0.8em; margin-left: 4px;"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
+    <div id="modal-post-detail" class="modal-overlay"><div class="modal-instagram-container"><div class="inst-left-side" id="inst-left-content"></div><div class="inst-right-side"><div class="inst-header"><div class="inst-header-left"><img src="" id="inst-author-photo" class="inst-avatar"><div class="inst-meta"><h4 id="inst-author-name">Nome</h4></div></div><button class="btn-close-modal-inst"><i class="fa-solid fa-xmark"></i></button></div><div class="inst-comments-area" id="inst-comments-list"></div><div class="inst-footer-section"><div class="inst-action-icons"><div class="inst-icons-left"><button id="inst-btn-like" class="inst-icon-btn"><i class="fa-regular fa-heart"></i></button></div></div><span class="inst-likes-count" id="inst-likes-number">0 curtidas</span><div id="comment-img-preview-container" class="comment-img-preview hidden"></div><div class="inst-input-wrapper"><button class="inst-emoji-btn"><i class="fa-regular fa-face-smile"></i></button><textarea id="inst-comment-input" placeholder="Adicione um comentário..." rows="1"></textarea><button id="btn-add-comment-img" class="inst-gallery-btn"><i class="fa-regular fa-image"></i></button><input type="file" id="input-comment-img" accept="image/*" hidden><button id="inst-btn-send" class="inst-post-btn" disabled>Publicar</button></div></div></div></div></div>
+    <div id="modal-create-luxury" class="luxury-modal-overlay"><div class="luxury-glow-effect"></div><div class="luxury-modal-card luxury-create-card"><div class="luxury-create-header"><h3 class="luxury-gradient-text">Criar Experiência</h3><button class="luxury-close-btn" id="btn-close-create-luxury"><i class="fa-solid fa-xmark"></i></button></div><div class="luxury-create-body"><div class="luxury-user-row"><div class="luxury-avatar-frame"><img src="https://ui-avatars.com/api/?name=User" id="modal-user-avatar" class="luxury-user-avatar"></div><div class="luxury-user-info"><span class="luxury-username">Você</span><button class="luxury-privacy-pill"><i class="fa-solid fa-earth-americas"></i> Público</button></div></div><textarea id="luxury-post-input" class="luxury-textarea" placeholder="Compartilhe sua jornada..."></textarea><div id="luxury-preview-area" class="luxury-preview-grid hidden"></div></div><div class="luxury-create-footer"><div class="luxury-tools-wrapper"><button class="luxury-tool-btn" onclick="document.getElementById('luxury-file-upload').click()"><i class="fa-regular fa-image"></i></button><div class="luxury-divider-vertical"></div></div><button id="btn-submit-luxury" class="luxury-btn-publish" disabled>Publicar <i class="fa-solid fa-paper-plane"></i></button><input type="file" id="luxury-file-upload" accept="image/*" hidden></div></div></div>
     <div id="modal-image-editor" class="modal-overlay" style="z-index: 20001;"><div class="editor-container"><div class="editor-header"><h3>Editar</h3><button id="btn-close-editor" class="btn-icon-close" style="color:white;"><i class="fa-solid fa-xmark"></i></button></div><div class="editor-preview-area"><canvas id="editor-canvas"></canvas></div><div class="editor-controls"><div class="filters-row"><button class="filter-btn active" data-preset="normal">Normal</button><button class="filter-btn" data-preset="grayscale">P&B</button><button class="filter-btn" data-preset="sepia">Sépia</button></div><div class="sliders-column"><div class="slider-group"><label>Brilho</label><input type="range" id="edit-brightness" min="0" max="200" value="100"></div><div class="slider-group"><label>Contraste</label><input type="range" id="edit-contrast" min="0" max="200" value="100"></div></div><div class="editor-footer"><button id="btn-cancel-edit-img" class="btn-cancel-edit" style="color:white; border-color:#555;">Cancelar</button><button id="btn-save-edit-img" class="btn-save-edit">Salvar</button></div></div></div></div>
     <div id="modal-usda" class="modal-overlay"><div class="modal-content-usda"><div class="usda-header"><div class="usda-brand"><i class="fa-solid fa-leaf" style="color: #53954a;"></i><div><h3>USDA FoodData Central</h3><span>Base de dados oficial</span></div></div><button id="btn-close-usda" class="btn-icon-close"><i class="fa-solid fa-xmark"></i></button></div><div class="usda-body"><div class="usda-search-box"><input type="text" id="usda-search-input" placeholder="Pesquise um alimento..."><button id="btn-usda-search"><i class="fa-solid fa-magnifying-glass"></i></button></div><div id="usda-loader" class="usda-loader hidden"><div class="spinner"></div><p>Consultando...</p></div><div id="usda-results-list" class="usda-list"></div></div></div></div>
     <div id="modal-tools" class="modal-overlay"><div class="modal-content-tools"><div class="modal-header-tools"><h3><i class="fa-solid fa-screwdriver-wrench"></i> Ferramentas</h3><button id="btn-close-tools" class="btn-icon-close"><i class="fa-solid fa-xmark"></i></button></div><div class="tools-grid"><div class="tool-card"><div class="tool-icon water-icon"><i class="fa-solid fa-droplet"></i></div><h4>Água</h4><div class="tool-input-area"><input type="number" id="user-weight-water" placeholder="Peso (kg)"><div id="calc-result-area" class="tool-result hidden"><strong id="water-result-text">0 L</strong></div></div></div><div class="tool-card"><div class="tool-icon imc-icon"><i class="fa-solid fa-weight-scale"></i></div><h4>IMC</h4><div class="tool-input-area"><div class="input-row"><input type="number" id="imc-height" placeholder="Alt" class="mini-input"><input type="number" id="imc-weight" placeholder="Peso" class="mini-input"></div><button class="btn-tool-action" id="btn-calc-imc">Calcular</button><div id="imc-result-area" class="tool-result hidden"><span>IMC: </span><strong id="imc-value">0.0</strong><div id="imc-status-badge" class="status-badge-mini"></div></div></div></div></div></div></div>
+    <div id="modal-delete-luxury" class="luxury-modal-overlay"><div class="luxury-modal-card"><div class="luxury-modal-icon-wrapper delete-accent"><i class="fa-solid fa-trash-can luxury-icon-pulse"></i></div><h3 class="luxury-modal-title">Excluir Publicação?</h3><p class="luxury-modal-text">Essa ação é irreversível.</p><div class="luxury-modal-actions"><button class="luxury-btn-cancel" onclick="window.closeDeleteModal()">Cancelar</button><button class="luxury-btn-confirm delete-accent-btn" id="confirmDeleteLuxuryBtn">Sim, Excluir</button></div></div></div>
 
-    <div id="modal-delete-luxury" class="luxury-modal-overlay">
-        <div class="luxury-modal-card">
-            <div class="luxury-modal-icon-wrapper delete-accent">
-                <i class="fa-solid fa-trash-can luxury-icon-pulse"></i>
+    <div id="modal-tmb-result" class="tmb-modal-overlay">
+        <div class="tmb-modal-card">
+            <button class="btn-close-tmb-modal"><i class="fa-solid fa-xmark"></i></button>
+            <div class="tmb-modal-header">
+                <div class="tmb-icon-pulse"><i class="fa-solid fa-fire"></i></div>
+                <h3>Seu Metabolismo</h3>
             </div>
-            <h3 class="luxury-modal-title">Excluir Publicação?</h3>
-            <p class="luxury-modal-text">Essa ação é irreversível. O conteúdo será removido permanentemente da comunidade.</p>
-            <div class="luxury-modal-actions">
-                <button class="luxury-btn-cancel" onclick="window.closeDeleteModal()">Cancelar</button>
-                <button class="luxury-btn-confirm delete-accent-btn" id="confirmDeleteLuxuryBtn">Sim, Excluir</button>
+            <div class="tmb-modal-body">
+                <div class="tmb-display-row highlight">
+                    <span class="lbl">Gasto Energético Total</span>
+                    <div class="val-wrapper">
+                        <strong id="modal-tmb-total">0</strong>
+                        <small>Kcal / dia</small>
+                    </div>
+                </div>
+                <div class="tmb-divider"></div>
+                <div class="tmb-display-row secondary">
+                    <span class="lbl">Taxa Metabólica Basal</span>
+                    <div class="val-wrapper">
+                        <strong id="modal-tmb-basal">0</strong>
+                        <small>Kcal (Repouso)</small>
+                    </div>
+                </div>
+                <p class="tmb-note">Este é o valor estimado para manter seu peso atual considerando seu nível de atividade.</p>
             </div>
         </div>
     </div>
@@ -324,11 +259,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                if(window.GlobalLoader) window.GlobalLoader.hide();
-            }, 1000);
+            setTimeout(() => { if(window.GlobalLoader) window.GlobalLoader.hide(); }, 1000);
         });
     </script>
-
 </body>
 </html>
