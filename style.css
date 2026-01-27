@@ -6863,3 +6863,26 @@ body section#adolescencia .news-card__excerpt strong {
     font-size: 0.75rem;
     color: #6b7280;
 }
+/* * Implementação de Truncamento de Texto (Text Truncation)
+ * Objetivo: Prevenir que nomes de utilizadores extensos quebrem o layout do header.
+ * Estratégia: Limitar a largura máxima e aplicar reticências (...) visualmente.
+ */
+.profile-name {
+    /* Define um limite rígido de largura (Hard Limit constraint) */
+    max-width: 100px; /* Ajuste este valor conforme a responsividade desejada (ex: 8rem) */
+
+    /* Força o texto a permanecer numa única linha (Single-line enforcement) */
+    white-space: nowrap;
+
+    /* Oculta o conteúdo que excede a caixa delimitadora (Overflow handling) */
+    overflow: hidden;
+
+    /* Renderiza reticências para indicar continuidade (UX feedback) */
+    text-overflow: ellipsis;
+
+    /* Garante que o elemento respeite propriedades de box-model (width/height) */
+    display: inline-block;
+
+    /* Mantém o alinhamento óptico com o avatar e ícones adjacentes */
+    vertical-align: middle;
+}
