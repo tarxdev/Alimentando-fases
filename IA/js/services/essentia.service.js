@@ -5,7 +5,7 @@
 export class EssentiaService { 
     constructor() {
         // Aponta para o servidor que você acabou de rodar na porta 3000
-        this.endpoint = 'http://localhost:3000/api/chat'; 
+        this.endpoint = 'https://alimentando-fases.onrender.com/api/chat'; 
     }
 
     async sendMessage(userMessage, history = []) {
