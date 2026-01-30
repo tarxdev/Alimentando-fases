@@ -204,11 +204,22 @@
 /* --- SIDEBAR DIREITA (Conteúdos Extras) --- */
 .right-sidebar {
     width: 340px;
-    background: white; padding: 30px 25px;
-    position: sticky; top: 0; height: 100vh;
+    background: white;
+    padding: 30px 25px;
+
+    /* Posicionamento Fixo/Sticky */
+    position: sticky;
+    top: 0;
+
+    /* REGRAS DE BLOQUEIO DE SCROLL/ALTURA */
+    height: auto;           /* Deixa a altura natural */
+    max-height: 100vh;      /* Limita ao tamanho da tela */
+    overflow: hidden;       /* REMOVE A BARRA DE ROLAGEM E CORTA O CONTEÚDO */
+    align-self: flex-start; /* GARANTE QUE FIQUE FIXO NO TOPO (Não estica com o feed) */
+    
     border-left: 1px solid var(--border-light);
-    display: flex; flex-direction: column;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     flex-shrink: 0;
 }
 
