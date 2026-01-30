@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essentia AI - Alimentando Fases</title>
+    <link rel="icon" href="../Imagens/logofavicon.webp">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800;900&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <link rel="stylesheet" href="../comunidade/css/core.css">
+    <link rel="stylesheet" href="../comunidade/css/layout.css">
+    
+    <link rel="stylesheet" href="css/chat.css">
+</head>
+<body class="dashboard-body">
+
+    <div class="main-layout">
+        
+        <nav class="sidebar">
+            <div class="logo-area">
+                <img src="../Imagens/logofavicon.webp" alt="Logo" class="sidebar-logo-img">
+                <div class="brand-text">ALIMENTANDO <span>FASES</span></div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html"><i class="fa-solid fa-house"></i> <span>Início</span></a></li>
+                
+                <li>
+                    <a href="../comunidade/index.html">
+                        <i class="fa-solid fa-earth-americas"></i> <span>Comunidade</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="index.html" class="active">
+                        <i class="fa-solid fa-robot"></i> <span>Essentia</span>
+                    </a>
+                </li>
+
+                <li><a href="../notificacoes/index.html"><i class="fa-regular fa-bell"></i> <span>Notificações</span></a></li>
+                <li><a href="../mensagens/index.html"><i class="fa-solid fa-envelope"></i> <span>Mensagens</span></a></li>
+                <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> <span>Calendário</span></a></li>
+                <li><a href="../configuracoes/index.html"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
+            </ul>
+            <div class="nav-footer">
+                <a href="../perfil/index.html" class="profile-pill-link">
+                    <img src="https://ui-avatars.com/api/?name=User" class="nav-avatar" id="nav-avatar-img"> 
+                    <div class="profile-info-mini"><span class="p-name">Meu Perfil</span></div>
+                </a>
+            </div>
+        </nav>
+
+        <main class="content-area chat-layout">
+            <div class="chat-container">
+                
+                <div class="chat-header">
+                    <div class="ai-profile">
+                        <div class="ai-avatar-wrapper">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div class="ai-info">
+                            <h2>Essentia</h2>
+                            <span class="status-indicator"><span class="dot online"></span> Inteligência Artificial</span>
+                        </div>
+                    </div>
+                    <button id="btn-clear-chat" class="icon-btn-ghost" title="Reiniciar Conversa">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </div>
+
+                <div id="chat-messages" class="chat-messages-area">
+                    <div class="message ai-message">
+                        <div class="message-content">
+                            <p>Olá! Sou a <strong>Essentia</strong>, sua assistente virtual. 🤖<br>Posso ajudar com dúvidas sobre nutrição, fases do desenvolvimento ou receitas. O que você quer saber hoje?</p>
+                        </div>
+                        <span class="message-time">Agora</span>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <div class="input-wrapper">
+                        <textarea id="user-input" placeholder="Digite sua dúvida aqui..." rows="1"></textarea>
+                        <button id="btn-send" class="btn-send-ai" disabled>
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <p class="disclaimer-text">A Essentia pode cometer erros. Verifique informações médicas importantes.</p>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="js/index.js"></script>
+</body>
+</html>
