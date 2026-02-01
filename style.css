@@ -87,21 +87,6 @@ a:hover {
     border-radius: 4px;
 }
 
-.skip-link {
-    position: absolute;
-    top: -100px;
-    left: 10px;
-    background-color: var(--color-primary);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    z-index: 9999;
-    transition: top 0.3s;
-}
-
-.skip-link:focus {
-    top: 10px;
-}
 
 
 /* === 2. LAYOUT & SEÇÕES GLOBAIS === */
@@ -3324,11 +3309,7 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
 
 /* === 8. ANIMAÇÕES (GSAP) === */
 
-.gs_reveal {
-    opacity: 0;
-    visibility: hidden;
-    will-change: transform, opacity;
-}
+
 
 
 /* === 9. RESPONSIVIDADE GERAL === */
@@ -3661,7 +3642,7 @@ body section#infancia .grid-container .news-card .news-card__text-wrapper {
     height: 100%;
     border-radius: 25px;
     width: 0%;
-    /* O GSAP ainda controla isso */
+    /* largura será controlada por JS ou CSS */
     position: relative;
     overflow: visible;
 }
@@ -6378,7 +6359,7 @@ body section#adolescencia .news-card__excerpt strong {
  * Isso impede que as imagens sumam quando a animação é desligada
  * ======================================================= */
 @media (max-width: 1024px) {
-    .gs_reveal, 
+    
     .topic-block, 
     .card, 
     .card--has-image {
