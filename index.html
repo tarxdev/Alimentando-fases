@@ -2,6 +2,15 @@
 <html lang="pt-BR">
 
 <head>
+    <script src="global/developer-console.js"></script>
+            <meta http-equiv="Content-Security-Policy" 
+                content="default-src 'self' https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com; 
+                     script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.firebasejs.com https://*.gstatic.com https://www.googletagmanager.com https://apis.google.com; 
+                     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
+                     img-src 'self' data: https: blob: https://www.google-analytics.com; 
+                     font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
+                     frame-src 'self' https://*.firebaseapp.com https://accounts.google.com;
+                     connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.giphy.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://apis.google.com;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
@@ -31,12 +40,11 @@
         </div>
     </div>
 
-    <a href="#app-container" class="skip-link">Pular para o Conteúdo</a>
 
     <header class="main-header">
         <div class="main-header__wrapper">
             <a href="#" class="main-header__logo nav-link" data-page="home">
-                <img src="Imagens/Alimentando fases (1).webp" alt="Logotipo Alimentando Fases">
+                <img src="Imagens/Alimentando fases (1).webp" alt="Logotipo Alimentando Fases" loading="lazy">
                 <div class="site-title-wrapper">
                     <h1 class="site-title">
                         ALIMENTANDO <span class="title-highlight">FASES</span>
@@ -153,8 +161,8 @@
                                                         class="submenu-content__link submenu-link-scroll nav-link"
                                                         data-page="infancia" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/introducao-alimentar.webp"
-                                                                alt="Introdução Alimentar"></div>
+                                                            src="Imagens/introducao-alimentar.webp"
+                                                            alt="Introdução Alimentar" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Introdução Alimentar
                                                         </div>
                                                         <div class="submenu-content__link-text">Como iniciar a
@@ -165,8 +173,8 @@
                                                         class="submenu-content__link submenu-link-scroll"
                                                         data-page="infancia" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/lanche-divertido.jpg"
-                                                                alt="Lanches Divertidos"></div>
+                                                            src="Imagens/lanche-divertido.jpg"
+                                                            alt="Lanches Divertidos" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Lanches Divertidos
                                                         </div>
                                                         <div class="submenu-content__link-text">Ideias criativas e
@@ -177,7 +185,7 @@
                                                         class="submenu-content__link submenu-link-scroll"
                                                         data-page="infancia" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/mito-verdade.webp" alt="Mito ou Verdade?">
+                                                            src="Imagens/mito-verdade.webp" alt="Mito ou Verdade?" loading="lazy">
                                                         </div>
                                                         <div class="submenu-content__link-title">Mito ou Verdade?</div>
                                                         <div class="submenu-content__link-text">Desvende os mitos mais
@@ -194,7 +202,7 @@
                                                         class="submenu-content__link submenu-link-scroll nav-link"
                                                         data-page="adolescencia" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/estirao.webp" alt="A Fase do Estirão">
+                                                            src="Imagens/estirao.webp" alt="A Fase do Estirão" loading="lazy">
                                                         </div>
                                                         <div class="submenu-content__link-title">A Fase do Estirão</div>
                                                         <div class="submenu-content__link-text">Entenda a "explosão" de
@@ -205,8 +213,8 @@
                                                         class="submenu-content__link submenu-link-scroll"
                                                         data-page="adolescencia" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/jogo-caca-palavras.webp"
-                                                                alt="Jogo: Nutrientes Essenciais"></div>
+                                                            src="Imagens/jogo-caca-palavras.webp"
+                                                            alt="Jogo: Nutrientes Essenciais" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Jogo: Nutrientes
                                                             Essenciais</div>
                                                         <div class="submenu-content__link-text">Encontre os nutrientes
@@ -217,8 +225,8 @@
                                                         class="submenu-content__link submenu-link-scroll"
                                                         data-page="adolescencia" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/riscos-alertas.webp"
-                                                                alt="Riscos e Alertas"></div>
+                                                            src="Imagens/riscos-alertas.webp"
+                                                            alt="Riscos e Alertas" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Riscos e Alertas</div>
                                                         <div class="submenu-content__link-text">Os perigos do consumo de
                                                             bebidas energéticas e álcool durante o desenvolvimento
@@ -233,8 +241,8 @@
                                                 <li class="submenu-content__list-item">
                                                         <a href="#adulto-planejador" class="submenu-content__link submenu-link-scroll nav-link" data-page="adulto" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/planejador-lanches.webp"
-                                                                alt="Planejador de Lanches"></div>
+                                                            src="Imagens/planejador-lanches.webp"
+                                                            alt="Planejador de Lanches" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Planejador de Lanches
                                                         </div>
                                                         <div class="submenu-content__link-text">Use nossa ferramenta
@@ -245,7 +253,7 @@
                                                         class="submenu-content__link submenu-link-scroll"
                                                         data-page="adulto" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/dcnt.webp" alt="Prevenção de DCNT"></div>
+                                                            src="Imagens/dcnt.webp" alt="Prevenção de DCNT" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Prevenção de DCNT</div>
                                                         <div class="submenu-content__link-text">Como a alimentação atua
                                                             como um escudo contra diabetes, hipertensão e colesterol
@@ -255,8 +263,8 @@
                                                         class="submenu-content__link submenu-link-scroll"
                                                         data-page="adulto" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/nutrientes-chave.webp"
-                                                                alt="Nutrientes-Chave"></div>
+                                                            src="Imagens/nutrientes-chave.webp"
+                                                            alt="Nutrientes-Chave" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Nutrientes-Chave</div>
                                                         <div class="submenu-content__link-text">O poder das Fibras,
                                                             Antioxidantes e Gorduras Boas para combater o estresse da
@@ -270,8 +278,8 @@
                                             <ul class="submenu-content__list">
                                                 <li class="submenu-content__list-item"><a href="#idoso-sarcopenia" class="submenu-content__link submenu-link-scroll nav-link" data-page="idoso" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/prevencao-sarcopenia.webp"
-                                                                alt="Prevenção da Sarcopenia"></div>
+                                                            src="Imagens/prevencao-sarcopenia.webp"
+                                                            alt="Prevenção da Sarcopenia" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Prevenção da Sarcopenia
                                                         </div>
                                                         <div class="submenu-content__link-text">A importância das
@@ -282,7 +290,7 @@
                                                         class="submenu-content__link submenu-link-scroll"
                                                         data-page="idoso" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/atencao-hidratacao.webp" alt="Saúde Óssea">
+                                                            src="Imagens/atencao-hidratacao.webp" alt="Saúde Óssea" loading="lazy">
                                                         </div>
                                                         <div class="submenu-content__link-title">Atenção à Hidratação
                                                         </div>
@@ -406,8 +414,8 @@
                                                         class="submenu-content__link submenu-link-scroll nav-link"
                                                         data-page="receitas" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/muffins.webp"
-                                                                alt="Muffin de Casca de Banana"></div>
+                                                            src="Imagens/muffins.webp"
+                                                            alt="Muffin de Casca de Banana" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Muffin de Casca de
                                                             Banana</div>
                                                         <div class="submenu-content__link-text">Comece o dia com energia
@@ -419,8 +427,8 @@
                                                         class="submenu-content__link submenu-link-scroll nav-link"
                                                         data-page="receitas" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/espetinhos.webp"
-                                                                alt="Espetinho de Berinjela"></div>
+                                                            src="Imagens/espetinhos.webp"
+                                                            alt="Espetinho de Berinjela" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Espetinho de Berinjela
                                                         </div>
                                                         <div class="submenu-content__link-text">Uma opção vegana,
@@ -432,8 +440,8 @@
                                                         class="submenu-content__link submenu-link-scroll nav-link"
                                                         data-page="receitas" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/chips2.webp"
-                                                                alt="Chips de Legumes e Cascas"></div>
+                                                            src="Imagens/chips2.webp"
+                                                            alt="Chips de Legumes e Cascas" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Chips de Legumes e
                                                             Cascas</div>
                                                         <div class="submenu-content__link-text">Um petisco crocante,
@@ -521,8 +529,8 @@
                                                         class="submenu-content__link submenu-link-scroll nav-link"
                                                         data-page="higiene" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/higienedealimentos2.webp"
-                                                                alt="Lavagem de Verduras"></div>
+                                                            src="Imagens/higienedealimentos2.webp"
+                                                            alt="Lavagem de Verduras" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Lavagem de Verduras e
                                                             Frutas</div>
                                                         <div class="submenu-content__link-text">Aprenda o passo a passo
@@ -533,8 +541,8 @@
                                                         class="submenu-content__link submenu-link-scroll nav-link"
                                                         data-page="higiene" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/geladeira-organizada.webp"
-                                                                alt="Armazenamento Correto"></div>
+                                                            src="Imagens/geladeira-organizada.webp"
+                                                            alt="Armazenamento Correto" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Armazenamento Correto
                                                         </div>
                                                         <div class="submenu-content__link-text">Dicas para guardar cada
@@ -546,8 +554,8 @@
                                                         class="submenu-content__link submenu-link-scroll nav-link"
                                                         data-page="higiene" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/evitando-contaminacao.webp"
-                                                                alt="Contaminação Cruzada"></div>
+                                                            src="Imagens/evitando-contaminacao.webp"
+                                                            alt="Contaminação Cruzada" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Evitando a Contaminação
                                                         </div>
                                                         <div class="submenu-content__link-text">Como usar tábuas e
@@ -564,7 +572,7 @@
                                                         class="submenu-content__link submenu-link-scroll nav-link"
                                                         data-page="rotulagem" role="button">
                                                         <div class="submenu-content__link-img"><img
-                                                                src="Imagens/lupa.webp" alt="Lendo um rótulo"></div>
+                                                            src="Imagens/lupa.webp" alt="Lendo um rótulo" loading="lazy"></div>
                                                         <div class="submenu-content__link-title">Lupa Frontal</div>
                                                         <div class="submenu-content__link-text">Entenda o novo símbolo
                                                             de "Alto em" açúcar, gordura e sódio.</div>
@@ -730,7 +738,7 @@
         <div class="card-ebook">
             <div class="wrapper">
                 <img src="Imagens/card.ebook2.webp" class="cover-image" alt="Fundo do eBook" loading="lazy" />
-                <img src="" class="title" alt="" />
+                <img src="" class="title" alt="" loading="lazy" />
             </div>
         </div>
     </a>
@@ -754,7 +762,7 @@
                 <h2 class="section-title">Conteúdos em Destaque</h2>
                 <div class="grid-container">
 
-                    <article class="card card--has-image gs_reveal gs_reveal_fromLeft">
+                    <article class="card card--has-image">
                         <a href="#infancia-receitas" class="card-link-wrapper nav-link submenu-link-scroll"
                             data-page="infancia">
                             <img src="Imagens/muffin.webp" alt="Muffin de casca de banana e cenoura" class="card-image-top" loading="lazy">
@@ -766,7 +774,7 @@
                         </a>
                     </article>
 
-                <article class="card card--has-image gs_reveal gs_reveal_fromLeft">
+                <article class="card card--has-image">
                     <a href="#" class="card-link-wrapper nav-link submenu-link-scroll" 
                        data-page="mural-natal">
                        
@@ -780,7 +788,7 @@
                     </a>
                 </article>
 
-                <article class="card card--has-image gs_reveal gs_reveal_fromLeft">
+                <article class="card card--has-image">
                   <a href="#" class="card-link-wrapper nav-link submenu-link-scroll" 
                      data-page="receitas"
                      onclick="sessionStorage.setItem('filtroInicial', 'sazonal');">
@@ -880,7 +888,7 @@
 
                 <div class="topic-container">
 
-                    <article class="topic-block gs_reveal">
+                    <article class="topic-block">
                         <div class="topic-header">
                             <i class="fa-solid fa-leaf fa-2x" aria-hidden="true"></i>
                             <h4>A Essência Indígena: O Conhecimento da Terra</h4>
@@ -917,7 +925,7 @@
                         </div>
                     </article>
 
-                    <article class="topic-block topic-block--highlight gs_reveal">
+                    <article class="topic-block topic-block--highlight">
                         <div class="topic-header">
                             <i class="fa-solid fa-ship fa-2x" aria-hidden="true"></i>
                             <h4>A Influência Portuguesa: Transformação e Adaptação</h4>
@@ -951,7 +959,7 @@
                         </div>
                     </article>
 
-                    <article class="topic-block topic-block--warning gs_reveal">
+                    <article class="topic-block topic-block--warning">
                         <div class="topic-header">
                             <i class="fa-solid fa-pepper-hot fa-2x" aria-hidden="true"></i>
                             <h4>A Matriz Africana: Resistência e Riqueza de Sabores</h4>
@@ -984,7 +992,7 @@
                         </div>
                     </article>
 
-                    <article class="topic-block gs_reveal">
+                    <article class="topic-block">
                         <div class="topic-header">
                             <i class="fa-solid fa-house-chimney-user fa-2x" aria-hidden="true"></i>
                             <h4>Comunidades Quilombolas: Culinária de Resistência</h4>
@@ -1142,7 +1150,7 @@
                         <div class="game-modal-content origin-modal-content">
 
                             <div class="origin-modal-header">
-                                <img id="origin-modal-icon" src="" alt="Ícone da Matriz" />
+                                <img id="origin-modal-icon" src="" alt="Ícone da Matriz" loading="lazy" />
                                 <h3 id="origin-modal-title">Matriz Indígena</h3>
 
                                 <button class="game-close-btn" aria-label="Fechar Janela">
@@ -1516,7 +1524,7 @@
                         <li class="cards_item">
                             <div class="card">
                                 <div class="card_image">
-                                    <img src="Imagens/muffin.webp" alt="Muffin Colorido de Casca de Banana e Cenoura" />
+                                    <img src="Imagens/muffin.webp" alt="Muffin Colorido de Casca de Banana e Cenoura" loading="lazy" />
                                 </div>
 
                                 <div class="recipe-meta">
@@ -1574,7 +1582,7 @@
                             <div class="card">
                                 <div class="card_image">
                                     <img src="Imagens/panquequinha.webp"
-                                        alt="Panquequinha de banana e aveia (sem glúten)" />
+                                        alt="Panquequinha de banana e aveia (sem glúten)" loading="lazy" />
                                 </div>
 
                                 <div class="recipe-meta">
@@ -1628,7 +1636,7 @@
                             <div class="card">
                                 <div class="card_image">
                                     <img src="Imagens/bolinho.webp"
-                                        alt="Bolinho Vegano de Banana e Aveia para Crianças" />
+                                        alt="Bolinho Vegano de Banana e Aveia para Crianças" loading="lazy" />
                                 </div>
 
                                 <div class="recipe-meta">
@@ -1689,7 +1697,7 @@
                 </div>
                 <div class="ebook-cta-banner gs_reveal">
                     <div class="ebook-cta-image">
-                        <img src="Imagens/futurosaudavel.webp" alt="Crianças bem nutridas">
+                        <img src="Imagens/futurosaudavel.webp" alt="Crianças bem nutridas" loading="lazy">
                     </div>
                     <div class="ebook-cta-content">
                         <span class="ebook-cta-tag">Material Gratuito</span>
@@ -1952,7 +1960,7 @@
                         <li class="cards_item">
                             <div class="card">
                                 <div class="card_image">
-                                    <img src="Imagens/arrozdoce.webp" alt="Arroz doce com especiarias" />
+                                    <img src="Imagens/arrozdoce.webp" alt="Arroz doce com especiarias" loading="lazy" />
                                 </div>
                                 <div class="recipe-meta">
                                     <div>
@@ -2034,7 +2042,7 @@
                         <li class="cards_item">
                             <div class="card">
                                 <div class="card_image">
-                                    <img src="Imagens/sucodecasca.webp" alt="Suco de Casca de Frutas" />
+                                    <img src="Imagens/sucodecasca.webp" alt="Suco de Casca de Frutas" loading="lazy" />
                                 </div>
                                 <div class="recipe-meta">
                                     <div>
@@ -2110,7 +2118,7 @@
                         <li class="cards_item">
                             <div class="card">
                                 <div class="card_image">
-                                    <img src="Imagens/salpicao.webp" alt="Salpicão com Aproveitamento de Cascas" />
+                                    <img src="Imagens/salpicao.webp" alt="Salpicão com Aproveitamento de Cascas" loading="lazy" />
                                 </div>
                                 <div class="recipe-meta">
                                     <div>
@@ -2597,7 +2605,7 @@
                             <li class="cards_item">
                                 <div class="card">
                                     <div class="card_image">
-                                        <img src="Imagens/espetinho.webp" alt="Espetinhos de Berinjela Vegano" />
+                                        <img src="Imagens/espetinho.webp" alt="Espetinhos de Berinjela Vegano" loading="lazy" />
                                     </div>
 
                                     <div class="recipe-meta">
@@ -2662,7 +2670,7 @@
                             <li class="cards_item">
                                 <div class="card">
                                     <div class="card_image">
-                                        <img src="Imagens/frangocrocante.webp" alt="Frango Crocante com Linhaça" />
+                                        <img src="Imagens/frangocrocante.webp" alt="Frango Crocante com Linhaça" loading="lazy" />
                                     </div>
 
                                     <div class="recipe-meta">
@@ -2727,7 +2735,7 @@
                             <li class="cards_item">
                                 <div class="card">
                                     <div class="card_image">
-                                        <img src="Imagens/sanduíchenatural.webp" alt="Sanduíche Natural Vegano" />
+                                        <img src="Imagens/sanduíchenatural.webp" alt="Sanduíche Natural Vegano" loading="lazy" />
                                     </div>
 
                                     <div class="recipe-meta">
@@ -5193,13 +5201,29 @@
 
     <script type="module" src="login/js/auth-handler.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
-     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/ScrollTrigger.min.js"></script>
+    <!-- Scripts do GSAP e ScrollTrigger removidos para otimização -->
 
     <script src="confetti.js" defer></script>
     <script src="wordsearch.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script>
+      // Configuração Manual (Extraída de firebase-config.js)
+      const firebaseConfig = {
+          apiKey: "AIzaSyCUjS5ZmQBJdv5TVBKayG_YIxYgDBFIauo",
+          authDomain: "alimentando-fases.firebaseapp.com",
+          projectId: "alimentando-fases",
+          storageBucket: "alimentando-fases.firebasestorage.app",
+          messagingSenderId: "312896864162",
+          appId: "1:312896864162:web:ee61bac2c67b19303dbcfb"
+      };
+      // Inicializa o namespace 'firebase' global que o script.js procura
+      if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+          console.log("[Compat] Firebase Global inicializado com sucesso.");
+      }
+    </script>
     <script src="script.js?v=" defer></script>
 
     <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai/dist/index.min.js"></script>
@@ -5208,6 +5232,8 @@
     <script>
         new window.VLibras.Widget('https://vlibras.gov.br/app');
     </script>
+
+        <!-- Fallback para GSAP/ScrollTrigger removido para otimização -->
 
 </body>
 
