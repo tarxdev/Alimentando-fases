@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Estudante</title>
+    
+    <script src="../global/developer-console.js"></script>
+    <link rel="icon" href="../Imagens/logofavicon.webp">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <link rel="stylesheet" href="../perfil/css/core.css">
+    <link rel="stylesheet" href="../perfil/css/layout.css">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .content-area { padding-top: 30px !important; }
+        .sidebar-admin-badge {
+            background: #8e44ad; color: white;
+            font-size: 0.6rem; padding: 4px 8px;
+            border-radius: 4px; margin-top: 8px;
+            display: none; justify-content: center;
+            font-weight: 700; width: 100%; text-align: center;
+        }
+    </style>
+</head>
+<body class="dashboard-body student-theme">
+
+    <div id="af-global-loader">
+        <div class="af-spinner-box">
+            <div class="af-ring purple"></div>
+        </div>
+    </div>
+
+    <div class="main-layout" style="display:none;" id="main-interface">
+        
+        <nav class="sidebar student-sidebar">
+            <div class="logo-area">
+                <i class="fa-solid fa-graduation-cap logo-icon"></i>
+                <div class="brand-text">AF <span>ACADEMY</span></div>
+                <div id="admin-view-badge" class="sidebar-admin-badge">MODO ADMIN</div>
+            </div>
+
+            <ul class="nav-links">
+                <li class="active"><a href="#"><i class="fa-solid fa-rocket"></i> <span>Meu Progresso</span></a></li>
+                <li><a href="#"><i class="fa-solid fa-book-open"></i> <span>Cursos</span></a></li>
+                <li><a href="#"><i class="fa-solid fa-chalkboard-user"></i> <span>Mentorias</span></a></li>
+                <li><a href="#"><i class="fa-solid fa-certificate"></i> <span>Certificados</span></a></li>
+
+                <li class="nav-separator"><span class="separator-label">EXTRAS</span></li>
+                <li><a href="../mensagens/index.html"><i class="fa-regular fa-comments"></i> <span>Mensagens</span></a></li>
+                <li><a href="../IA/index.html"><i class="fa-solid fa-wand-magic-sparkles"></i> <span>Essentia IA</span></a></li>
+                <li><a href="../comunidade/index.html"><i class="fa-solid fa-earth-americas"></i> <span>Comunidade</span></a></li>
+
+                <li class="nav-separator"><span class="separator-label">SISTEMA</span></li>
+                <li><a href="#" id="btn-notificacoes"><i class="fa-regular fa-bell"></i> <span>Notificações</span></a></li>
+                <li><a href="#" id="btn-config"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
+            </ul>
+            
+            <div class="nav-footer">
+                <a href="../perfil/index.html" class="profile-pill-link">
+                    <img src="https://ui-avatars.com/api/?name=Student" class="nav-avatar" id="nav-avatar-img"> 
+                    <div class="profile-info-mini">
+                        <span class="p-name" id="nav-name">Carregando...</span>
+                        <span class="p-sub" id="nav-uni">...</span>
+                    </div>
+                </a>
+            </div>
+        </nav>
+
+        <main class="content-area">
+            <div class="dashboard-grid xp-grid">
+                <div class="xp-card">
+                    <div class="xp-content">
+                        <div class="xp-header">
+                            <span class="level-badge">NÍVEL 3</span>
+                            <span class="xp-points">1250 XP</span>
+                        </div>
+                        <div class="xp-bar-container">
+                            <div class="xp-bar-fill" style="width: 65%;"></div>
+                        </div>
+                        <p class="xp-info">Próximo nível em 250 XP</p>
+                    </div>
+                    <i class="fa-solid fa-trophy xp-bg-icon"></i>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fa-solid fa-play"></i></div>
+                    <div class="stat-info">
+                        <h3>Cursos</h3>
+                        <span class="stat-value">2</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon pink"><i class="fa-solid fa-clock"></i></div>
+                    <div class="stat-info">
+                        <h3>Horas</h3>
+                        <span class="stat-value">12h</span>
+                    </div>
+                </div>
+            </div>
+
+            <section class="section-container">
+                <div class="section-header">
+                    <h3>Meus Cursos</h3>
+                </div>
+                <div class="courses-row">
+                    <div class="course-card">
+                        <div class="course-thumb nutri-bg"><i class="fa-solid fa-apple-whole"></i></div>
+                        <div class="course-body">
+                            <span class="tag">Nutrição</span>
+                            <h4>Macronutrientes</h4>
+                            <div class="progress-mini"><div class="bar" style="width: 40%"></div></div>
+                            <button class="btn-course">Continuar</button>
+                        </div>
+                    </div>
+                    <div class="course-card">
+                        <div class="course-thumb mind-bg"><i class="fa-solid fa-brain"></i></div>
+                        <div class="course-body">
+                            <span class="tag">Psicologia</span>
+                            <h4>Comportamento</h4>
+                            <div class="progress-mini"><div class="bar" style="width: 10%"></div></div>
+                            <button class="btn-course">Continuar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>
