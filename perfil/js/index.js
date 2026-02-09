@@ -1,3 +1,4 @@
+import '../../global/developer-console.js';
 /* ARQUIVO: perfil/js/index.js */
 
 import { db, auth } from '../../firebase-config.js'; 
