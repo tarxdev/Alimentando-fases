@@ -1,3 +1,4 @@
+import './global/developer-console.js';
 document.addEventListener('DOMContentLoaded', () => {
 
     // Referências dos elementos de estado
