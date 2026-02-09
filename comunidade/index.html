@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script src="../global/developer-console.js"></script>
+    <meta http-equiv="Content-Security-Policy" 
+        content="default-src 'self' https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com; 
+                script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.firebasejs.com https://*.gstatic.com https://www.googletagmanager.com https://apis.google.com; 
+                style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
+                img-src 'self' data: https: blob: https://www.google-analytics.com; 
+                font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
+                frame-src 'self' https://*.firebaseapp.com https://accounts.google.com;
+                connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.giphy.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://apis.google.com;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comunidade - Alimentando Fases</title>
@@ -81,6 +90,9 @@
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> Início</a></li>
                 <li><a href="javascript:void(0)" class="active"><i class="fa-solid fa-earth-americas"></i> Comunidade</a></li>
                 
+                <li id="mobile-item-nutri" style="display: none;"><a href="../nutricionista/index.html"><i class="fa-solid fa-user-doctor"></i> Painel Nutri</a></li>
+                <li id="mobile-item-student" style="display: none;"><a href="../estudante/index.html"><i class="fa-solid fa-graduation-cap"></i> Área Estudante</a></li>
+
                 <li>
                     <a href="../IA/index.html" id="btn-open-essentia-mobile">
                         <i class="fa-solid fa-robot"></i> Essentia
@@ -106,6 +118,8 @@
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> <span>Início</span></a></li>
                 <li><a href="javascript:void(0)" class="active"><i class="fa-solid fa-earth-americas"></i> <span>Comunidade</span></a></li>
                 
+                <li id="nav-item-nutri" style="display: none;"><a href="../nutricionista/index.html"><i class="fa-solid fa-user-doctor"></i> <span>Painel Nutri</span></a></li>
+                <li id="nav-item-student" style="display: none;"><a href="../estudante/index.html"><i class="fa-solid fa-graduation-cap"></i> <span>Área Estudante</span></a></li>
                 <li>
                     <a href="../IA/index.html" id="btn-open-essentia">
                         <i class="fa-solid fa-robot"></i> <span>Essentia</span>
@@ -271,8 +285,39 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script type="module" src="../sistema-cargos/admin-guard.js"></script>
+    
     <script type="module" src="js/index.js"></script>
+    
+    <script type="module">
+        import { auth, db } from '../perfil/js/config/firebase.js'; // Ajuste o caminho se necessário
+        import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const snap = await getDoc(doc(db, 'users', user.uid));
+                    if(snap.exists()){
+                        const d = snap.data();
+                        
+                        // Lógica: Se for Nutri OU Admin, mostra link Nutri
+                        if(d.professionType === 'nutricionista' || d.role === 'admin_master' || d.role === 'nutri'){
+                            document.getElementById('nav-item-nutri').style.display = 'block';
+                            if(document.getElementById('mobile-item-nutri')) 
+                                document.getElementById('mobile-item-nutri').style.display = 'block';
+                        }
+
+                        // Lógica: Se for Estudante OU Admin, mostra link Estudante
+                        if(d.role === 'student' || d.role === 'admin_master'){
+                            document.getElementById('nav-item-student').style.display = 'block';
+                            if(document.getElementById('mobile-item-student')) 
+                                document.getElementById('mobile-item-student').style.display = 'block';
+                        }
+                    }
+                } catch(e) { console.error("Erro nav roles", e); }
+            }
+        });
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
