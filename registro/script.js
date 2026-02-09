@@ -1,8 +1,14 @@
 import { auth, db } from '../firebase-config.js'; 
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+// 1. IMPORTAÇÃO DO MOTOR DE SEGURANÇA (Assembly)
+import { asmCrypto } from '../mensagens/js/services/asm-loader.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // 2. INICIALIZAÇÃO IMEDIATA DA SEGURANÇA
+    asmCrypto.init();
 
     // --- CONFIGURAÇÃO DE TEMAS ---
     const CONFIG_PRO = {
@@ -192,17 +198,99 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('back-to-3').onclick = (e) => { e.preventDefault(); showStep('step-3', 'Validação Profissional', 'Informe seus dados'); };
 
 
-    // --- SUBMIT ---
+    // --- LÓGICA DE LOGIN SOCIAL (NOVO) ---
+    const handleSocialRegister = async (providerName) => {
+        try {
+            let provider;
+            if (providerName === 'google') {
+                provider = new GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
+            } else if (providerName === 'facebook') {
+                provider = new FacebookAuthProvider();
+            }
+
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+
+            // Verifica se o usuário já existe no Firestore
+            const userDocRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userDocRef);
+            
+            if (!userDoc.exists()) {
+                const baseData = {
+                    uid: user.uid,
+                    realname: user.displayName || "Usuário",
+                    email: user.email,
+                    photo: user.photoURL,
+                    role: selectedRole || 'user', 
+                    createdAt: new Date(),
+                    authProvider: providerName,
+                    username: user.email.split('@')[0] + Math.floor(Math.random()*999)
+                };
+
+                if (selectedRole === 'professional') {
+                    baseData.professionType = selectedProfession || 'indefinido';
+                    baseData.isVerified = false;
+                }
+
+                await setDoc(userDocRef, baseData);
+                showLuxuryModal("Conta Criada!", `Bem-vindo(a), ${user.displayName || ''}!`, "success");
+            } else {
+                showLuxuryModal("Bem-vindo de volta!", "Você já possui conta.", "success");
+            }
+
+            setTimeout(() => window.location.href = '../index.html', 1500);
+
+        } catch (error) {
+            console.error("Social Auth Error:", error);
+            if (error.code !== 'auth/popup-closed-by-user') {
+                let msg = "Erro ao conectar.";
+                if (error.code === 'auth/popup-blocked') msg = "Popup bloqueado pelo navegador.";
+                if (error.code === 'auth/unauthorized-domain') msg = "Domínio não autorizado (verifique o Console do Firebase).";
+                showLuxuryModal("Ops!", msg, "error");
+            }
+        }
+    };
+
+    // Listeners dos Botões Sociais
+    const btnGoogle = document.getElementById('btn-google-reg');
+    const btnFacebook = document.getElementById('btn-facebook-reg');
+    
+    if (btnGoogle) {
+        btnGoogle.onclick = (e) => {
+            e.preventDefault(); 
+            handleSocialRegister('google');
+        };
+    }
+    if (btnFacebook) {
+        btnFacebook.onclick = (e) => {
+            e.preventDefault();
+            handleSocialRegister('facebook');
+        };
+    }
+
+
+    // --- SUBMIT (TRADICIONAL COM BLINDAGEM ASSEMBLY) ---
     async function submitRegistration() {
         const btn = selectedRole === 'professional' ? document.getElementById('btn-finish-pro') : document.getElementById('btn-next-2');
         const oldTxt = btn.innerText;
-        btn.innerText = "Criando..."; btn.disabled = true;
+        btn.innerText = "Blindando..."; btn.disabled = true;
 
         try {
             const email = document.getElementById('email').value;
-            const pass = document.getElementById('reg-password').value;
+            let pass = document.getElementById('reg-password').value;
             const name = document.getElementById('fullname').value;
 
+            // 3. APLICAÇÃO DO PASSWORD PEPPER (HASHING)
+            // Transforma a senha "123456" em Hash antes de criar a conta
+            if (asmCrypto.isReady) {
+                console.log("🔒 Assembly: Blindando credenciais de registro...");
+                pass = asmCrypto.hashPassword(pass);
+            } else {
+                console.warn("⚠️ Atenção: Assembly não carregado. Senha pode ficar vulnerável.");
+            }
+
+            // Envia a senha HASHED para o Firebase (Auth)
             const cred = await createUserWithEmailAndPassword(auth, email, pass);
             await updateProfile(cred.user, { displayName: name });
 
@@ -229,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             await setDoc(doc(db, "users", cred.user.uid), userData);
-            showLuxuryModal("Bem-vindo(a)!", "Conta criada com sucesso.", "success");
+            showLuxuryModal("Bem-vindo(a)!", "Conta segura criada com sucesso.", "success");
             setTimeout(() => window.location.href = '../login/index.html', 2000);
 
         } catch (error) {
@@ -262,31 +350,5 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     document.getElementById('btn-lux-close').onclick = () => {
         modal.classList.remove('active'); setTimeout(()=>modal.style.display='none',300);
-    };
-
-    // --- DEV FILL (ATUALIZADO) ---
-    document.getElementById('btn-dev-fill').onclick = () => {
-        const card = document.querySelector('.type-card[data-role="professional"]');
-        card.click();
-        
-        setTimeout(() => {
-            const proCard = document.querySelector('.pro-card[data-pro="nutricionista"]');
-            proCard.click();
-            
-            const r = Math.floor(Math.random()*999);
-            document.getElementById('email').value = `nutri${r}@dev.com`;
-            document.getElementById('reg-password').value = "123456";
-            document.getElementById('confirm-password').value = "123456";
-            document.getElementById('fullname').value = "Nutri Dev Mode";
-            document.getElementById('birthdate').value = "20/10/1995"; // Valor direto string
-            document.getElementById('phone').value = "(11) 99999-8888";
-            document.getElementById('pro-register').value = "CRN-12345";
-            document.getElementById('pro-uf').value = "PE";
-            document.getElementById('display-name').value = "Dra. Teste";
-            document.getElementById('username-handle').value = `nutri_teste_${r}`;
-            document.getElementById('terms-check').checked = true;
-            
-            showLuxuryModal("Dev Mode", "Preenchido como Nutri.", "success");
-        }, 500);
     };
 });
