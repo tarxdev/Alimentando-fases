@@ -4,82 +4,115 @@ import {
     addDoc, updateDoc, doc, serverTimestamp, getDoc, getDocs 
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
+// Importação do Módulo de Segurança Assembly
+import { asmCrypto } from './asm-loader.js';
+
 export class ChatService {
+
+    constructor() {
+        // Inicializa o Kernel Assembly silenciosamente ao carregar o serviço
+        asmCrypto.init();
+    }
 
     // 1. LISTAR CONVERSAS
     listenToConversations(userId, callback) {
         if (!userId) return;
 
-        console.log(`[ChatService] Buscando chats para o usuário: ${userId}`);
-        
-        // Query na coleção 'chats' onde 'participants' contém o ID do usuário
         const q = query(
             collection(db, 'chats'),
             where('participants', 'array-contains', userId)
         );
 
         return onSnapshot(q, (snapshot) => {
-            const chats = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            
-            console.log(`[ChatService] Encontrados ${chats.length} chats.`);
-            
-            // Ordenação manual (mais recentes primeiro)
-            chats.sort((a, b) => {
-                const tA = a.lastMessageTime?.seconds || 0;
-                const tB = b.lastMessageTime?.seconds || 0;
-                return tB - tA;
+            const chats = snapshot.docs.map(doc => {
+                const data = doc.data();
+                
+                // Decifragem do Preview (Última Mensagem na Sidebar)
+                let preview = data.lastMessage;
+                
+                // Verifica se o módulo está pronto, se existe mensagem e se não é uma imagem
+                if (asmCrypto.isReady && data.lastMessage && !data.lastMessage.includes('📷')) {
+                    // Tenta decifrar. Se for texto antigo (plano), o decrypt deve retornar o original
+                    // graças ao tratamento de erro (try/catch) no asm-loader.js
+                    preview = asmCrypto.decrypt(data.lastMessage);
+                }
+
+                return {
+                    id: doc.id,
+                    ...data,
+                    lastMessage: preview
+                };
             });
+            
+            // Ordenação (Mais recentes primeiro)
+            chats.sort((a, b) => (b.lastMessageTime?.seconds || 0) - (a.lastMessageTime?.seconds || 0));
 
             callback(chats);
-        }, (error) => {
-            console.error("[ChatService] Erro ao buscar:", error);
-            callback([], error);
         });
     }
 
-    // 2. LISTAR MENSAGENS
+    // 2. LISTAR MENSAGENS (Leitura com Decifragem)
     listenToMessages(chatId, callback) {
         if (!chatId) return;
 
         const q = query(collection(db, 'chats', chatId, 'messages'));
 
         return onSnapshot(q, (snapshot) => {
-            const messages = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+            const messages = snapshot.docs.map(doc => {
+                const data = doc.data();
+                let content = data.text;
+
+                // INTERCEPTAÇÃO: Decipher (Base64 -> Plaintext)
+                // Verifica a flag isEncrypted para garantir que só deciframos o que nós ciframos
+                if (asmCrypto.isReady && data.type === 'text' && data.isEncrypted) {
+                    content = asmCrypto.decrypt(data.text);
+                }
+
+                return {
+                    id: doc.id,
+                    ...data,
+                    text: content
+                };
+            });
             
             // Ordena Antigas -> Novas
-            messages.sort((a, b) => {
-                const tA = a.timestamp?.seconds || 0;
-                const tB = b.timestamp?.seconds || 0;
-                return tA - tB;
-            });
-
+            messages.sort((a, b) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0));
             callback(messages);
         });
     }
 
-    // 3. ENVIAR MENSAGEM
+    // 3. ENVIAR MENSAGEM (Escrita com Cifragem)
     async sendMessage(chatId, userId, text, type = 'text') {
         if (!text && type === 'text') return;
 
+        let payload = text;
+        let isEncrypted = false;
+
+        // INTERCEPTAÇÃO: Encipher (Plaintext -> Base64)
+        if (asmCrypto.isReady && type === 'text') {
+            payload = asmCrypto.encrypt(text);
+            isEncrypted = true;
+        }
+
+        // Persistência com Flag de Segurança
         await addDoc(collection(db, 'chats', chatId, 'messages'), {
-            senderId: userId, text, type, timestamp: serverTimestamp()
+            senderId: userId, 
+            text: payload, // Grava Base64 no banco (seguro contra corrupção de caracteres)
+            type, 
+            timestamp: serverTimestamp(),
+            isEncrypted: isEncrypted
         });
 
+        // Atualiza Preview na conversa principal
         await updateDoc(doc(db, 'chats', chatId), {
-            lastMessage: type === 'image' ? '📷 Imagem' : text,
+            lastMessage: type === 'image' ? '📷 Imagem' : payload,
             lastMessageTime: serverTimestamp()
         });
     }
 
-    // 4. CRIAR CHAT
+    // --- MÉTODOS AUXILIARES (Mantidos originais) ---
+
     async createChat(currentUserId, targetUserId) {
-        // Verifica se já existe (Opcional: implemente verificação dupla aqui se quiser)
         const chatData = {
             participants: [currentUserId, targetUserId],
             lastMessage: 'Iniciou uma conversa',
@@ -90,12 +123,10 @@ export class ChatService {
         return docRef.id;
     }
 
-    // 5. BUSCA DE USUÁRIOS
     async searchUsers(searchTerm) {
         if (!searchTerm || searchTerm.length < 3) return [];
-        const q = query(collection(db, 'users')); // Em produção, usar 'where' ou Algolia
+        const q = query(collection(db, 'users')); 
         const snap = await getDocs(q);
-        
         const term = searchTerm.toLowerCase();
         return snap.docs
             .map(d => ({uid: d.id, ...d.data()}))
