@@ -1,3 +1,4 @@
+import '../../global/developer-console.js';
 import { UIController } from './controllers/ui.controller.js';
 import { FeedController } from './controllers/feed.controller.js';
 import { PostController } from './controllers/post.controller.js';
