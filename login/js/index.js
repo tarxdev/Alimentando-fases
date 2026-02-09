@@ -1,3 +1,4 @@
+import '../../global/developer-console.js';
 import { LoginController } from './controllers/login.controller.js';
 
 document.addEventListener('DOMContentLoaded', () => {
