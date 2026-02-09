@@ -1,3 +1,4 @@
+import '../../global/developer-console.js';
 /**
  * Entry Point: Module Initialization
  * Responsabilidade: Configuração de Auth, injeção de dependências e inicialização de controllers.
