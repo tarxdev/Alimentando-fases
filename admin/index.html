@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script src="../global/developer-console.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Master | Gestão Profissional</title>
@@ -13,7 +14,8 @@
 
     <link rel="stylesheet" href="../perfil/css/core.css">
     <link rel="stylesheet" href="../perfil/css/layout.css">
-    <link rel="stylesheet" href="../sistema-cargos/cargos.css"> <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="../sistema-cargos/cargos.css"> 
+    <link rel="stylesheet" href="css/admin.css">
 </head>
 <body class="dashboard-body admin-mode">
 
@@ -27,6 +29,7 @@
             <ul class="nav-links">
                 <li><a href="../perfil/index.html"><i class="fa-solid fa-arrow-left"></i> <span>Voltar ao App</span></a></li>
                 <li class="active"><a href="#" data-target="section-users"><i class="fa-solid fa-users-gear"></i> <span>Gestão Geral</span></a></li>
+                <li><a href="#" data-target="section-interfaces"><i class="fa-solid fa-laptop-medical"></i> <span>Interfaces</span></a></li>
                 <li><a href="#" data-target="section-posts"><i class="fa-solid fa-shield-cat"></i> <span>Moderação</span></a></li>
             </ul>
         </nav>
@@ -140,6 +143,67 @@
                     </div>
                     <div class="table-footer">
                         <small id="table-count-info">Calculando registros...</small>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-interfaces" class="admin-section" style="display: none;">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-laptop-medical"></i> Acesso aos Painéis Profissionais</h3>
+                    </div>
+                    <div class="card-body">
+                        <p style="color:#7f8c8d; margin-bottom: 25px;">
+                            Como Administrador Master, você possui permissão de "Modo Deus" para visualizar e operar qualquer interface profissional sem precisar alterar seu cargo no banco de dados.
+                        </p>
+                        
+                        <div class="interfaces-grid">
+                            
+                            <div class="interface-card nutri-theme">
+                                <div class="if-icon"><i class="fa-solid fa-apple-whole"></i></div>
+                                <div class="if-content">
+                                    <h3>Painel Nutricionista</h3>
+                                    <p>Gestão de pacientes, dietas e anamnese clínica.</p>
+                                    <a href="../nutricionista/index.html" class="btn-access-interface" target="_blank">
+                                        Acessar Visão <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                    </a>
+                                </div>
+                                <div class="if-bg-icon"><i class="fa-solid fa-apple-whole"></i></div>
+                            </div>
+
+                            <div class="interface-card student-theme">
+                                <div class="if-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                                <div class="if-content">
+                                    <h3>Área do Estudante</h3>
+                                    <p>Gamificação acadêmica, cursos e progresso.</p>
+                                    <a href="../estudante/index.html" class="btn-access-interface" target="_blank">
+                                        Acessar Visão <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                    </a>
+                                </div>
+                                <div class="if-bg-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                            </div>
+
+                            <div class="interface-card pe-theme">
+                                <div class="if-icon"><i class="fa-solid fa-dumbbell"></i></div>
+                                <div class="if-content">
+                                    <h3>Painel Personal</h3>
+                                    <p>Gestão de treinos e alunos (Em desenvolvimento).</p>
+                                    <button class="btn-access-interface disabled">Em Breve</button>
+                                </div>
+                                <div class="if-bg-icon"><i class="fa-solid fa-dumbbell"></i></div>
+                            </div>
+
+                            <div class="interface-card doctor-theme">
+                                <div class="if-icon"><i class="fa-solid fa-user-doctor"></i></div>
+                                <div class="if-content">
+                                    <h3>Painel Médico</h3>
+                                    <p>Prontuário e prescrições (Em desenvolvimento).</p>
+                                    <button class="btn-access-interface disabled">Em Breve</button>
+                                </div>
+                                <div class="if-bg-icon"><i class="fa-solid fa-user-doctor"></i></div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </section>
