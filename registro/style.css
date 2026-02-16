@@ -74,6 +74,38 @@ body {
 #step-pro-selection .check-circle { top: 10px; right: 10px; }
 .type-card.selected .check-circle { background-color: var(--color-primary); border-color: var(--color-primary); color: white; }
 
+.type-card.disabled {
+    cursor: not-allowed;
+    background-color: #f9f9f9;
+    opacity: 0.7;
+    pointer-events: none; /* Impede cliques diretos no label */
+}
+
+.type-card.disabled .card-info,
+.type-card.disabled .card-icon {
+    opacity: 0.6;
+}
+
+.type-card.disabled:hover {
+    border-color: var(--color-border);
+    background-color: #f9f9f9;
+}
+
+.coming-soon-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #e67e22;
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transform: rotate(10deg);
+    z-index: 2;
+    font-family: var(--font-heading);
+}
+
 /* INPUTS */
 .input-group { margin-bottom: 12px; width: 100%; }
 .split-inputs { display: flex; gap: 12px; width: 100%; margin-bottom: 12px; }
