@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script src="../global/developer-console.js"></script>
+            <meta http-equiv="Content-Security-Policy" 
+                content="default-src 'self' https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com; 
+                     script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.firebasejs.com https://*.gstatic.com https://www.googletagmanager.com https://apis.google.com; 
+                     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
+                     img-src 'self' data: https: blob: https://www.google-analytics.com; 
+                     font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
+                     frame-src 'self' https://*.firebaseapp.com https://accounts.google.com;
+                     connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.giphy.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://apis.google.com https://alimentando-fases.onrender.com http://localhost:3000 http://127.0.0.1:5501 https://alimentandofases.com https://tarcisoferreiradev.github.io;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Essentia AI - Alimentando Fases</title>
@@ -26,23 +35,18 @@
             </div>
             <ul class="nav-links">
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> <span>Início</span></a></li>
-                
-                <li>
-                    <a href="../comunidade/index.html">
-                        <i class="fa-solid fa-earth-americas"></i> <span>Comunidade</span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="index.html" class="active">
-                        <i class="fa-solid fa-robot"></i> <span>Essentia</span>
-                    </a>
-                </li>
-
+                <li><a href="../comunidade/index.html"><i class="fa-solid fa-earth-americas"></i> <span>Comunidade</span></a></li>
+                <li><a href="../IA/index.html" class="active"><i class="fa-solid fa-robot"></i> <span>Essentia</span></a></li>
                 <li><a href="../notificacoes/index.html"><i class="fa-regular fa-bell"></i> <span>Notificações</span></a></li>
-                <li><a href="../mensagens/index.html"><i class="fa-solid fa-envelope"></i> <span>Mensagens</span></a></li>
+                <li>
+                    <a href="../mensagens/index.html">
+                        <div class="icon-container"><i class="fa-solid fa-envelope"></i><span id="sidebar-badge" class="nav-badge hidden">0</span></div>
+                        <span>Mensagens</span>
+                    </a>
+                </li>
+                <li id="nav-item-admin" style="display: none;"><a href="../admin/index.html"><i class="fa-solid fa-lock"></i> <span>Painel Admin</span></a></li>
                 <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> <span>Calendário</span></a></li>
-                <li><a href="../configuracoes/index.html"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
+                <li><a href="javascript:void(0)" id="btn-open-settings" role="button"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
             </ul>
             <div class="nav-footer">
                 <a href="../perfil/index.html" class="profile-pill-link">
@@ -93,6 +97,7 @@
         </main>
     </div>
 
+    <script type="module" src="../global/sidebar-auth.js"></script>
     <script type="module" src="js/index.js"></script>
 </body>
 </html>
