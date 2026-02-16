@@ -1,3 +1,4 @@
+import '../../global/developer-console.js';
 import { ChatController } from './controllers/chat.controller.js';
 
 document.addEventListener('DOMContentLoaded', () => {
