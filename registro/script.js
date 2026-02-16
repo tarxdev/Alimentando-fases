@@ -89,8 +89,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. SELEÇÃO DE PERFIL
     document.querySelectorAll('#step-0 .type-card').forEach(card => {
-        card.addEventListener('click', () => {
-            selectedRole = card.getAttribute('data-role');
+        card.addEventListener('click', (e) => {
+            const role = card.getAttribute('data-role');
+
+            if (role === 'student' || role === 'professional') {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Em Breve!',
+                    text: 'O cadastro para estudantes e profissionais estará disponível em breve. Agradecemos seu interesse!',
+                    confirmButtonColor: '#53954a'
+                });
+                // Desmarcar qualquer seleção para evitar confusão visual
+                document.querySelectorAll('#step-0 .type-card').forEach(c => c.classList.remove('selected'));
+                const radio = card.querySelector('input[type="radio"]');
+                if (radio) radio.checked = false;
+                selectedRole = null;
+                return;
+            }
+
+            selectedRole = role;
             if(selectedRole !== 'professional') {
                 document.documentElement.style.setProperty('--color-primary', '#53954a');
             }
