@@ -26,21 +26,12 @@ export class ChatService {
         return onSnapshot(q, (snapshot) => {
             const chats = snapshot.docs.map(doc => {
                 const data = doc.data();
-                
-                // Decifragem do Preview (Última Mensagem na Sidebar)
-                let preview = data.lastMessage;
-                
-                // Verifica se o módulo está pronto, se existe mensagem e se não é uma imagem
-                if (asmCrypto.isReady && data.lastMessage && !data.lastMessage.includes('📷')) {
-                    // Tenta decifrar. Se for texto antigo (plano), o decrypt deve retornar o original
-                    // graças ao tratamento de erro (try/catch) no asm-loader.js
-                    preview = asmCrypto.decrypt(data.lastMessage);
-                }
 
                 return {
                     id: doc.id,
                     ...data,
-                    lastMessage: preview
+                    // Mantém o payload bruto; o controller decide quando descriptografar
+                    lastMessageEncrypted: !!data.lastMessageEncrypted
                 };
             });
             
@@ -106,7 +97,8 @@ export class ChatService {
         // Atualiza Preview na conversa principal
         await updateDoc(doc(db, 'chats', chatId), {
             lastMessage: type === 'image' ? '📷 Imagem' : payload,
-            lastMessageTime: serverTimestamp()
+            lastMessageTime: serverTimestamp(),
+            lastMessageEncrypted: type === 'text' ? isEncrypted : false
         });
     }
 
