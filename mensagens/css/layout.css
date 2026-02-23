@@ -10,8 +10,9 @@ html, body.chat-body-lock {
 .main-layout.chat-layout { 
     display: flex; 
     flex-direction: row; 
-    width: 100vw; 
-    height: 100vh; /* Altura exata da viewport */
+    width: 100%; 
+    height: 100vh; /* fallback */
+    height: 100dvh; /* viewport dinâmica (mobile + teclado) */
     background: #fff; 
     overflow: hidden; /* Nada sai daqui */
 }
@@ -83,8 +84,22 @@ html, body.chat-body-lock {
 
 @media (max-width: 700px) {
     .sidebar { display: none; }
-    .chat-sidebar-panel { width: 100% !important; height: calc(100vh - 68px); border-right: none; }
-    .chat-window-panel { display: none; width: 100% !important; height: calc(100vh - 68px); position: absolute; top: 0; left: 0; z-index: 100; }
+    .chat-sidebar-panel {
+        width: 100% !important;
+        height: calc(100vh - 68px);
+        height: calc(100dvh - 68px);
+        border-right: none;
+    }
+    .chat-window-panel {
+        display: none;
+        width: 100% !important;
+        height: calc(100vh - 68px);
+        height: calc(100dvh - 68px);
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 100;
+    }
     .chat-window-panel.active-mobile { display: flex; }
     .chat-sidebar-panel.active-mobile { display: none; }
     .bottom-nav { display: flex; }
