@@ -78,6 +78,22 @@ document.addEventListener('DOMContentLoaded', () => {
         imgPreviewEdit: document.getElementById('modal-avatar-preview')
     };
 
+    // =========================================================================
+    // Proteção de fotos de perfil (evita abrir em nova aba/arrastar/menu)
+    // =========================================================================
+    const protectedSelector = '.af-protected-img';
+    const blockProtectedImageInteraction = (e) => {
+        const target = e.target;
+        if (target && target.closest && target.closest(protectedSelector)) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    };
+    document.addEventListener('contextmenu', blockProtectedImageInteraction, true);
+    document.addEventListener('dragstart', blockProtectedImageInteraction, true);
+    document.addEventListener('auxclick', blockProtectedImageInteraction, true);
+    document.addEventListener('click', blockProtectedImageInteraction, true);
+
     // Mobile Menu Listeners
     if(els.btnMobileMenu) els.btnMobileMenu.onclick = () => els.mobileOverlay.classList.add('open');
     if(els.btnCloseMobile) els.btnCloseMobile.onclick = () => els.mobileOverlay.classList.remove('open');
