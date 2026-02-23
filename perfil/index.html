@@ -139,7 +139,7 @@
             
             <div class="nav-footer">
                 <a href="../perfil/index.html" class="profile-pill-link">
-                    <img src="https://ui-avatars.com/api/?name=User" class="nav-avatar" id="nav-avatar-img"> 
+                    <img src="https://ui-avatars.com/api/?name=User" class="nav-avatar af-protected-img" id="nav-avatar-img" draggable="false"> 
                     <div class="profile-info-mini">
                         <span class="p-name">Meu Perfil</span>
                     </div>
@@ -153,7 +153,7 @@
         <main class="content-area">
             <header class="journey-header">
                 <div class="journey-avatar-container skeleton-avatar-wrapper">
-                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="journey-pic skeleton" id="profile-pic-main" style="background: #eee;">
+                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="journey-pic skeleton af-protected-img" id="profile-pic-main" style="background: #eee;" draggable="false">
                     <div class="phase-badge-wrapper"><div class="phase-badge"><i class="fa-solid fa-seedling"></i></div></div>
                 </div>
                 
@@ -227,7 +227,7 @@
         <div class="modal-content modal-modern">
             <div class="modal-header-modern"><h3>Editar perfil</h3><button class="btn-close" onclick="document.getElementById('edit-modal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button></div>
             <div class="modal-body-modern">
-                <div class="edit-profile-center"><img src="" id="modal-avatar-preview" class="avatar-edit-large"><button id="btn-trigger-file" class="btn-change-photo-text">Alterar foto do perfil</button></div>
+                <div class="edit-profile-center"><img src="" id="modal-avatar-preview" class="avatar-edit-large af-protected-img" draggable="false"><button id="btn-trigger-file" class="btn-change-photo-text">Alterar foto do perfil</button></div>
                 <div class="form-grid">
                     <div class="form-group"><label>Nome de Exibição</label><input type="text" class="form-input-modern" id="input-realname"></div>
                     <div class="form-group"><label>Nome de Usuário</label><div class="input-group-modern"><span class="input-prefix">@</span><input type="text" class="form-input-modern pl-4" id="input-username"></div></div>
@@ -250,7 +250,7 @@
         <div class="modal-instagram-container">
             <div id="inst-left-content" class="inst-left-side"></div>
             <div class="inst-right-side">
-                <div class="inst-header"><img id="inst-author-photo" class="inst-avatar"><div class="inst-meta"><h4 id="inst-author-name">Nome</h4></div></div>
+                <div class="inst-header"><img id="inst-author-photo" class="inst-avatar af-protected-img" draggable="false"><div class="inst-meta"><h4 id="inst-author-name">Nome</h4></div></div>
                 <div id="inst-comments-list" class="inst-comments-area"></div>
                 <div class="inst-footer-section">
                     <div class="inst-action-icons"><div class="inst-icons-left"><button class="inst-icon-btn" id="inst-main-like-btn"><i class="fa-regular fa-heart"></i></button></div></div>
