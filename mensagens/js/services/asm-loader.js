@@ -9,6 +9,7 @@ export class AsmCryptoBridge {
         // Página de 64KB (suficiente para chunks de chat e senhas)
         this.memory = new WebAssembly.Memory({ initial: 1 });
         this.isReady = false;
+        this._initPromise = null;
     }
 
     /**
@@ -16,29 +17,35 @@ export class AsmCryptoBridge {
      * Usa caminho absoluto para funcionar de qualquer subpasta (/login, /registro, etc).
      */
     async init() {
-        if (this.isReady) return;
+        if (this.isReady) return this._initPromise;
+        if (this._initPromise) return this._initPromise;
 
-        try {
-            // CAMINHO ABSOLUTO: Garante universalidade
-            const response = await fetch('/mensagens/wasm/secure.wasm');
-            
-            if (!response.ok) {
-                throw new Error(`Erro HTTP ao buscar Wasm: ${response.status}`);
+        this._initPromise = (async () => {
+            try {
+                // Resolve URL relativa ao próprio módulo (funciona em subpastas/produção)
+                const wasmUrl = new URL('../../wasm/secure.wasm', import.meta.url);
+                const response = await fetch(wasmUrl);
+
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP ao buscar Wasm: ${response.status}`);
+                }
+
+                const bytes = await response.arrayBuffer();
+
+                const results = await WebAssembly.instantiate(bytes, {
+                    env: { memory: this.memory }
+                });
+
+                this.wasmInstance = results.instance;
+                this.isReady = true;
+                console.log("[AsmCore] Crypto Engine Online (Universal + Memory Scrubbing).");
+                window.dispatchEvent(new CustomEvent('asmcrypto:ready'));
+            } catch (e) {
+                console.error("[AsmCore] Falha Crítica de Inicialização:", e);
             }
-            
-            const bytes = await response.arrayBuffer();
+        })();
 
-            // Injeção de dependência de memória no módulo
-            const results = await WebAssembly.instantiate(bytes, {
-                env: { memory: this.memory }
-            });
-
-            this.wasmInstance = results.instance;
-            this.isReady = true;
-            console.log("[AsmCore] Crypto Engine Online (Universal + Memory Scrubbing).");
-        } catch (e) {
-            console.error("[AsmCore] Falha Crítica de Inicialização:", e);
-        }
+        return this._initPromise;
     }
 
     /* ==========================================================================
