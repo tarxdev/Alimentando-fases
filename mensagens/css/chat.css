@@ -157,6 +157,12 @@ img { max-width: 100%; display: block; }
 .btn-input-icon:hover { color: #53954a; }
 .btn-send-text { border: none; background: #53954a; color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; cursor: pointer; }
 .btn-send-text.hidden { display: none; }
+.btn-send-text:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #53954a;
+    color: #fff;
+}
 .right-actions { display: flex; align-items: center; gap: 5px; }
 
 /* Reply Preview */
