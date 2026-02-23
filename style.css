@@ -568,7 +568,8 @@ a.submenu-list__item-wrapper>svg {
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 
         /* --- CORREÇÃO DE ALTURA (CRÍTICA) --- */
-        height: 100vh;
+        height: 100vh;  /* fallback */
+        height: 100dvh; /* viewport dinâmica (mobile) */
         /* Garante que o menu ocupe toda a tela no mobile */
         overflow-y: auto;
         /* Permite rolar o menu se for muito longo */
