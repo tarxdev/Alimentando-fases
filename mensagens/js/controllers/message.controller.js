@@ -2,6 +2,7 @@ import { auth } from '../../../firebase-config.js';
 import { ChatService } from '../services/chat.js';
 import { PresenceService } from '../services/presence.service.js';
 import { GiphyService } from '../services/giphy.service.js';
+import { asmCrypto } from '../services/asm-loader.js';
 
 export class MessageController {
     constructor() {
@@ -11,6 +12,8 @@ export class MessageController {
         this.currentUser = null;
         this.activeChatId = null;
         this.presenceUnsubscribe = null;
+        this.lastChats = [];
+        this.lastMessages = [];
         
         // Elementos DOM
         this.listContainer = document.getElementById('conversations-list');
@@ -37,37 +40,52 @@ export class MessageController {
                 this.bindEvents();
             }
         });
+
+        // Quando o módulo de criptografia ficar pronto, re-renderiza previews/mensagens
+        window.addEventListener('asmcrypto:ready', () => {
+            if (this.lastChats.length) this.renderConversations(this.lastChats);
+            if (this.activeChatId && this.lastMessages.length) this.renderMessages(this.lastMessages);
+        });
     }
 
     loadConversations() {
         this.chatService.listenToConversations(this.currentUser.uid, (chats) => {
-            this.listContainer.innerHTML = '';
-            chats.forEach(chat => {
-                const otherId = chat.participants.find(uid => uid !== this.currentUser.uid);
-                const item = document.createElement('div');
-                item.className = `conversation-item ${this.activeChatId === chat.id ? 'active' : ''}`;
-                
-                this.chatService.getUserInfo(otherId).then(u => {
-                    const name = u?.name || u?.realname || u?.username || "Usuário";
-                    const photo = u?.photo || "https://ui-avatars.com/api/?name=" + name;
-                    
-                    // ARMAZENA DADOS NO ELEMENTO PARA NÃO PERDER
-                    item.dataset.chatName = name;
-                    item.dataset.chatPhoto = photo;
-                    item.dataset.otherId = otherId;
+            this.lastChats = chats;
+            this.renderConversations(chats);
+        });
+    }
 
-                    item.innerHTML = `
-                        <img src="${photo}" class="conv-avatar">
-                        <div class="conv-info">
-                            <div class="conv-name">${name}</div>
-                            <span class="conv-last-msg">${chat.lastMessage || ''}</span>
-                        </div>
-                    `;
-                });
-                // Passa o item clicado para o openChat
-                item.onclick = (e) => this.openChat(chat.id, e.currentTarget);
-                this.listContainer.appendChild(item);
+    renderConversations(chats) {
+        this.listContainer.innerHTML = '';
+        chats.forEach(chat => {
+            const otherId = chat.participants.find(uid => uid !== this.currentUser.uid);
+            const item = document.createElement('div');
+            item.className = `conversation-item ${this.activeChatId === chat.id ? 'active' : ''}`;
+
+            const rawPreview = chat.lastMessage || '';
+            const preview = (asmCrypto.isReady && chat.lastMessageEncrypted && rawPreview && !rawPreview.includes('📷'))
+                ? asmCrypto.decrypt(rawPreview)
+                : rawPreview;
+
+            this.chatService.getUserInfo(otherId).then(u => {
+                const name = u?.name || u?.realname || u?.username || "Usuário";
+                const photo = u?.photo || "https://ui-avatars.com/api/?name=" + name;
+
+                item.dataset.chatName = name;
+                item.dataset.chatPhoto = photo;
+                item.dataset.otherId = otherId;
+
+                item.innerHTML = `
+                    <img src="${photo}" class="conv-avatar">
+                    <div class="conv-info">
+                        <div class="conv-name">${name}</div>
+                        <span class="conv-last-msg">${preview}</span>
+                    </div>
+                `;
             });
+
+            item.onclick = (e) => this.openChat(chat.id, e.currentTarget);
+            this.listContainer.appendChild(item);
         });
     }
 
@@ -102,8 +120,11 @@ export class MessageController {
         this.messagesArea.innerHTML = '';
         if (this.unsubscribeMessages) this.unsubscribeMessages();
         this.unsubscribeMessages = this.chatService.listenToMessages(chatId, (messages) => {
+            this.lastMessages = messages;
             this.renderMessages(messages);
         });
+
+        this.updateSendState();
     }
 
     renderMessages(messages) {
@@ -114,7 +135,12 @@ export class MessageController {
             div.className = `message-row ${isMe ? 'mine' : 'theirs'}`;
             
             // Conteúdo (Texto ou Imagem)
-            let content = `<span class="msg-text-content">${msg.text}</span>`;
+            let textContent = msg.text;
+            if (asmCrypto.isReady && msg.type === 'text' && msg.isEncrypted) {
+                textContent = asmCrypto.decrypt(msg.text);
+            }
+
+            let content = `<span class="msg-text-content">${textContent}</span>`;
             if (msg.type === 'gif' || msg.type === 'image') {
                 content = `<img src="${msg.text}">`;
             }
@@ -131,16 +157,38 @@ export class MessageController {
         setTimeout(() => this.messagesArea.scrollTop = this.messagesArea.scrollHeight, 50);
     }
 
+    updateSendState() {
+        if (!this.sendBtn || !this.input) return;
+        // Mantém o botão sempre visível; apenas desabilita quando não dá para enviar
+        this.sendBtn.classList.remove('hidden');
+        const hasText = (this.input.value || '').trim().length > 0;
+        this.sendBtn.disabled = !hasText || !this.activeChatId;
+    }
+
     bindEvents() {
         const send = () => {
             const text = this.input.value.trim();
             if (text && this.activeChatId) {
                 this.chatService.sendMessage(this.activeChatId, this.currentUser.uid, text, 'text');
                 this.input.value = '';
+                this.updateSendState();
             }
         };
-        this.sendBtn.onclick = send;
-        this.input.onkeypress = (e) => { if (e.key === 'Enter') send(); };
+
+        this.sendBtn.onclick = (e) => { e.preventDefault(); send(); };
+
+        // Teclado mobile (Enter/Send) nem sempre dispara keypress; usar keydown
+        this.input.addEventListener('keydown', (e) => {
+            if (e.isComposing) return;
+            const isEnter = e.key === 'Enter' || e.keyCode === 13;
+            if (isEnter) {
+                e.preventDefault();
+                send();
+            }
+        });
+
+        this.input.addEventListener('input', () => this.updateSendState());
+        this.updateSendState();
         
         // Menu de Anexos
         const btnAttach = document.getElementById('btn-attach-trigger');
