@@ -4,7 +4,7 @@
  * SIDEBAR - PADRÃO UNIFICADO (COMUNIDADE)
  * ======================================================= */
 
-.main-layout { display: flex; flex-direction: row; width: 100vw; min-height: 100vh; max-width: none; margin: 0; padding: 0; gap: 0; background: #fff; }
+.main-layout { display: flex; flex-direction: row; width: 100%; min-height: 100vh; max-width: none; margin: 0; padding: 0; gap: 0; background: #fff; }
 
 .sidebar {
     width: 260px;
@@ -15,6 +15,7 @@
     padding: 22px 16px;
     flex-shrink: 0;
     height: 100vh;
+    height: 100dvh;
     position: sticky;
     top: 0;
     overflow: hidden;
@@ -208,8 +209,10 @@
 /* MOBILE CHROME (TOPO E NAV) */
 .mobile-profile-bar {
     display: none;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 140;
     padding: 14px 16px;
     background: rgba(255,255,255,0.94);
@@ -291,8 +294,8 @@
 @media (max-width: 700px) {
     .sidebar { display: none; }
     .right-sidebar { display: none; }
-    .mobile-profile-bar { display: flex; }
-    .main-layout { flex-direction: column; }
+    .mobile-profile-bar { display: flex !important; }
+    .main-layout { flex-direction: column; padding-top: 68px; }
     .content-area { padding: 20px 16px; padding-bottom: 110px; margin-left: 0; width: 100%; }
     .bottom-nav { display: flex; }
 }
