@@ -30,4 +30,16 @@ body.dashboard-body {
     overflow-x: hidden; /* Evita rolagem lateral indesejada */
 }
 
+/*
+    Proteção “anti-clique/anti-arraste” para avatares.
+    Observação: no navegador não é possível impedir 100% o download se a imagem está disponível,
+    mas isso bloqueia abrir em nova aba via clique/menu e remove interações comuns.
+*/
+.af-protected-img {
+        -webkit-user-drag: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+        pointer-events: none;
+}
+
 body.no-scroll { overflow: hidden !important; }
