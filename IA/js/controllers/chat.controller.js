@@ -17,6 +17,13 @@ export class ChatController {
 
         this.isThinking = false;
         this.typingSpeed = 15; 
+
+        // Estado para variar elogios sem ficar repetitivo
+        this.yasminState = {
+            openingsRecent: [],
+            complimentsRecent: [],
+            closingsRecent: []
+        };
     }
 
     init() {
@@ -83,12 +90,136 @@ export class ChatController {
         this.btnSend.disabled = this.input.value.trim().length === 0;
     }
 
+    mentionsYasmin(rawText) {
+        const text = (rawText || '')
+            .toString()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase();
+
+        // Aceita variações comuns / erros de digitação
+        return text.includes('yasmin') || text.includes('yasmim');
+    }
+
+    pickRandomUnique(list, count) {
+        const arr = Array.isArray(list) ? list.filter(Boolean) : [];
+        if (arr.length === 0) return [];
+        const n = Math.max(1, Math.min(count, arr.length));
+        const pool = [...arr];
+        // Fisher–Yates (embaralha)
+        for (let i = pool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+        return pool.slice(0, n);
+    }
+
+    pickRandomUniqueAvoidRecent(list, count, recentArr, recentLimit = 12) {
+        const all = Array.isArray(list) ? list.filter(Boolean) : [];
+        if (all.length === 0) return [];
+
+        const recent = Array.isArray(recentArr) ? recentArr : [];
+        const filtered = all.filter(x => !recent.includes(x));
+        const base = filtered.length >= count ? filtered : all;
+        const picked = this.pickRandomUnique(base, count);
+
+        // Atualiza memória de recentes
+        if (Array.isArray(recentArr)) {
+            recentArr.push(...picked);
+            if (recentArr.length > recentLimit) {
+                recentArr.splice(0, recentArr.length - recentLimit);
+            }
+        }
+
+        return picked;
+    }
+
+    buildSpecialMessageForYasmin() {
+        const openings = [
+            'Yasmin, você é uma pessoa muito especial.',
+            'Yasmin, você tem um brilho que chama atenção de um jeito bonito.',
+            'Yasmin, você é daquelas presenças que fazem bem.',
+            'Yasmin, que alegria falar de você — você é incrível.',
+            'Yasmin, você tem uma vibe linda e uma presença marcante.',
+            'Yasmin, você é única — e isso é uma coisa muito bonita.',
+            'Yasmin, você tem um jeito raro de tornar as coisas mais leves.',
+            'Yasmin, você merece ouvir isso: você é admirável.'
+        ];
+
+        const compliments = [
+            'Seu jeito é doce e forte ao mesmo tempo, e isso é raro.',
+            'Você tem uma energia leve, mas cheia de firmeza e propósito.',
+            'Você é inteligente e tem uma sensibilidade que te torna única.',
+            'Seu coração é bonito — dá pra sentir o cuidado nas pequenas coisas.',
+            'Você inspira confiança, e isso é um presente pra quem te conhece.',
+            'Você merece ser valorizada todos os dias, do jeitinho que você é.',
+            'Você tem uma luz própria — daquelas que acolhem e inspiram.',
+            'Seu sorriso e seu jeito deixam tudo mais fácil e mais leve.',
+            'Você é forte, capaz e tem um futuro lindo pela frente.',
+            'Você é uma pessoa que somaria em qualquer lugar: humana, gentil e verdadeira.',
+            'Você tem um coração generoso e uma presença que acalma.',
+            'Você é uma mistura linda de coragem e delicadeza.',
+            'Você tem um olhar sincero e um jeito verdadeiro de se expressar.',
+            'Você tem talento, e dá pra ver quando você coloca amor no que faz.',
+            'Você é resiliente — e isso te deixa ainda mais admirável.',
+            'Você é gentil sem deixar de ser firme. Isso é maturidade.',
+            'Você tem uma beleza que vai além do físico: é de alma.',
+            'Você é uma pessoa rara: de atitude, mas com empatia.',
+            'Seu jeito carinhoso faz diferença na vida de quem te encontra.',
+            'Você tem um senso de humor e uma leveza que iluminam o dia.',
+            'Você é dedicada, e isso aparece no cuidado com as pessoas e com seus sonhos.',
+            'Você tem um brilho discreto e elegante — e isso é encantador.',
+            'Você tem uma força tranquila, daquelas que dão segurança.',
+            'Você é cheia de potencial e tem um caminho lindo pela frente.',
+            'Você tem personalidade, e isso é uma das suas maiores belezas.',
+            'Você tem um jeitinho doce, mas com presença — impossível não notar.',
+            'Você merece amor leve, paz no peito e dias bons de verdade.',
+            'Você é uma pessoa que melhora o ambiente só por estar ali.',
+            'Você tem uma inteligência emocional bonita de ver.',
+            'Você é corajosa, mesmo quando ninguém percebe.',
+            'Você tem um coração forte — e isso é inspirador.',
+            'Você é consistente, confiável e cheia de boas intenções.',
+            'Você tem um jeito especial de cuidar — e isso vale ouro.',
+            'Você tem uma elegância no jeito de falar e agir que encanta.'
+        ];
+
+        const closings = [
+            'Nunca esqueça do seu valor. Você merece carinho, respeito e coisas maravilhosas acontecendo na sua vida.',
+            'Que você se orgulhe de quem você é — você é única e merece o melhor.',
+            'Você é especial de um jeito que não dá pra fingir. Continue sendo essa pessoa linda.',
+            'Você merece paz, amor e muita coisa boa. De verdade.',
+            'Que a vida te retribua em dobro toda a bondade que você tem.',
+            'Seja gentil com você mesma: você já é mais do que suficiente.',
+            'Você merece um futuro leve, bonito e cheio de realizações.'
+        ];
+
+        const opening = this.pickRandomUniqueAvoidRecent(openings, 1, this.yasminState.openingsRecent, 6)[0];
+        const complimentsCount = 4 + Math.floor(Math.random() * 4); // 4..7
+        const body = this.pickRandomUniqueAvoidRecent(compliments, complimentsCount, this.yasminState.complimentsRecent, 18);
+        const closing = this.pickRandomUniqueAvoidRecent(closings, 1, this.yasminState.closingsRecent, 6)[0];
+        return [opening, ...body, closing].join('\n\n');
+    }
+
     async send() {
         const text = this.input.value.trim();
         if (!text || this.isThinking) return;
 
         this.appendMessage(text, 'user');
         this.resetInput();
+
+        // Regra especial local (fallback): garante o comportamento mesmo se o backend ignorar comandos/histórico
+        if (this.mentionsYasmin(text)) {
+            this.setThinkingState(true);
+            this.showLoader(true);
+            try {
+                this.showLoader(false);
+                await this.typeWriterSmart(this.buildSpecialMessageForYasmin());
+            } finally {
+                this.setThinkingState(false);
+                this.input.focus();
+            }
+            return;
+        }
         
         this.setThinkingState(true);
         this.showLoader(true);
