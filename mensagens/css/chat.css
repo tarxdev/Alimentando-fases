@@ -1,3 +1,29 @@
+/* Garante que o horário nunca apareça em GIFs, mesmo se for posicionado fora do fluxo */
+.gif-message .msg-time, .gif-message > .msg-time, .gif-message span.msg-time {
+    display: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+    z-index: -1 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+}
+/* Esconde o horário em mensagens GIF, mesmo se for renderizado */
+.gif-message .msg-time {
+    display: none !important;
+}
+/* Garante que GIFs nunca tenham fundo/borda de balão, mesmo se .message-bubble for usado */
+.gif-message,
+.gif-message .message-bubble {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+}
 /* =======================================================
    1. RESET E ESTRUTURA BLINDADA (Previne bugs visuais)
    ======================================================= */
@@ -91,13 +117,58 @@ img { max-width: 100%; display: block; }
     font-size: 0.95rem; line-height: 1.4; position: relative; 
     word-wrap: break-word; 
 }
-.mine .message-bubble { background: linear-gradient(135deg, #53954a, #3e7a35); color: #fff; border-bottom-right-radius: 4px; }
-.theirs .message-bubble { background: #f0f2f5; color: #1c1e21; border-bottom-left-radius: 4px; }
+.mine .message-bubble:not(.no-bubble),
+.theirs .message-bubble:not(.no-bubble) {
+    background: linear-gradient(135deg, #53954a, #3e7a35);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+}
+.theirs .message-bubble:not(.no-bubble) {
+    background: #f0f2f5;
+    color: #1c1e21;
+    border-bottom-left-radius: 4px;
+}
+
+/* Remove fundo do balão para GIFs e imagens */
+.gif-message,
+.gif-message .message-bubble,
+.image-message,
+.image-message .message-bubble {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    color: inherit !important;
+}
 
 /* Imagens dentro do chat (CORREÇÃO DE TAMANHO) */
+
 .message-bubble img { 
     max-width: 100% !important; height: auto; 
     border-radius: 12px; margin-bottom: 5px; 
+}
+
+/* GIFs enviados no chat: fora do balão, menores e sem fundo */
+.gif-message {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.gif-message img {
+    max-width: 180px;
+    width: 100%;
+    height: auto;
+    border-radius: 18px;
+    background: none;
+    box-shadow: none;
+    margin-bottom: 2px;
+}
+.gif-message .msg-time {
+    display: none !important;
 }
 .msg-time { display: block; font-size: 0.65rem; text-align: right; margin-top: 4px; opacity: 0.8; }
 
