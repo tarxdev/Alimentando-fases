@@ -9,6 +9,7 @@ export class MessageController {
         this.chatService = new ChatService();
         this.presenceService = new PresenceService();
         this.giphyService = new GiphyService();
+        this.isSendingGif = false;
         this.currentUser = null;
         this.activeChatId = null;
         this.presenceUnsubscribe = null;
@@ -132,29 +133,87 @@ export class MessageController {
         messages.forEach(msg => {
             const div = document.createElement('div');
             const isMe = msg.senderId === this.currentUser.uid;
+            let isGif = false;
+            let isImage = false;
             div.className = `message-row ${isMe ? 'mine' : 'theirs'}`;
-            
+
             // Conteúdo (Texto ou Imagem)
-            let textContent = msg.text;
-            if (asmCrypto.isReady && msg.type === 'text' && msg.isEncrypted) {
-                textContent = asmCrypto.decrypt(msg.text);
+            let textContent = (msg?.text ?? '');
+
+            // Se as mensagens foram carregadas antes do core ASM ficar pronto,
+            // elas podem chegar ainda em Base64 cifrado. Decifra apenas 1x.
+            if (asmCrypto.isReady && msg?.isEncrypted && !msg?.wasDecrypted && typeof textContent === 'string') {
+                const decrypted = asmCrypto.decrypt(textContent);
+                msg.text = decrypted;
+                msg.wasDecrypted = true;
+                textContent = decrypted;
+            }
+
+            // Fallback de GIF enviado como texto (por regras do Firestore): "GIF:https://..."
+            let forcedImageSrc = null;
+            if (typeof textContent === 'string') {
+                const trimmed = textContent.trim();
+                if (trimmed.toUpperCase().startsWith('GIF:')) {
+                    forcedImageSrc = trimmed.slice(4).trim();
+                }
+            }
+
+            const candidateSrc = forcedImageSrc || textContent;
+            const shouldRenderAsImage = (msg.type === 'gif' || msg.type === 'image') || !!forcedImageSrc || this.isLikelyImageSrc(candidateSrc);
+            if (msg.type === 'gif' || (!!forcedImageSrc && candidateSrc.endsWith('.gif'))) {
+                isGif = true;
+            } else if (msg.type === 'image' || (!isGif && shouldRenderAsImage)) {
+                isImage = true;
             }
 
             let content = `<span class="msg-text-content">${textContent}</span>`;
-            if (msg.type === 'gif' || msg.type === 'image') {
-                content = `<img src="${msg.text}">`;
+            if (shouldRenderAsImage) {
+                content = `<img src="${candidateSrc}">`;
             }
 
-            // Hora separada
-            div.innerHTML = `
-                <div class="message-bubble">
+            if (isGif) {
+                // GIFs fora do balão, com classe especial
+                div.classList.add('gif-message');
+                // Nunca renderiza horário para GIFs
+                div.innerHTML = `<img src="${candidateSrc}">`;
+            } else if (isImage) {
+                // Imagens comuns fora do balão, com classe especial
+                div.classList.add('image-message');
+                div.innerHTML = `
                     ${content}
                     <span class="msg-time">${this.formatTime(msg.timestamp)}</span>
-                </div>
-            `;
+                `;
+            } else {
+                // Mensagem normal
+                div.innerHTML = `
+                    <div class="message-bubble">
+                        ${content}
+                        <span class="msg-time">${this.formatTime(msg.timestamp)}</span>
+                    </div>
+                `;
+            }
             this.messagesArea.appendChild(div);
         });
         setTimeout(() => this.messagesArea.scrollTop = this.messagesArea.scrollHeight, 50);
+    }
+
+    isLikelyImageSrc(value) {
+        if (typeof value !== 'string') return false;
+        const v = value.trim();
+        if (!v) return false;
+
+        const lower = v.toLowerCase();
+        if (lower.startsWith('data:image/')) return true;
+        if (lower.startsWith('blob:')) return true;
+        if (/^https?:\/\/.+\.(png|jpe?g|gif|webp|bmp|svg)(\?.*)?$/i.test(v)) return true;
+
+        // URLs do Firebase Storage nem sempre possuem extensão.
+        if (lower.includes('firebasestorage') && lower.includes('alt=media')) return true;
+
+        // Casos comuns do Giphy.
+        if (lower.includes('giphy.com') && (lower.includes('.gif') || lower.includes('/media/'))) return true;
+
+        return false;
     }
 
     updateSendState() {
@@ -239,19 +298,39 @@ export class MessageController {
     renderGifGrid(gifs) {
         this.gifResults.innerHTML = '';
         gifs.forEach(gif => {
+            const selectGif = async () => {
+                if (!this.activeChatId) return;
+                if (this.isSendingGif) return;
+                this.isSendingGif = true;
+                try {
+                    console.debug('[Mensagens] Enviando GIF', { chatId: this.activeChatId, gifId: gif.id });
+                    await this.chatService.sendMessage(this.activeChatId, this.currentUser.uid, gif.fullUrl, 'gif');
+                    this.gifModal.classList.remove('open');
+                } catch (e) {
+                    console.error('[Mensagens] Falha ao enviar GIF:', e);
+                } finally {
+                    // libera no próximo tick para evitar duplo disparo por bubbling
+                    setTimeout(() => { this.isSendingGif = false; }, 0);
+                }
+            };
+
             const img = document.createElement('img');
             img.src = gif.previewUrl;
             img.className = 'media-item';
             img.style.cursor = 'pointer';
-            img.onclick = () => {
-                if (this.activeChatId) {
-                    this.chatService.sendMessage(this.activeChatId, this.currentUser.uid, gif.fullUrl, 'gif');
-                    this.gifModal.classList.remove('open');
-                }
+            img.onclick = (e) => {
+                if (e) e.stopPropagation();
+                selectGif();
             };
+
             // Wrapper div para o grid funcionar bem
             const div = document.createElement('div');
             div.className = 'media-item';
+            div.style.cursor = 'pointer';
+            div.onclick = (e) => {
+                if (e) e.preventDefault();
+                selectGif();
+            };
             div.appendChild(img);
             this.gifResults.appendChild(div);
         });
