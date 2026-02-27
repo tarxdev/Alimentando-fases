@@ -1,3 +1,10 @@
+/* Espaçamento extra apenas para a fase da infância */
+#infancia .content-section, #infancia .topic-block, #infancia .topic-header, #infancia .topic-content, #infancia ul, #infancia ol, #infancia p, #infancia h2, #infancia h3, #infancia h4, #infancia h5 {
+    margin-bottom: 22px;
+}
+#infancia .section-title {
+    margin-bottom: 28px;
+}
 /* =======================================================
  * ÍNDICE DO CSS - ALIMENTANDO FASES
  * =======================================================
