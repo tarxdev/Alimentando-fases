@@ -42,8 +42,9 @@ export class GiphyService {
         return items.map(gif => ({
             id: gif.id,
             title: gif.title,
-            previewUrl: gif.images.fixed_height_small.url,
-            fullUrl: gif.images.original.url
+            previewUrl: gif?.images?.fixed_height_small?.url || gif?.images?.fixed_width_small?.url || gif?.images?.preview_gif?.url || '',
+            // Preferir um GIF "pronto" e estável (menos redirects/pesos). Original como fallback.
+            fullUrl: gif?.images?.fixed_height?.url || gif?.images?.downsized?.url || gif?.images?.original?.url || ''
         }));
     }
 }
