@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redefinir Senha - Alimentando Fases</title>
+    <link rel="icon" href="../Imagens/logofavicon.webp">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <main class="login-container">
+        <aside class="login-image-side" aria-hidden="true">
+            <img src="../Imagens/loginsscreen.webp" alt="Background Alimentando Fases" class="cover-image">
+            <div class="image-overlay"></div>
+        </aside>
+
+        <section class="login-form-side">
+            <div class="form-wrapper">
+                <header class="form-header">
+                    <div class="brand-header">
+                        <img src="../Imagens/Alimentando fases (1).webp" alt="Logo do Sistema" class="logo-icon">
+                        <span class="brand-name">Alimentando Fases</span>
+                    </div>
+                    <h2 class="welcome-title">Redefinir Senha</h2>
+                    <p class="welcome-subtitle">Estabeleça uma nova senha com no mínimo 6 caracteres.</p>
+                </header>
+
+                <form class="main-form" id="reset-password-form" novalidate>
+                    <div class="input-group">
+                        <div class="input-wrapper password-type">
+                            <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+                            <input type="password" id="new-password" placeholder="Nova Senha" required minlength="6" autocomplete="new-password">
+                            <i class="fa-regular fa-eye-slash toggle-password" data-target="new-password" role="button" aria-label="Alternar visibilidade da senha"></i>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-wrapper password-type">
+                            <i class="fa-solid fa-shield-halved input-icon" aria-hidden="true"></i>
+                            <input type="password" id="confirm-password" placeholder="Confirme a Senha" required minlength="6" autocomplete="new-password">
+                            <i class="fa-regular fa-eye-slash toggle-password" data-target="confirm-password" role="button" aria-label="Alternar visibilidade da confirmação"></i>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" id="btnSubmit">
+                        <span class="btn-text">Redefinir Senha</span>
+                        <i class="fa-solid fa-spinner fa-spin btn-loader hidden" aria-hidden="true"></i>
+                    </button>
+                </form>
+
+                <div id="feedback-message" class="feedback-message hidden" aria-live="assertive" role="alert"></div>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="js/controllers/nova-senha.controller.js"></script>
+</body>
+</html>
