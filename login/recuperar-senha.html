@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha - Alimentando Fases</title>
+    <link rel="icon" href="../Imagens/logofavicon.webp">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <div class="login-container">
+        
+        <div class="login-image-side">
+            <img src="../Imagens/loginsscreen.webp" alt="Pessoas em diversas fases da vida" class="cover-image">
+            <div class="image-overlay"></div>
+        </div>
+
+        <div class="login-form-side">
+            <div class="form-wrapper">
+                
+                <div class="form-header">
+                    <div class="brand-header">
+                        <img src="../Imagens/Alimentando fases (1).webp" alt="Logo" class="logo-icon">
+                        <span class="brand-name">Alimentando Fases</span>
+                    </div>
+                    <h2 class="welcome-title">Recuperar Senha</h2>
+                    <p class="welcome-subtitle">Digite seu e-mail para receber o link de redefinição.</p>
+                </div>
+
+                <form class="main-form" id="recovery-form">
+                    <div class="input-group">
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-envelope input-icon"></i>
+                            <input type="email" id="email" placeholder="seuemail@exemplo.com" required autocomplete="email">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" id="btnSubmit">
+                        <span class="btn-text">Enviar Link</span>
+                        <i class="fa-solid fa-spinner fa-spin btn-loader hidden"></i>
+                    </button>
+                </form>
+
+                <div id="feedback-message" class="feedback-message" style="display: none;"></div>
+
+                <div class="signup-footer">
+                    Lembrou da senha? <a href="index.html">Faça login</a>
+                </div>
+
+                <div class="footer-links">
+                    <p>Ao continuar, você concorda com nossos <a href="../termos/index.html#termos">Termos</a> e <a href="../termos/index.html#privacidade">Política</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/controllers/recuperar-senha.controller.js"></script>
+</body>
+</html>
