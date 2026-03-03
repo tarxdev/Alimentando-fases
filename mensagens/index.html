@@ -37,6 +37,27 @@
     <link rel="stylesheet" href="css/call.css">
 
     <style>
+        /* SEARCH USER */
+        .sidebar-search {
+            padding: 10px 15px;
+            position: relative;
+        }
+        .sidebar-search i {
+            position: absolute;
+            top: 50%;
+            left: 28px;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+        .sidebar-search input {
+            width: 100%;
+            padding: 8px 8px 8px 35px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            background-color: #f0f2f5;
+            font-family: 'Lato', sans-serif;
+        }
+
         /* LOADER SYSTEM (PADRÃO) */
         :root { --af-primary: #53954a; --af-secondary: #6e513d; }
         #af-global-loader {
@@ -83,6 +104,10 @@
             <div class="logo-area">
                 <img src="../Imagens/logofavicon.webp" alt="Logo" class="sidebar-logo-img">
                 <div class="brand-text">ALIMENTANDO <span>FASES</span></div>
+            </div>
+            <div class="sidebar-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="sidebar-user-search" placeholder="Buscar usuário por @...">
             </div>
             <ul class="nav-links">
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> <span>Início</span></a></li>
