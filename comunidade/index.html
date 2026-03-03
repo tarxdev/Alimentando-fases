@@ -37,6 +37,30 @@
     <link rel="stylesheet" href="css/editor.css">
 
     <style>
+        /* SEARCH USER */
+        .sidebar-search, .mobile-menu-search {
+            padding: 10px 15px;
+            position: relative;
+        }
+        .sidebar-search i, .mobile-menu-search i {
+            position: absolute;
+            top: 50%;
+            left: 28px;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+        .sidebar-search input, .mobile-menu-search input {
+            width: 100%;
+            padding: 8px 8px 8px 35px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            background-color: #f0f2f5;
+            font-family: 'Lato', sans-serif;
+        }
+        .mobile-menu-search input {
+            background-color: #fff;
+        }
+
         /* LOADER SYSTEM */
         :root { --af-primary: #53954a; --af-secondary: #6e513d; }
         #af-global-loader {
@@ -123,6 +147,10 @@
             <div class="logo-area">
                 <img src="../Imagens/logofavicon.webp" alt="Logo" class="sidebar-logo-img">
                 <div class="brand-text">ALIMENTANDO <span>FASES</span></div>
+            </div>
+            <div class="sidebar-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="sidebar-user-search" placeholder="Buscar usuário por @...">
             </div>
             <ul class="nav-links">
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> <span>Início</span></a></li>
@@ -321,9 +349,60 @@
         });
     </script>
 
-    <script>
+    <script type="module">
+        import { searchUsersByUsername } from "./js/services/user-search.service.js";
+        import { escapeHtml } from "./js/utils/formatters.js";
+
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { if(window.GlobalLoader) window.GlobalLoader.hide(); }, 1000);
+
+            // Busca de usuário na sidebar
+            const input = document.getElementById('sidebar-user-search');
+            if (input) {
+                let dropdown = document.getElementById('sidebar-user-search-dropdown');
+                if (!dropdown) {
+                    dropdown = document.createElement('div');
+                    dropdown.id = 'sidebar-user-search-dropdown';
+                    dropdown.className = 'search-dropdown';
+                    input.parentNode.appendChild(dropdown);
+                }
+                input.addEventListener('input', async (e) => {
+                    const term = e.target.value.trim();
+                    if (term.length < 2) {
+                        dropdown.classList.add('hidden');
+                        dropdown.innerHTML = '';
+                        return;
+                    }
+                    const users = await searchUsersByUsername(term.replace(/^@/, ''));
+                    dropdown.innerHTML = '';
+                    if (users.length === 0) {
+                        dropdown.innerHTML = '<div style="padding:10px; text-align:center; color:#888;">Nenhum usuário encontrado.</div>';
+                    } else {
+                        users.forEach(user => {
+                            const div = document.createElement('div');
+                            div.className = 'search-item';
+                            div.innerHTML = `
+                                <div class="s-icon-box"><i class="fa-solid fa-user"></i></div>
+                                <div class="s-info">
+                                    <span class="s-title">@${escapeHtml(user.username || user.name || user.email)}</span>
+                                    <span class="s-desc">${escapeHtml(user.name || user.email || '')}</span>
+                                </div>
+                            `;
+                            div.addEventListener('click', () => {
+                                window.location.href = `../perfil/index.html?uid=${user.uid}`;
+                            });
+                            dropdown.appendChild(div);
+                        });
+                    }
+                    dropdown.classList.remove('hidden');
+                });
+                // Fechar ao clicar fora
+                document.addEventListener('click', (e) => {
+                    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
         });
     </script>
 </body>
