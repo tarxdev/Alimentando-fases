@@ -110,6 +110,28 @@
     <link rel="stylesheet" href="css/profile.css">     
     <link rel="stylesheet" href="css/feed.css">        
     <script type="module" src="../global/sidebar-auth.js"></script>
+    <style>
+        .sidebar-search {
+            padding: 10px 15px;
+            position: relative;
+        }
+        .sidebar-search i {
+            position: absolute;
+            top: 50%;
+            left: 28px;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+        .sidebar-search input {
+            width: 100%;
+            padding: 8px 8px 8px 35px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            background-color: #f0f2f5;
+            font-family: 'Lato', sans-serif;
+        }
+    </style>
+    <script type="module" src="js/user-search.js"></script>
 </head>
 <body class="dashboard-body"> 
 
@@ -130,6 +152,10 @@
                     <span style="color: #53954a;">ALIMENTANDO</span>
                     <span style="color: #6e513d;">FASES</span>
                 </div>
+            </div>
+            <div class="sidebar-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="sidebar-user-search" placeholder="Buscar usuário por @...">
             </div>
             <ul class="nav-links">
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> <span>Início</span></a></li>
@@ -178,6 +204,7 @@
                         </div>
                         <div class="journey-actions">
                             <button class="btn-edit-profile" id="btn-open-edit"><i class="fa-solid fa-pen"></i> Editar Perfil</button>
+                            <button class="btn-message-profile" id="btn-message-user" style="display: none; background-color: #53954a; color: white; margin-left: 10px;"><i class="fa-solid fa-envelope"></i> Enviar Mensagem</button>
                         </div>
                     </div>
 
