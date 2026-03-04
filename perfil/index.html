@@ -110,8 +110,9 @@
     <link rel="stylesheet" href="css/profile.css">     
     <link rel="stylesheet" href="css/feed.css">        
     <script type="module" src="../global/sidebar-auth.js"></script>
+    <script type="module" src="../global/sidebar-search.js"></script>
     <style>
-        .sidebar-search {
+        .sidebar-search, .mobile-menu-search {
             padding: 10px 15px;
             position: relative;
         }
@@ -122,13 +123,16 @@
             transform: translateY(-50%);
             color: #aaa;
         }
-        .sidebar-search input {
+        .sidebar-search input, .mobile-menu-search input {
             width: 100%;
             padding: 8px 8px 8px 35px;
             border-radius: 20px;
             border: 1px solid #ddd;
             background-color: #f0f2f5;
             font-family: 'Lato', sans-serif;
+        }
+        .mobile-menu-search input {
+            background-color: #fff;
         }
     </style>
     <script type="module" src="js/user-search.js"></script>
@@ -259,9 +263,35 @@
         <div class="mp-identity"><span class="mp-username" id="mobile-username">@usuario</span><span class="mp-sub">Perfil</span></div>
         <div class="mp-actions">
             <button class="mp-btn" id="mp-btn-add"><i class="fa-regular fa-square-plus"></i></button>
-            <button class="mp-btn" id="mp-btn-settings"><i class="fa-solid fa-gear"></i></button>
+            <button class="mp-btn" id="mp-btn-menu"><i class="fa-solid fa-bars"></i></button>
         </div>
     </header>
+
+    <div class="mobile-menu-overlay" id="mobile-menu-overlay">
+        <nav class="mobile-menu" id="mobile-drawer" aria-label="Menu principal">
+            <div class="mobile-menu-header">
+                <div class="mobile-user">
+                    <img src="https://ui-avatars.com/api/?name=User" class="mobile-menu-avatar" id="mobile-menu-avatar" alt="Avatar">
+                    <div class="mobile-user-text"><strong id="mobile-menu-name">Meu Perfil</strong><span>Gerencie sua conta</span></div>
+                </div>
+                <button class="icon-btn" id="btn-close-mobile-menu" aria-label="Fechar menu"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="mobile-menu-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="mobile-user-search" placeholder="Buscar usuário por @...">
+            </div>
+            <ul class="mobile-nav-links">
+                <li><a href="../index.html"><i class="fa-solid fa-house"></i> Início</a></li>
+                <li><a href="../comunidade/index.html"><i class="fa-solid fa-earth-americas"></i> Comunidade</a></li>
+                <li><a href="../IA/index.html"><i class="fa-solid fa-robot"></i> Essentia</a></li>
+                <li><a href="../notificacoes/index.html"><i class="fa-regular fa-bell"></i> Notificações</a></li>
+                <li><a href="../mensagens/index.html"><i class="fa-solid fa-envelope"></i> Mensagens</a></li>
+                <li id="mobile-item-admin" style="display: none;"><a href="../admin/index.html"><i class="fa-solid fa-lock"></i> Painel Admin</a></li>
+                <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> Calendário</a></li>
+                <li><a href="javascript:void(0)" id="btn-open-settings-mobile" role="button"><i class="fa-solid fa-gear"></i> Configurações</a></li>
+            </ul>
+        </nav>
+    </div>
 
     <div class="modal-overlay" id="edit-modal">
         <div class="modal-content modal-modern">
