@@ -62,11 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Data de Nascimento (DD/MM/AAAA)
     document.getElementById('birthdate').addEventListener('input', (e) => {
-        let v = e.target.value.replace(/\D/g, ""); // Remove tudo que não é dígito
+        let v = e.target.value.replace(/\D/g, ""); 
         
-        if (v.length > 8) v = v.slice(0, 8); // Limita a 8 números
+        if (v.length > 8) v = v.slice(0, 8); 
 
-        // Máscara 00/00/0000
         if (v.length > 4) {
             v = v.replace(/^(\d{2})(\d{2})(\d{0,4})/, "$1/$2/$3");
         } else if (v.length > 2) {
@@ -100,7 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     text: 'O cadastro para estudantes e profissionais estará disponível em breve. Agradecemos seu interesse!',
                     confirmButtonColor: '#53954a'
                 });
-                // Desmarcar qualquer seleção para evitar confusão visual
                 document.querySelectorAll('#step-0 .type-card').forEach(c => c.classList.remove('selected'));
                 const radio = card.querySelector('input[type="radio"]');
                 if (radio) radio.checked = false;
@@ -173,14 +171,13 @@ document.addEventListener('DOMContentLoaded', () => {
         else showStep('step-0', 'Boas-vindas!', 'Selecione seu perfil:');
     };
 
-    // 4. DADOS PESSOAIS (Agora com Data Manual)
+    // 4. DADOS PESSOAIS 
     document.getElementById('btn-next-2').onclick = () => {
         const nome = document.getElementById('fullname').value;
         const nasc = document.getElementById('birthdate').value;
         const tel = document.getElementById('phone').value;
 
         if(!nome || !nasc || tel.length < 14) return showLuxuryModal("Dados Incompletos", "Preencha nome, data e celular.", "warning");
-        // Validação simples de data (tamanho)
         if(nasc.length < 10) return showLuxuryModal("Data Inválida", "Use o formato DD/MM/AAAA", "warning");
 
         if(selectedRole === 'professional') {
@@ -216,7 +213,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('back-to-3').onclick = (e) => { e.preventDefault(); showStep('step-3', 'Validação Profissional', 'Informe seus dados'); };
 
 
-    // --- LÓGICA DE LOGIN SOCIAL (NOVO) ---
+    /**
+     * Resolução de Identidade via Provedor OAuth.
+     * Implementa denormalização determinística para viabilizar indexação léxica no Firestore.
+     * @param {string} providerName 
+     */
     const handleSocialRegister = async (providerName) => {
         try {
             let provider;
@@ -230,11 +231,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
 
-            // Verifica se o usuário já existe no Firestore
             const userDocRef = doc(db, "users", user.uid);
             const userDoc = await getDoc(userDocRef);
             
+            // Early Return condicional: Garante imutabilidade de documentos pré-existentes
             if (!userDoc.exists()) {
+                const generatedUsername = user.email.split('@')[0] + Math.floor(Math.random()*999);
+                
                 const baseData = {
                     uid: user.uid,
                     realname: user.displayName || "Usuário",
@@ -243,7 +246,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     role: selectedRole || 'user', 
                     createdAt: new Date(),
                     authProvider: providerName,
-                    username: user.email.split('@')[0] + Math.floor(Math.random()*999)
+                    username: generatedUsername.toString(),
+                    // Injeção da chave estrutural exigida pelo Security Rule: preservesSearchIndexIntegrity()
+                    usernameLower: generatedUsername.toString().toLowerCase()
                 };
 
                 if (selectedRole === 'professional') {
@@ -260,17 +265,17 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => window.location.href = '../index.html', 1500);
 
         } catch (error) {
-            console.error("Social Auth Error:", error);
+            console.error("[OAuth] Falha no handshake de autorização:", error);
             if (error.code !== 'auth/popup-closed-by-user') {
                 let msg = "Erro ao conectar.";
                 if (error.code === 'auth/popup-blocked') msg = "Popup bloqueado pelo navegador.";
-                if (error.code === 'auth/unauthorized-domain') msg = "Domínio não autorizado (verifique o Console do Firebase).";
+                if (error.code === 'auth/unauthorized-domain') msg = "Domínio não autorizado na whitelist do Firebase.";
                 showLuxuryModal("Ops!", msg, "error");
             }
         }
     };
 
-    // Listeners dos Botões Sociais
+    // Event Delegation (Botões Sociais)
     const btnGoogle = document.getElementById('btn-google-reg');
     const btnFacebook = document.getElementById('btn-facebook-reg');
     
@@ -288,27 +293,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- SUBMIT (TRADICIONAL COM BLINDAGEM ASSEMBLY) ---
+    /**
+     * Orquestração de Registro Tradicional com Blindagem Assembly e Denormalização de DTO.
+     */
     async function submitRegistration() {
         const btn = selectedRole === 'professional' ? document.getElementById('btn-finish-pro') : document.getElementById('btn-next-2');
         const oldTxt = btn.innerText;
-        btn.innerText = "Blindando..."; btn.disabled = true;
+        btn.innerText = "Blindando..."; 
+        btn.disabled = true;
 
         try {
             const email = document.getElementById('email').value;
             let pass = document.getElementById('reg-password').value;
             const name = document.getElementById('fullname').value;
 
-            // 3. APLICAÇÃO DO PASSWORD PEPPER (HASHING)
-            // Transforma a senha "123456" em Hash antes de criar a conta
+            // Delegação de ofuscação para o motor WebAssembly (Wasm)
             if (asmCrypto.isReady) {
-                console.log("🔒 Assembly: Blindando credenciais de registro...");
+                console.log("[Assembly] Alocando memória para cipher de registro...");
                 pass = asmCrypto.hashPassword(pass);
             } else {
-                console.warn("⚠️ Atenção: Assembly não carregado. Senha pode ficar vulnerável.");
+                console.warn("[Assembly] Módulo indisponível. Fallback de transação nativa acionado.");
             }
 
-            // Envia a senha HASHED para o Firebase (Auth)
             const cred = await createUserWithEmailAndPassword(auth, email, pass);
             await updateProfile(cred.user, { displayName: name });
 
@@ -323,27 +329,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 photo: "https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff"
             };
 
+            // Avaliação arquitetural para indexação léxica obrigatória
             if (selectedRole === 'professional') {
+                const rawUsername = document.getElementById('username-handle').value.trim();
+                
                 userData.professionType = selectedProfession;
                 userData.registerNumber = document.getElementById('pro-register').value;
                 userData.registerUF = document.getElementById('pro-uf').value;
                 userData.displayName = document.getElementById('display-name').value;
-                userData.username = document.getElementById('username-handle').value;
+                
+                // Cumprimento da policy preservesSearchIndexIntegrity()
+                userData.username = rawUsername;
+                userData.usernameLower = rawUsername.toLowerCase();
                 userData.isVerified = false;
             } else {
-                userData.username = email.split('@')[0] + Math.floor(Math.random()*9999);
+                const rawUsername = email.split('@')[0] + Math.floor(Math.random()*9999);
+                
+                // Cumprimento da policy preservesSearchIndexIntegrity()
+                userData.username = rawUsername.toString();
+                userData.usernameLower = rawUsername.toString().toLowerCase();
             }
 
+            // Persistência transacional do artefato de usuário
             await setDoc(doc(db, "users", cred.user.uid), userData);
+            
             showLuxuryModal("Bem-vindo(a)!", "Conta segura criada com sucesso.", "success");
             setTimeout(() => window.location.href = '../login/index.html', 2000);
 
         } catch (error) {
-            console.error(error);
+            console.error("[Auth Service] Exceção transacional na camada de Identidade:", error);
             let msg = error.message;
             if(error.code === 'auth/email-already-in-use') msg = "E-mail já cadastrado.";
             showLuxuryModal("Erro", msg, "error");
-            btn.innerText = oldTxt; btn.disabled = false;
+            btn.innerText = oldTxt; 
+            btn.disabled = false;
         }
     }
 
