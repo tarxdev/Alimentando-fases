@@ -15,21 +15,29 @@ import { auth, db, doc, updateDoc } from './config/firebase.proxy.js';
 // =================================================================
 let postToDeleteId = null;
 
-// Abre o modal com animação
+/**
+ * Aciona a camada de Apresentação (UI) para o modal de exclusão.
+ * Implementa atraso assíncrono (setTimeout) para mitigar falhas de reflow/repaint 
+ * do DOM durante a injeção da classe CSS ativa (animação de entrada).
+ * @param {string} postId Identificador único do documento Firestore.
+ */
 window.openDeleteModal = (postId) => {
     postToDeleteId = postId;
     const modal = document.getElementById('modal-delete-luxury');
     const card = modal.querySelector('.luxury-modal-card');
     
     modal.style.display = 'flex';
-    // Delay para permitir reflow e transição CSS
+    
     setTimeout(() => {
         modal.classList.add('active');
         card.classList.add('active');
     }, 10);
 };
 
-// Fecha o modal com animação reversa
+/**
+ * Orquestra o teardown da interface do modal de exclusão.
+ * Sincroniza a remoção do nó visual com a transição CSS (300ms) para UX fluida.
+ */
 window.closeDeleteModal = () => {
     const modal = document.getElementById('modal-delete-luxury');
     const card = modal.querySelector('.luxury-modal-card');
@@ -39,46 +47,43 @@ window.closeDeleteModal = () => {
     
     setTimeout(() => {
         modal.style.display = 'none';
-    }, 300); // Sincronizado com CSS transition
+    }, 300); 
 };
 
-// Compatibilidade Legacy (se existir algum código chamando confirmDelete antigo)
+// Interface de retrocompatibilidade para chamadas legadas
 window.confirmDelete = window.openDeleteModal;
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // Listener do Botão de Confirmação (Luxury)
+    // Injeção de dependência via Event Listener para o botão de confirmação
     const btnConfirm = document.getElementById('confirmDeleteLuxuryBtn');
     if (btnConfirm) {
         btnConfirm.addEventListener('click', async function() {
             if (!postToDeleteId) return;
             
-            // Estado de Loading no Botão
+            // Mutação de estado da UI (Loading Pattern)
             const originalText = this.innerHTML;
             this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Excluindo...';
             this.disabled = true;
 
             try {
-                // Tenta encontrar a função de exclusão nos controladores ou escopo global
-                // NOTA: Como deletePost pode não estar global, disparamos um evento customizado
-                // que o FeedController ou PostController deve ouvir.
+                // Avaliação de escopo léxico para delegação da exclusão (Fallback via Event Bus)
                 if (typeof window.deletePost === 'function') {
                     await window.deletePost(postToDeleteId);
                 } else {
-                    // Fallback: Dispara evento para quem estiver ouvindo
                     console.log("[Modal] Disparando evento 'request-delete-post' para ID:", postToDeleteId);
                     document.dispatchEvent(new CustomEvent('request-delete-post', { detail: { postId: postToDeleteId } }));
                     
-                    // Pequeno delay artificial se for evento, para UX
+                    // Delay heurístico para estabilização de estado assíncrono caso utilize o Event Bus
                     await new Promise(r => setTimeout(r, 500)); 
                 }
                 
                 window.closeDeleteModal();
             } catch (error) {
-                console.error("Erro ao excluir:", error);
+                console.error("[Modal] Falha na transação de deleção:", error);
                 alert("Não foi possível excluir. Tente novamente.");
             } finally {
-                // Restaura botão
+                // Restauração de estado
                 setTimeout(() => {
                     this.innerHTML = originalText;
                     this.disabled = false;
@@ -87,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fechar ao clicar fora
+    // Delegação de evento para fechamento via clique no backdrop (Light dismiss)
     const modalLuxury = document.getElementById('modal-delete-luxury');
     if (modalLuxury) {
         modalLuxury.addEventListener('click', (e) => {
@@ -98,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         console.log("[System] Booting Application Core (V9 Stable)...");
 
-        // 1. Inicialização dos Controladores
+        // 1. Inicialização e injeção de dependências dos Controladores
         const ui = new UIController(); ui.init();
         const editor = new EditorController(); editor.init();
         const postCtrl = new PostController(editor); postCtrl.init();
@@ -108,16 +113,19 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (Calculators && typeof Calculators.init === 'function') { Calculators.init(); }
 
-        // Event Bus
+        // Event Bus Pub/Sub para desacoplamento de atualizações da interface
         document.addEventListener('post-created', () => { if (feed) feed.loadFeed(); });
-        
-        // Ouve o evento do modal para atualizar feed após exclusão (se necessário)
         document.addEventListener('post-deleted', () => { if (feed) feed.loadFeed(); });
 
         // =================================================================
         // 🛠️ KIT DE FERRAMENTAS DE EMERGÊNCIA (CONSOLE)
         // =================================================================
 
+        /**
+         * Fallback manual para inconsistência de propagação de perfil (Data Patch).
+         * Executa mutação no nó do utilizador e propaga a imagem pelos artefactos relacionais.
+         * @param {string} photoUrl URI absoluto da nova imagem.
+         */
         window.recoverProfile = async (photoUrl) => {
             const user = auth.currentUser;
             if (!user) return alert("Erro: Aguarde o login ou recarregue a página.");
@@ -129,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const userRef = doc(db, 'users', user.uid);
                 await updateDoc(userRef, { 
                     photo: photoUrl,
-                    avatar: photoUrl,
+                    avatar: photoUrl, // Preservação de legacy pointer
                     updatedAt: new Date()
                 });
                 console.log("✅ Passo 1/2: Perfil atual salvo no banco.");
@@ -142,24 +150,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.reload();
 
             } catch (error) {
-                console.error("Falha na recuperação:", error);
+                console.error("[Recovery] Falha transacional:", error);
                 alert("Erro ao salvar. Verifique o console.");
             }
         };
 
+        /**
+         * Reconciliação do contador de interações (commentsCount) baseada em contagem absoluta.
+         * Mitiga drifts gerados por concorrência ou falhas de Cloud Functions.
+         * @param {string} postId ID do documento na coleção 'posts'.
+         */
         window.fixPostCount = async (postId) => {
             if (!postId) return console.warn("ID do post obrigatório.");
             const service = new InteractionService();
             try {
                 const newTotal = await service.syncPostCommentCount(postId);
-                console.log(`[Fix] Novo total: ${newTotal}`);
+                console.log(`[Fix] Novo total sincronizado: ${newTotal}`);
                 alert(`Post corrigido! Total real: ${newTotal}`);
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error("[Fix] Falha na reconciliação:", e); 
+            }
         };
 
-        console.log("[System] Ferramentas de Admin carregadas.");
+        console.log("[System] Ferramentas de Admin carregadas no escopo global.");
 
     } catch (error) {
-        console.error("[CRITICAL] Falha no boot:", error);
+        console.error("[CRITICAL] Falha no bootstrap da aplicação:", error);
     }
 });
