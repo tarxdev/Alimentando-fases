@@ -157,11 +157,18 @@ class InstagramSearchDrawer {
             this.closeBtn.addEventListener('click', () => this.closeDrawer());
         }
 
+        /**
+         * Correção de Concorrência (Race Condition): 
+         * Mitigação de conflito entre múltiplas instâncias validando a presença do 
+         * data-attribute do Factory (bootstrapSearch) na cadeia de propagação do evento.
+         */
         document.addEventListener('click', (e) => {
             const isClickInsideDrawer = this.drawer.contains(e.target);
-            const isClickOnInput = this.input.contains(e.target);
             
-            if (!isClickInsideDrawer && !isClickOnInput) {
+            // Verifica se o clique partiu de QUALQUER input de pesquisa inicializado no DOM
+            const isClickOnAnySearchInput = e.target.closest('[data-search-drawer-initialized="true"]');
+            
+            if (!isClickInsideDrawer && !isClickOnAnySearchInput) {
                 this.closeDrawer();
             }
         });
