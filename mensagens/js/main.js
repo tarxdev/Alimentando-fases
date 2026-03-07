@@ -1,6 +1,8 @@
 /* =======================================================
  * MENSAGENS - ARQUIVO PRINCIPAL
  * ======================================================= */
+import '../../global/developer-console.js'; // Garantindo consistência de logs e ambiente
+import '../../global/sidebar-search.js';    // Injeção de Dependência do Motor de Busca (Cross-Domain)
 
 // Tenta ajustar o caminho se necessário (Fallback manual não funciona em módulos ES6 puros, 
 // então garantimos o caminho padrão mais comum: ../../)
