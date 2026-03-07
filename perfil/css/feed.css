@@ -11,6 +11,19 @@
     width: 100%;
 }
 
+/* Defensive: only gallery cards should render as direct children in feed */
+#feed-container.gallery-grid > :not(.gallery-item) {
+    display: none !important;
+}
+
+/* Defensive fallback for malformed nodes that bypass card rendering */
+#feed-container.gallery-grid > img {
+    width: 100% !important;
+    max-height: 340px;
+    object-fit: cover;
+    display: block;
+}
+
 .gallery-item {
     position: relative;
     width: 100%;
