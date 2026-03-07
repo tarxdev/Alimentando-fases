@@ -1,4 +1,5 @@
 import '../../global/developer-console.js';
+import '../../global/sidebar-search.js'; // Injeção de Dependência do Motor de Busca (Cross-Domain)
 /* ARQUIVO: admin/js/index.js - V2.1 */
 
 import { getRoleBadgeHTML } from '../../sistema-cargos/cargos.js';
@@ -108,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             updateSpecificStats(allUsersCache);
             renderUsersTable(allUsersCache);
-        } catch (error) { tbody.innerHTML = `<tr><td colspan="3">Erro: ${error.message}</td></tr>`; }
+        } catch (error) { tbody.innerHTML = `<tr><td colspan="3">Erro de leitura: ${error.message}</td></tr>`; }
     }
 
     function updateSpecificStats(users) {
