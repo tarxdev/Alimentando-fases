@@ -104,3 +104,44 @@ html, body.chat-body-lock {
     .chat-sidebar-panel.active-mobile { display: none; }
     .bottom-nav { display: flex; }
 }
+/* =======================================================
+ * OFF-CANVAS SEARCH DRAWER (PORTAL PATTERN) - GLOBAL
+ * ======================================================= */
+.insta-search-drawer {
+    position: fixed; top: 0; left: 0; width: 100%; max-width: 350px; height: 100vh;
+    background-color: #ffffff; box-shadow: 4px 0 15px rgba(0,0,0,0.1); z-index: 10000; 
+    transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    display: flex; flex-direction: column;
+}
+.insta-search-drawer.active { transform: translateX(0); }
+.insta-drawer-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 15px 15px; }
+.insta-drawer-header h2 { font-size: 1.2rem; font-weight: 800; color: #1a1a1a; margin: 0; }
+.insta-close-btn { background: none; border: none; font-size: 1.2rem; color: #65676b; cursor: pointer; transition: color 0.2s ease; }
+.insta-close-btn:hover { color: #e74c3c; }
+
+/* Input Trapping Box */
+.insta-drawer-search-container { padding: 0 15px 15px; border-bottom: 1px solid #eaeaea; }
+.insta-input-wrapper { position: relative; width: 100%; }
+.insta-input-wrapper i { position: absolute; top: 50%; left: 12px; transform: translateY(-50%); color: #8e8e8e; font-size: 0.9rem; pointer-events: none; }
+.insta-drawer-input { width: 100%; padding: 10px 10px 10px 35px; background-color: #efefef; border: none; border-radius: 8px; font-size: 0.95rem; color: #1a1a1a; outline: none; transition: background-color 0.2s; }
+.insta-drawer-input:focus { background-color: #e4e4e4; }
+
+/* UX: Sidebar trigger read-only feel */
+.sidebar-search input, .mobile-menu-search input { cursor: pointer; }
+
+/* Content Rendering */
+.insta-results-area { padding: 15px; overflow-y: auto; flex: 1; }
+.insta-user-item { display: flex; align-items: center; padding: 10px; text-decoration: none; color: inherit; border-radius: 8px; transition: background-color 0.2s ease; cursor: pointer; }
+.insta-user-item:hover { background-color: #f0f2f5; }
+.insta-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 1px solid #eaeaea; }
+.insta-user-info { display: flex; flex-direction: column; overflow: hidden; }
+.insta-username { font-weight: 700; font-size: 0.95rem; color: #1a1a1a; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.insta-name { font-size: 0.85rem; color: #65676b; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+
+/* States */
+.insta-state-msg { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px 10px; color: #65676b; }
+.insta-state-title { font-weight: 700; color: #1a1a1a; margin-bottom: 5px; }
+.insta-state-desc { font-size: 0.9rem; }
+.insta-loader-container { display: flex; justify-content: center; padding: 30px 0; }
+.insta-spinner { width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid #53954a; border-radius: 50%; animation: insta-spin 1s linear infinite; }
+@keyframes insta-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
