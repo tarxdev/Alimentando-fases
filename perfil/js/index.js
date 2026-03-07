@@ -1,4 +1,5 @@
 import '../../global/developer-console.js';
+import '../../global/sidebar-search.js'; // Injeção de Dependência do Motor de Busca (Cross-Domain)
 /* ARQUIVO: perfil/js/index.js */
 
 import { db, auth } from '../../firebase-config.js'; 
@@ -16,24 +17,23 @@ const COMMON_EMOJIS = ["😂","❤️","😍","🔥","👏","🙌","😭","👀"
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // Inicialização de Serviços
     const authService = new AuthService();
     
-    // Estado Local
-    let myOriginalData = null;
-    let currentProfileUid = null;
+    // Alocação de Estado Local Isolada (Prevenção de State Leakage)
+    let myOriginalData = null;      // Dados MESTRES da sessão (O usuário logado)
+    let currentProfileUid = null;   // UID da sessão (Para assinar transações/likes)
+    
     let currentOpenPostId = null;
     let currentPostAuthorId = null; 
     let replyTarget = null;
     let commentImageBase64 = null;
     let tempProfileImage = null;
 
-    // Cache de Elementos DOM
     const els = {
         feedContainer: document.getElementById('feed-container'),
         modal: document.getElementById('modal-post-detail'),
         
-        // Header Info
+        // Header Info (Target Context)
         username: document.getElementById('display-username'),
         realname: document.getElementById('display-realname'),
         bio: document.getElementById('display-bio'),
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         picMain: document.getElementById('profile-pic-main'),
         link: document.getElementById('display-link'),
         
-        // Sidebar & Mobile
+        // Sidebar & Mobile (Session Context)
         navAvatar: document.getElementById('nav-avatar-img'),
         navAvatarMobile: document.getElementById('nav-avatar-img-mobile'),
         mobileMenuAvatar: document.getElementById('mobile-menu-avatar'),
@@ -50,25 +50,22 @@ document.addEventListener('DOMContentLoaded', () => {
         mobileOverlay: document.getElementById('mobile-menu-overlay'),
         btnCloseMobile: document.getElementById('btn-close-mobile-menu'),
         
-        // LOGOUT BUTTONS
+        // Auth Controls
         btnSairMobile: document.getElementById('btn-sair-mobile'),
         btnSairSidebar: document.getElementById('btn-sair-perfil'),
-        
-        // NOVO MODAL DE LOGOUT
         modalLogoutLuxury: document.getElementById('modal-logout-luxury'),
         btnCancelLogout: document.getElementById('btn-cancel-logout'),
         btnConfirmLogout: document.getElementById('btn-confirm-logout'),
 
         adminLink: document.getElementById('nav-item-admin'),
 
-        // Stats
         counts: { 
             posts: document.getElementById('count-posts'), 
             followers: document.getElementById('count-followers'), 
             following: document.getElementById('count-following') 
         },
         
-        // Edit & Others
+        // Mutators
         emptyState: document.getElementById('empty-state-timeline'),
         modalEdit: document.getElementById('edit-modal'),
         btnEdit: document.getElementById('btn-open-edit'),
@@ -78,9 +75,21 @@ document.addEventListener('DOMContentLoaded', () => {
         imgPreviewEdit: document.getElementById('modal-avatar-preview')
     };
 
-    // =========================================================================
-    // Proteção de fotos de perfil (evita abrir em nova aba/arrastar/menu)
-    // =========================================================================
+    const toPlainTextSnippet = (value, maxLength = 50) => {
+        const raw = String(value || '');
+        const plain = raw.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!plain) return 'Publicacao sem texto';
+        return plain.length > maxLength ? `${plain.slice(0, maxLength)}...` : plain;
+    };
+
+    const toSafeImageSrc = (value) => {
+        const src = String(value || '').trim();
+        if (!src) return '';
+        if (/[<>"'`]/.test(src)) return '';
+        if (/^(https?:\/\/|data:image\/|blob:|\/|\.\.\/|\.\/)/i.test(src)) return src;
+        return '';
+    };
+
     const protectedSelector = '.af-protected-img';
     const blockProtectedImageInteraction = (e) => {
         const target = e.target;
@@ -94,98 +103,108 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('auxclick', blockProtectedImageInteraction, true);
     document.addEventListener('click', blockProtectedImageInteraction, true);
 
-    // Mobile Menu Listeners
     if(els.btnMobileMenu) els.btnMobileMenu.onclick = () => els.mobileOverlay.classList.add('open');
     if(els.btnCloseMobile) els.btnCloseMobile.onclick = () => els.mobileOverlay.classList.remove('open');
     if(els.mobileOverlay) els.mobileOverlay.onclick = (e) => { if(e.target === els.mobileOverlay) els.mobileOverlay.classList.remove('open'); };
     
-    // =========================================================================
-    // 🔥 LÓGICA DO NOVO MODAL DE LOGOUT 🔥
-    // =========================================================================
     const openLogoutModal = (e) => {
         if(e) e.preventDefault();
-        // Abre o modal de luxo
-        els.modalLogoutLuxury.style.display = 'flex'; // Garante display flex antes da anim
-        // Pequeno delay para permitir a transição CSS funcionar
-        setTimeout(() => {
-            els.modalLogoutLuxury.classList.add('active');
-        }, 10);
+        els.modalLogoutLuxury.style.display = 'flex';
+        setTimeout(() => els.modalLogoutLuxury.classList.add('active'), 10);
     };
 
     const closeLogoutModal = () => {
         els.modalLogoutLuxury.classList.remove('active');
-        setTimeout(() => {
-            els.modalLogoutLuxury.style.display = 'none';
-        }, 400); // Espera a animação de saída terminar
+        setTimeout(() => els.modalLogoutLuxury.style.display = 'none', 400); 
     };
 
     const confirmLogout = async () => {
         const btnText = els.btnConfirmLogout.querySelector('span');
         const icon = els.btnConfirmLogout.querySelector('i');
         
-        // Feedback Visual no Botão
         btnText.textContent = "Saindo...";
         icon.className = "fa-solid fa-circle-notch fa-spin";
         
         try {
-            // Loader Global para transição suave
             if(window.GlobalLoader) window.GlobalLoader.show("Encerrando sessão...");
-            
-            // Delay estético para ver a animação
             setTimeout(async () => {
                 await authService.logout();
                 window.location.href = '../login/index.html';
             }, 800);
-            
         } catch (error) { 
-            console.error("Erro ao sair:", error);
             closeLogoutModal();
             if(window.GlobalLoader) window.GlobalLoader.hide();
         }
     };
 
-    // Binds
     if(els.btnSairSidebar) els.btnSairSidebar.onclick = openLogoutModal;
     if(els.btnSairMobile) els.btnSairMobile.onclick = openLogoutModal;
-    
     if(els.btnCancelLogout) els.btnCancelLogout.onclick = closeLogoutModal;
     if(els.btnConfirmLogout) els.btnConfirmLogout.onclick = confirmLogout;
+    if(els.modalLogoutLuxury) els.modalLogoutLuxury.onclick = (e) => { if(e.target === els.modalLogoutLuxury) closeLogoutModal(); };
 
-    // Fechar ao clicar fora (no vidro)
-    if(els.modalLogoutLuxury) {
-        els.modalLogoutLuxury.onclick = (e) => {
-            if(e.target === els.modalLogoutLuxury) closeLogoutModal();
-        };
-    }
-
-    // =========================================================================
-    // LÓGICA DE CARREGAMENTO SINCRONIZADA (PERFIL + FEED)
-    // =========================================================================
+    /**
+     * Roteamento Híbrido com Separação de Contextos (Dual Context Hydration)
+     */
     authService.monitorAuth(async (user) => {
         if (user) {
             if(window.GlobalLoader) window.GlobalLoader.show("Carregando Perfil...");
 
             try {
-                currentProfileUid = user.uid;
+                const urlParams = new URLSearchParams(window.location.search);
+                const queryUid = urlParams.get('uid');
+                
+                const sessionUid = user.uid; // Identidade imutável do usuário logado
+                const targetUid = queryUid ? queryUid : sessionUid; // Alvo do roteamento
+                const isOwnerContext = (targetUid === sessionUid);
 
-                const [userDocSnap, feedSnap] = await Promise.all([
-                    getDoc(doc(db, 'users', user.uid)),
-                    getDocs(query(collection(db, 'posts'), where('authorId', '==', user.uid), orderBy('timestamp', 'desc'), limit(50)))
+                currentProfileUid = sessionUid; // Assinatura para transações (NUNCA assume o target)
+
+                // Resolução paralela: Alvo e Sessão
+                const [targetDocSnap, sessionDocSnap, feedSnap] = await Promise.all([
+                    getDoc(doc(db, 'users', targetUid)),
+                    isOwnerContext ? Promise.resolve(null) : getDoc(doc(db, 'users', sessionUid)),
+                    getDocs(query(collection(db, 'posts'), where('authorId', '==', targetUid), orderBy('timestamp', 'desc'), limit(50)))
                 ]);
 
-                if (userDocSnap.exists()) {
-                    myOriginalData = userDocSnap.data();
+                let targetData = null;
+
+                if (isOwnerContext) {
+                    if (targetDocSnap.exists()) {
+                        targetData = targetDocSnap.data();
+                        myOriginalData = targetData; // Sessão = Alvo
+                    } else {
+                        const fallback = { realname: user.displayName || "Usuário", username: "", email: user.email, role: "user", postsCount: 0 };
+                        await setDoc(doc(db, 'users', targetUid), fallback);
+                        targetData = fallback;
+                        myOriginalData = fallback;
+                    }
                 } else {
-                    const fallback = { realname: user.displayName || "Usuário", username: "", email: user.email, role: "user", postsCount: 0 };
-                    await setDoc(doc(db, 'users', user.uid), fallback);
-                    myOriginalData = fallback;
+                    if (!targetDocSnap.exists()) {
+                        console.error('[Hydration] 404: Perfil órfão detectado.');
+                        window.location.replace('../comunidade/index.html');
+                        return;
+                    }
+                    targetData = targetDocSnap.data();
+                    myOriginalData = sessionDocSnap.exists() ? sessionDocSnap.data() : { realname: user.displayName, photo: user.photoURL };
                 }
-                updateHeaderUI(myOriginalData);
+                
+                // Hidrata a interface injetando ambos os DTOs
+                updateHeaderUI(targetData, myOriginalData);
                 renderFeed(feedSnap);
 
+                // RBAC Estrito
+                if (els.btnEdit) els.btnEdit.style.display = isOwnerContext ? 'inline-flex' : 'none';
+                if (els.btnCamera) els.btnCamera.style.display = isOwnerContext ? 'flex' : 'none';
+                
+                const visitorActions = document.getElementById('visitor-actions');
+                const ownerActions = document.getElementById('actions-row');
+                
+                if (visitorActions) visitorActions.style.display = isOwnerContext ? 'none' : 'flex';
+                if (ownerActions) ownerActions.style.display = isOwnerContext ? 'flex' : 'none';
+
             } catch (err) {
-                console.error("Erro crítico ao carregar:", err);
-                alert("Ocorreu um erro ao carregar seus dados.");
+                console.error("[Auth Guard] Falha RPC/Firestore:", err);
             } finally {
                 if(window.GlobalLoader) window.GlobalLoader.hide();
             }
@@ -195,61 +214,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ... [MANTIDO O RESTANTE DAS FUNÇÕES DE UI E FEED IGUAL AO ORIGINAL] ...
-    // (As funções updateHeaderUI, renderFeed, openPostModal, loadComments etc permanecem inalteradas
-    // pois a mudança solicitada foi apenas no modal de Logout)
-
     /**
-     * Atualiza o cabeçalho e REMOVE os esqueletos de carregamento.
+     * @param {Object} profileData - DTO da página sendo visitada.
+     * @param {Object} sessionData - DTO de quem está navegando (Sessão).
      */
-     function updateHeaderUI(data) {
-        if (!data) return;
+    function updateHeaderUI(profileData, sessionData) {
+        if (!profileData) return;
 
-        // Limpeza dos Skeletons (Remove classes de animação e larguras fixas)
         [els.realname, els.username, els.picMain].forEach(el => {
-            if(el) {
-                el.classList.remove('skeleton');
-                el.style.width = ''; 
-                el.style.height = '';
-            }
+            if(el) { el.classList.remove('skeleton'); el.style.width = ''; el.style.height = ''; }
         });
 
-        const isMaster = isMasterUser(data);
-        
-        // Textos
-        if(els.realname) els.realname.innerHTML = `${isMaster ? `<span class="master-text-effect">${data.realname}</span>` : data.realname} ${getRoleBadgeHTML(data)}`;
-        if(els.username) els.username.innerText = `@${data.username}`;
-        if(els.bio) els.bio.innerText = data.bio || "";
-        
-        // Toggle Bio (Esconde se vazio)
-        if(els.bioBlock) els.bioBlock.style.display = data.bio ? 'block' : 'none';
+        // 1. ÁREA ALVO (DADOS DA PÁGINA)
+        const isTargetMaster = isMasterUser(profileData);
+        if(els.realname) els.realname.innerHTML = `${isTargetMaster ? `<span class="master-text-effect">${profileData.realname}</span>` : profileData.realname} ${getRoleBadgeHTML(profileData)}`;
+        if(els.username) els.username.innerText = `@${profileData.username}`;
+        if(els.bio) els.bio.innerText = profileData.bio || "";
+        if(els.bioBlock) els.bioBlock.style.display = profileData.bio ? 'block' : 'none';
 
-        // Link
         if(els.link) {
-            if (data.link) {
+            if (profileData.link) {
                 els.link.style.display = 'inline-flex';
-                let href = data.link.startsWith('http') ? data.link : `https://${data.link}`;
+                let href = profileData.link.startsWith('http') ? profileData.link : `https://${profileData.link}`;
                 els.link.href = href;
-                els.link.innerHTML = `<i class="fa-solid fa-link"></i> ${data.link.replace(/(^\w+:|^)\/\//, '').replace(/\/$/, '')}`;
+                els.link.innerHTML = `<i class="fa-solid fa-link"></i> ${profileData.link.replace(/(^\w+:|^)\/\//, '').replace(/\/$/, '')}`;
             } else { els.link.style.display = 'none'; }
         }
 
-        // Fotos
-        const photo = data.photo || "https://ui-avatars.com/api/?name=User";
+        const profilePhoto = profileData.photo || "https://ui-avatars.com/api/?name=User";
         if(els.picMain) {
-            els.picMain.src = photo;
-            els.picMain.style.background = 'transparent'; // Remove fundo cinza do loader
+            els.picMain.src = profilePhoto;
+            els.picMain.style.background = 'transparent';
         }
-        if(els.navAvatar) els.navAvatar.src = photo;
-        if(els.navAvatarMobile) els.navAvatarMobile.src = photo;
-        if(els.mobileMenuAvatar) els.mobileMenuAvatar.src = photo;
-        if(els.mobileMenuName) els.mobileMenuName.innerText = data.realname;
 
-        // Moldura Master
         const badgeIcon = document.querySelector('.phase-badge');
         const avatarContainer = document.querySelector('.journey-avatar-container');
         if(avatarContainer) {
-            if(isMaster) {
+            if(isTargetMaster) {
                 avatarContainer.classList.add('master-avatar-frame');
                 if(badgeIcon) { badgeIcon.className = 'phase-badge master-crown'; badgeIcon.innerHTML = '<i class="fa-solid fa-crown"></i>'; }
             } else {
@@ -257,13 +258,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(badgeIcon) { badgeIcon.className = 'phase-badge'; badgeIcon.innerHTML = '<i class="fa-solid fa-seedling"></i>'; }
             }
         }
-
-        if(els.adminLink) els.adminLink.style.display = isMaster ? 'block' : 'none';
         
-        // Contadores
-        if(els.counts.posts) els.counts.posts.innerText = data.postsCount || 0;
-        if(els.counts.followers) els.counts.followers.innerText = data.followers?.length || 0;
-        if(els.counts.following) els.counts.following.innerText = data.following?.length || 0;
+        if(els.counts.posts) els.counts.posts.innerText = profileData.postsCount || 0;
+        if(els.counts.followers) els.counts.followers.innerText = profileData.followers?.length || 0;
+        if(els.counts.following) els.counts.following.innerText = profileData.following?.length || 0;
+
+        // 2. ÁREA DE SESSÃO (DADOS DO USUÁRIO LOGADO)
+        const sessionPhoto = sessionData.photo || "https://ui-avatars.com/api/?name=User";
+        if(els.navAvatar) els.navAvatar.src = sessionPhoto;
+        if(els.navAvatarMobile) els.navAvatarMobile.src = sessionPhoto;
+        if(els.mobileMenuAvatar) els.mobileMenuAvatar.src = sessionPhoto;
+        if(els.mobileMenuName) els.mobileMenuName.innerText = sessionData.realname || "Meu Perfil";
+
+        if(els.adminLink) els.adminLink.style.display = isMasterUser(sessionData) ? 'block' : 'none';
     }
 
     function renderFeed(snapshot) {
@@ -282,14 +289,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const item = document.createElement('div');
             item.className = 'gallery-item fade-in';
             
+            const firstImage = Array.isArray(post.images) && post.images.length > 0
+                ? toSafeImageSrc(post.images[0])
+                : toSafeImageSrc(post.image);
+
             let contentHtml = '';
-            if (post.images && post.images.length > 0) {
-                contentHtml = `<img src="${post.images[0]}" class="gallery-image" loading="lazy">`;
-                if(post.images.length > 1) contentHtml += `<div class="multi-image-icon"><i class="fa-solid fa-clone"></i></div>`;
-            } else if (post.image) {
-                contentHtml = `<img src="${post.image}" class="gallery-image" loading="lazy">`;
+            if (firstImage) {
+                contentHtml = `<img src="${firstImage}" class="gallery-image" loading="lazy">`;
+                if (Array.isArray(post.images) && post.images.length > 1) {
+                    contentHtml += `<div class="multi-image-icon"><i class="fa-solid fa-clone"></i></div>`;
+                }
             } else {
-                contentHtml = `<div class="gallery-text-only">${post.content?.substring(0,50)}...</div>`;
+                contentHtml = `<div class="gallery-text-only">${toPlainTextSnippet(post.content)}</div>`;
             }
 
             item.innerHTML = `${contentHtml}<div class="gallery-overlay"><span><i class="fa-solid fa-heart"></i> ${post.likes?.length || 0}</span></div>`;
@@ -310,10 +321,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const badge = getRoleBadgeHTML({ role: postData.authorRole });
         const nameHTML = isMasterUser({ role: postData.authorRole }) ? `<span class="master-text-effect">${postData.authorName}</span>` : postData.authorName;
 
+        const modalFirstImage = Array.isArray(postData.images) && postData.images.length > 0
+            ? toSafeImageSrc(postData.images[0])
+            : toSafeImageSrc(postData.image);
+
         let mediaLeft = '';
-        if (postData.images && postData.images.length > 0) mediaLeft = `<img src="${postData.images[0]}" class="inst-post-img">`;
-        else if (postData.image) mediaLeft = `<img src="${postData.image}" class="inst-post-img">`;
-        else mediaLeft = `<div style="color:white;padding:40px;text-align:center;">${postData.content}</div>`;
+        if (modalFirstImage) mediaLeft = `<img src="${modalFirstImage}" class="inst-post-img">`;
+        else mediaLeft = `<div style="color:white;padding:40px;text-align:center;">${toPlainTextSnippet(postData.content, 140)}</div>`;
 
         const emojisHtml = COMMON_EMOJIS.map(e => `<div class="emoji-item">${e}</div>`).join('');
 
@@ -407,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 else await addComment(postId, user, txt, commentImageBase64);
                 inp.value = ''; commentImageBase64 = null; previewBox.classList.add('hidden'); replyTarget = null; checkInput();
                 await loadComments(postId, document.getElementById('dynamic-comments'));
-            } catch(e) { alert("Erro ao enviar."); }
+            } catch(e) { alert("Erro de rede local ao persistir transação RPC."); }
         };
 
         const likeBtn = document.getElementById('modal-like-btn');
@@ -507,20 +521,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function compressImage(file, w, q) { return new Promise(resolve => { const r = new FileReader(); r.onload=e=>{ const i=new Image(); i.onload=()=>{ const c=document.createElement('canvas'); let nw=i.width, nh=i.height; if(nw>w){nh=Math.round(nh*(w/nw)); nw=w;} c.width=nw; c.height=nh; c.getContext('2d').drawImage(i,0,0,nw,nh); resolve(c.toDataURL('image/jpeg',q)); }; i.src=e.target.result; }; r.readAsDataURL(file); }); }
 
     // =========================================================================
-    // EDIÇÃO DE PERFIL
+    // SERVIÇOS DE MUTAÇÃO (Apenas Owner Context)
     // =========================================================================
     if(els.btnEdit) els.btnEdit.onclick = () => { 
         document.getElementById('input-realname').value = myOriginalData.realname; 
         document.getElementById('input-username').value = myOriginalData.username; 
         document.getElementById('input-bio').value = myOriginalData.bio || ""; 
         document.getElementById('input-link').value = myOriginalData.link || ""; 
-        if(els.imgPreviewEdit) els.imgPreviewEdit.src = myOriginalData.photo; 
+        if(els.imgPreviewEdit) els.imgPreviewEdit.src = myOriginalData.photo || "https://ui-avatars.com/api/?name=User"; 
         tempProfileImage = null; 
         els.modalEdit.classList.add('open'); 
     };
 
     if(els.btnSaveEdit) els.btnSaveEdit.onclick = async () => { 
-        // Feedback de salvamento com Loader Global
         if(window.GlobalLoader) window.GlobalLoader.show("Salvando Perfil...");
         
         try {
@@ -536,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.reload(); 
         } catch(e) {
             console.error(e);
-            alert("Erro ao salvar.");
+            alert("Falha de I/O ao persistir alteração.");
             if(window.GlobalLoader) window.GlobalLoader.hide();
         }
     };
