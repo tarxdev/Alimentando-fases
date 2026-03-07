@@ -2,7 +2,7 @@ import { searchUsersByUsername } from "../comunidade/js/services/user-search.ser
 import { escapeHtml } from "../comunidade/js/utils/formatters.js";
 
 /**
- * Implementação de Memoization/Debounce para otimização de renderização e mitigação de I/O.
+ * Implementação de Memoization/Debounce para otimização de renderização e mitigação de I/O na Main Thread.
  * @param {Function} func 
  * @param {number} delay 
  * @returns {Function}
@@ -16,13 +16,16 @@ const debounce = (func, delay) => {
 };
 
 /**
- * Arquitetura de Apresentação: Off-Canvas Drawer (Instagram Pattern).
- * Utiliza o Portal Pattern para acoplar-se à raiz do DOM, evadindo o Clipping Context da Sidebar.
+ * Arquitetura de Apresentação: Off-Canvas Drawer.
+ * O input original (Sidebar) atua como Trigger Boundary, delegando a captura léxica para o Shadow Input interno.
  */
 class InstagramSearchDrawer {
     constructor(inputElement) {
-        this.input = inputElement;
+        this.triggerInput = inputElement; // Nó estático da barra lateral (Gatilho)
         this.drawer = this.buildDrawer();
+        
+        // Caches de Árvore DOM
+        this.drawerInput = this.drawer.querySelector('.insta-drawer-input'); // Nó ativo de captura
         this.resultsArea = this.drawer.querySelector('.insta-results-area');
         this.closeBtn = this.drawer.querySelector('.insta-close-btn');
         
@@ -35,10 +38,18 @@ class InstagramSearchDrawer {
             drawer = document.createElement('div');
             drawer.id = 'insta-search-drawer';
             drawer.className = 'insta-search-drawer';
+            
+            // Reestruturação topológica: Injeção do Input Controller no Header
             drawer.innerHTML = `
                 <div class="insta-drawer-header">
                     <h2>Pesquisa</h2>
                     <button class="insta-close-btn" aria-label="Fechar busca"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="insta-drawer-search-container">
+                    <div class="insta-input-wrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="insta-drawer-input" placeholder="Pesquisar..." autocomplete="off">
+                    </div>
                 </div>
                 <div class="insta-drawer-body">
                     <div class="insta-results-area"></div>
@@ -84,6 +95,9 @@ class InstagramSearchDrawer {
         `;
     }
 
+    /**
+     * Motor de Renderização de Entidades via Fragmentação de DOM.
+     */
     renderResults(users, term) {
         this.resultsArea.innerHTML = '';
 
@@ -104,14 +118,17 @@ class InstagramSearchDrawer {
             link.href = `../perfil/index.html?uid=${user.uid}`;
             link.className = 'insta-user-item';
             
-            const avatar = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=random`;
+            const avatarPath = user.photo || user.photoURL || user.avatar || user.profileImage;
+            const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.username || 'U')}&background=random`;
+            const avatar = avatarPath || fallbackAvatar;
+            
             const displayName = escapeHtml(user.name || '');
-            const displayUsername = escapeHtml(user.username || user.name);
+            const displayUsername = escapeHtml(user.username || 'user');
 
             link.innerHTML = `
                 <img src="${avatar}" class="insta-avatar" loading="lazy" alt="Avatar">
                 <div class="insta-user-info">
-                    <span class="insta-username">${displayUsername}</span>
+                    <span class="insta-username">@${displayUsername}</span>
                     <span class="insta-name">${displayName}</span>
                 </div>
             `;
@@ -131,41 +148,44 @@ class InstagramSearchDrawer {
 
     openDrawer() {
         this.drawer.classList.add('active');
-        if (this.input.value.trim().length < 2) {
+        if (this.drawerInput.value.trim().length < 2) {
             this.renderIdleState();
         }
+        // Microtask delay para Focus Trapping pós-GPU Repaint da animação CSS
+        setTimeout(() => this.drawerInput.focus(), 100);
     }
 
     closeDrawer() {
         this.drawer.classList.remove('active');
+        this.drawerInput.value = ''; // Purga de estado na desmontagem virtual
+        this.triggerInput.value = '';
     }
 
     bindEvents() {
         const debouncedSearch = debounce((e) => this.handleSearch(e.target.value.trim()), 350);
 
-        this.input.addEventListener('input', debouncedSearch);
+        // O Evento de Mutação Léxica agora ocorre exclusivamente no input INJETADO na gaveta
+        this.drawerInput.addEventListener('input', debouncedSearch);
         
-        this.input.addEventListener('focus', () => {
+        // O input original da Sidebar atua apenas como State Trigger e Focus Stealer
+        this.triggerInput.addEventListener('focus', (e) => {
+            e.preventDefault();
             this.openDrawer();
-            if (this.input.value.trim().length >= 2) {
-                this.handleSearch(this.input.value.trim());
-            }
         });
 
-        // Delegação centralizada para fechamento
+        this.triggerInput.addEventListener('click', () => {
+            this.openDrawer();
+        });
+
         if (this.closeBtn) {
             this.closeBtn.addEventListener('click', () => this.closeDrawer());
         }
 
         /**
-         * Correção de Concorrência (Race Condition): 
-         * Mitigação de conflito entre múltiplas instâncias validando a presença do 
-         * data-attribute do Factory (bootstrapSearch) na cadeia de propagação do evento.
+         * Mitigação de Concorrência (Race Condition): Evitar colisão de encerramento de nó.
          */
         document.addEventListener('click', (e) => {
             const isClickInsideDrawer = this.drawer.contains(e.target);
-            
-            // Verifica se o clique partiu de QUALQUER input de pesquisa inicializado no DOM
             const isClickOnAnySearchInput = e.target.closest('[data-search-drawer-initialized="true"]');
             
             if (!isClickInsideDrawer && !isClickOnAnySearchInput) {
@@ -175,15 +195,12 @@ class InstagramSearchDrawer {
     }
 }
 
-/**
- * Bootstrap Resiliente: Avalia o estado da Main Thread para garantir execução segura em ES Modules.
- */
 function bootstrapSearch() {
     const inputs = document.querySelectorAll('.sidebar-search input, .mobile-menu-search input');
     if (inputs.length === 0) return;
     
     inputs.forEach(input => {
-        // Previne vazamento de memória com múltiplas instâncias no mesmo nó
+        // Controle de Instância Estrita (Singleton por nó)
         if (!input.dataset.searchDrawerInitialized) {
             new InstagramSearchDrawer(input);
             input.dataset.searchDrawerInitialized = 'true';
@@ -191,7 +208,6 @@ function bootstrapSearch() {
     });
 }
 
-// Resolução da Race Condition do evento DOMContentLoaded em scripts module
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', bootstrapSearch);
 } else {
