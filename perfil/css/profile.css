@@ -65,6 +65,33 @@
 .journey-info { flex: 1; display: flex; flex-direction: column; padding-top: 5px; min-width: 0; }
 .journey-title-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 15px; }
 
+.journey-actions { display: flex; align-items: center; gap: 10px; }
+
+.btn-follow-action.following {
+    background: #eef7ec;
+    color: #2f6e2a;
+    border: 1px solid #a8d0a2;
+}
+
+.btn-follow-action.following:hover {
+    box-shadow: 0 4px 10px rgba(47, 110, 42, 0.22);
+}
+
+.btn-message-profile {
+    border: none;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+}
+
+.btn-message-profile:hover { filter: brightness(0.95); }
+
 /* Nome Real + Badge */
 .journey-name {
     font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: #1a1a1a; line-height: 1.2;
@@ -131,6 +158,40 @@
 .tab-pane { display: none; animation: fadeIn 0.3s ease; } .tab-pane.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
+.network-user-list { display: flex; flex-direction: column; gap: 8px; }
+
+.network-user-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #f0f0f0;
+}
+
+.network-user-item:hover { background: #fafafa; }
+
+.network-user-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.network-user-meta strong {
+    display: block;
+    color: #1a1a1a;
+    font-size: 0.95rem;
+}
+
+.network-user-meta span {
+    display: block;
+    color: #777;
+    font-size: 0.85rem;
+}
+
 /* BADGES (Necessário para o perfil) */
 .role-badge-container { display: inline-flex; align-items: center; margin-left: 0; vertical-align: middle; }
 .role-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 99px; font-size: 0.75rem !important; font-weight: 800; text-transform: uppercase; white-space: nowrap; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
@@ -142,6 +203,7 @@
     .journey-header { flex-direction: column; align-items: center; text-align: center; gap: 15px; padding-bottom: 20px; }
     .journey-avatar-container { margin: 0 auto; width: 130px; height: 130px; }
     .journey-title-row { flex-direction: column; align-items: center; width: 100%; gap: 10px; }
+    .journey-actions { justify-content: center; width: 100%; }
     .journey-name { font-size: 1.5rem; justify-content: center; width: 100%; }
     .journey-bio-block { text-align: center; width: 100%; padding: 10px 15px; }
     .profile-stats-insta { width: 100%; justify-content: center; gap: 20px; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; padding: 12px 0; margin: 15px 0; }
