@@ -172,16 +172,22 @@ export class MessageController {
             }
 
             if (isGif) {
-                // GIFs fora do balão, com classe especial
+                // GIFs dentro de um container de mídia para manter o horário abaixo
                 div.classList.add('gif-message');
-                // Nunca renderiza horário para GIFs
-                div.innerHTML = `<img src="${candidateSrc}">`;
+                div.innerHTML = `
+                    <div class="message-bubble media-message-bubble media-gif-bubble">
+                        <img src="${candidateSrc}">
+                        <span class="msg-time">${this.formatTime(msg.timestamp)}</span>
+                    </div>
+                `;
             } else if (isImage) {
-                // Imagens comuns fora do balão, com classe especial
+                // Imagens em container de mídia para consistência com GIF e horário
                 div.classList.add('image-message');
                 div.innerHTML = `
-                    ${content}
-                    <span class="msg-time">${this.formatTime(msg.timestamp)}</span>
+                    <div class="message-bubble media-message-bubble no-bubble">
+                        ${content}
+                        <span class="msg-time">${this.formatTime(msg.timestamp)}</span>
+                    </div>
                 `;
             } else {
                 // Mensagem normal
