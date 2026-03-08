@@ -1,7 +1,7 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-            <meta name="description" content="Troque mensagens e interaja com outros usuários na plataforma Alimentando Fases.">
+            <meta name="description" content="Troque mensagens e interaja com outros usuÃ¡rios na plataforma Alimentando Fases.">
             <link rel="canonical" href="https://alimentandofases.com/mensagens/" />
             <script type="application/ld+json">
             {
@@ -58,7 +58,7 @@
             font-family: 'Lato', sans-serif;
         }
 
-        /* LOADER SYSTEM (PADRÃO) */
+        /* LOADER SYSTEM (PADRÃƒO) */
         :root { --af-primary: #53954a; --af-secondary: #6e513d; }
         #af-global-loader {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -107,7 +107,7 @@
             </div>
             <div class="sidebar-search">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="sidebar-user-search" placeholder="Buscar usuário por @...">
+                <input type="text" id="sidebar-user-search" placeholder="Buscar usuÃ¡rio por @...">
             </div>
             <ul class="nav-links">
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> <span>Início</span></a></li>
@@ -122,7 +122,7 @@
                 </li>
                 <li id="nav-item-admin" style="display: none;"><a href="../admin/index.html"><i class="fa-solid fa-lock"></i> <span>Painel Admin</span></a></li>
                 <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> <span>Calendário</span></a></li>
-                <li><a href="javascript:void(0)" id="btn-open-settings" role="button"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
+                <li><a href="../configuracoes/index.html" id="btn-open-settings" role="button"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
             </ul>
             <div class="nav-footer">
                 <a href="../perfil/index.html" class="profile-pill-link">
@@ -134,10 +134,10 @@
 
         <aside class="chat-sidebar-panel" id="chat-sidebar-panel">
             <div class="chat-sidebar-header">
-                <span id="current-username-display" class="my-username">Carregando...</span>
+                <span id="current-username-display" class="my-username">Mensagens</span>
                 <button class="new-chat-btn" onclick="document.getElementById('modal-new-chat').classList.add('open')"><i class="fa-regular fa-pen-to-square"></i></button>
             </div>
-            <div class="chat-search-bar"><h4>Mensagens</h4></div>
+            <div class="chat-search-bar"></div>
             <div id="conversations-list" class="conversations-list"></div>
         </aside>
 
@@ -180,7 +180,7 @@
                         </div>
                     </div>
                     <div class="header-actions">
-                        <button class="action-btn" onclick="initializeCall()" title="Iniciar Chamada de Vídeo"><i class="fa-solid fa-video"></i></button>
+                        <button class="action-btn" onclick="initializeCall()" title="Iniciar Chamada de VÃ­deo"><i class="fa-solid fa-video"></i></button>
                         <button class="action-btn" title="Info"><i class="fa-solid fa-circle-info"></i></button>
                     </div>
                 </header>
@@ -203,7 +203,7 @@
                             <div class="attach-icon color-gallery"><i class="fa-regular fa-image"></i></div><span>Galeria</span>
                         </div>
                         <div class="attach-item" id="btn-open-camera">
-                            <div class="attach-icon color-camera"><i class="fa-solid fa-camera"></i></div><span>Câmera</span>
+                            <div class="attach-icon color-camera"><i class="fa-solid fa-camera"></i></div><span>CÃ¢mera</span>
                         </div>
                         <div class="attach-item" id="btn-open-gif">
                             <div class="attach-icon color-gif"><i class="fa-solid fa-film"></i></div><span>GIFs</span>
@@ -275,7 +275,7 @@
         <div class="modal-confirm-box">
             <div class="modal-icon-danger"><i class="fa-regular fa-trash-can"></i></div>
             <h3>Excluir mensagem?</h3>
-            <p>A mensagem será removida permanentemente.</p>
+            <p>A mensagem serÃ¡ removida permanentemente.</p>
             <div class="modal-confirm-actions">
                 <button id="btn-cancel-delete" class="btn-clean-cancel">Cancelar</button>
                 <button id="btn-confirm-delete" class="btn-clean-danger">Excluir</button>
@@ -302,3 +302,8 @@
 
 </body>
 </html>
+
+
+
+
+
