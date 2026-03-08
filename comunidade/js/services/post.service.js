@@ -1,8 +1,9 @@
 import { 
     db, collection, addDoc, doc, updateDoc, deleteDoc, 
-    serverTimestamp, arrayUnion, arrayRemove, query, orderBy, limit,
+    serverTimestamp, arrayUnion, arrayRemove, query, orderBy, limit, getDoc,
     onSnapshot // <--- A CHAVE DO TEMPO REAL
 } from '../config/firebase.proxy.js';
+import { notifyPostLike } from '../../../global/notification-events.js';
 
 export class PostService {
     constructor() {
@@ -55,6 +56,20 @@ export class PostService {
         const postRef = doc(db, this.collectionName, postId);
         const operation = isLiking ? arrayUnion(userId) : arrayRemove(userId);
         await updateDoc(postRef, { likes: operation });
+
+        if (isLiking) {
+            const postSnap = await getDoc(postRef);
+            if (postSnap.exists()) {
+                const postData = postSnap.data();
+                await notifyPostLike({
+                    recipientId: postData.authorId,
+                    actorId: userId,
+                    actorName: 'Usuário',
+                    actorPhoto: '',
+                    postId
+                });
+            }
+        }
     }
 
     async deletePost(postId) {
