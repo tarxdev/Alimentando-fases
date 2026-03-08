@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuracoes - Alimentando Fases</title>
+    <link rel="icon" href="../Imagens/logofavicon.webp">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="stylesheet" href="../comunidade/css/core.css">
+    <link rel="stylesheet" href="../comunidade/css/layout.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+    <div class="main-layout">
+        <nav class="sidebar">
+            <div class="logo-area">
+                <img src="../Imagens/logofavicon.webp" alt="Logo" class="sidebar-logo-img">
+                <div class="brand-text">ALIMENTANDO <span>FASES</span></div>
+            </div>
+
+            <div class="sidebar-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="sidebar-user-search" placeholder="Buscar usuario por @...">
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="../index.html"><i class="fa-solid fa-house"></i> <span>Inicio</span></a></li>
+                <li><a href="../comunidade/index.html"><i class="fa-solid fa-earth-americas"></i> <span>Comunidade</span></a></li>
+                <li><a href="../IA/index.html"><i class="fa-solid fa-robot"></i> <span>Essentia</span></a></li>
+                <li><a href="../notificacoes/index.html"><i class="fa-regular fa-bell"></i> <span>Notificacoes</span></a></li>
+                <li><a href="../mensagens/index.html"><i class="fa-solid fa-envelope"></i> <span>Mensagens</span></a></li>
+                <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> <span>Calendario</span></a></li>
+                <li><a href="./index.html" class="active"><i class="fa-solid fa-gear"></i> <span>Configuracoes</span></a></li>
+            </ul>
+
+            <div class="nav-footer">
+                <a href="../perfil/index.html" class="profile-pill-link">
+                    <img src="https://ui-avatars.com/api/?name=User" class="nav-avatar" id="nav-avatar-img" alt="Avatar">
+                    <div class="profile-info-mini"><span class="p-name">Meu Perfil</span></div>
+                </a>
+            </div>
+        </nav>
+
+        <main class="content-area settings-page-area">
+            <header class="settings-page-header">
+                <h1>Configuracoes do Site</h1>
+                <p>Central unica para preferencias da conta, privacidade e notificacoes.</p>
+            </header>
+
+            <section class="settings-grid">
+                <aside class="settings-menu" aria-label="Navegacao de configuracoes">
+                    <button class="settings-tab active" data-target="tab-account">Sua conta</button>
+                    <button class="settings-tab" data-target="tab-privacy">Privacidade</button>
+                    <button class="settings-tab" data-target="tab-notifications">Notificacoes</button>
+                    <button class="settings-tab" data-target="tab-accessibility">Acessibilidade</button>
+                </aside>
+
+                <div class="settings-panel">
+                    <section id="tab-account" class="settings-section active">
+                        <h2>Sua conta</h2>
+                        <div class="field-row">
+                            <label for="cfg-display-name">Nome de exibicao</label>
+                            <input id="cfg-display-name" type="text" placeholder="Seu nome">
+                        </div>
+                        <div class="field-row">
+                            <label for="cfg-username">Usuario</label>
+                            <input id="cfg-username" type="text" placeholder="@usuario">
+                        </div>
+                        <div class="field-row">
+                            <label for="cfg-email">E-mail</label>
+                            <input id="cfg-email" type="email" placeholder="voce@email.com">
+                        </div>
+                    </section>
+
+                    <section id="tab-privacy" class="settings-section">
+                        <h2>Privacidade</h2>
+                        <label class="toggle-row"><input type="checkbox" checked> Perfil publico</label>
+                        <label class="toggle-row"><input type="checkbox" checked> Permitir mensagens de todos</label>
+                        <label class="toggle-row"><input type="checkbox"> Exibir status online</label>
+                    </section>
+
+                    <section id="tab-notifications" class="settings-section">
+                        <h2>Notificacoes</h2>
+                        <label class="toggle-row"><input type="checkbox" checked> Curtidas e comentarios</label>
+                        <label class="toggle-row"><input type="checkbox" checked> Novas mensagens</label>
+                        <label class="toggle-row"><input type="checkbox"> Novidades e anuncios</label>
+                    </section>
+
+                    <section id="tab-accessibility" class="settings-section">
+                        <h2>Acessibilidade</h2>
+                        <label class="toggle-row"><input type="checkbox" checked> Texto com maior contraste</label>
+                        <label class="toggle-row"><input type="checkbox"> Reduzir animacoes</label>
+                        <label class="toggle-row"><input type="checkbox" checked> Ativar dicas de navegacao por teclado</label>
+                    </section>
+
+                    <div class="actions-row">
+                        <button id="btn-save-settings" class="btn-save">Salvar configuracoes</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script type="module" src="../global/sidebar-auth.js"></script>
+    <script type="module" src="../global/sidebar-search.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
