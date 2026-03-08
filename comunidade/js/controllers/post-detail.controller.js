@@ -3,6 +3,7 @@ import { InteractionService } from '../services/interaction.service.js';
 import { createCommentElement } from '../utils/dom-helpers.js';
 import { auth, db, onAuthStateChanged, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from '../config/firebase.proxy.js';
 import { escapeHtml, getTimeAgo } from '../utils/formatters.js';
+import { notifyPostLike } from '../../../global/notification-events.js';
 
 export class PostDetailController {
     constructor() {
@@ -214,6 +215,15 @@ export class PostDetailController {
         const uid = this.currentUser.uid;
         try { 
             await updateDoc(ref, { likes: shouldLike ? arrayUnion(uid) : arrayRemove(uid) }); 
+            if (shouldLike && this.currentPostAuthorId) {
+                await notifyPostLike({
+                    recipientId: this.currentPostAuthorId,
+                    actorId: uid,
+                    actorName: this.currentUser.displayName || 'Usuário',
+                    actorPhoto: this.currentUser.photoURL || '',
+                    postId: this.currentPostId
+                });
+            }
         } catch (error) { console.error(error); }
     }
 
