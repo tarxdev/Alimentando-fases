@@ -12,6 +12,7 @@ import {
 import { AuthService } from './services/authService.js';
 import { renderCommentItem } from './utils/dom.js';
 import { getRoleBadgeHTML, isMasterUser } from '../../sistema-cargos/cargos.js';
+import { notifyFollow, notifyPostLike, notifyPostComment } from '../../global/notification-events.js';
 
 const COMMON_EMOJIS = ["😂","❤️","😍","🔥","👏","🙌","😭","👀","✨","💯","🥰","🤣","🥺","🙏","😎","✅","🚀","🤔","💀","🤡","🤮","🥳","🤯","🤬","😡","👋","💪","👍","👎"];
 
@@ -22,6 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Alocação de Estado Local Isolada (Prevenção de State Leakage)
     let myOriginalData = null;      // Dados MESTRES da sessão (O usuário logado)
     let currentProfileUid = null;   // UID da sessão (Para assinar transações/likes)
+    let viewedProfileUid = null;    // UID do perfil atualmente visitado
+    let viewedProfileData = null;   // DTO do perfil visitado (para seguidores/seguindo)
     
     let currentOpenPostId = null;
     let currentPostAuthorId = null; 
@@ -58,6 +61,17 @@ document.addEventListener('DOMContentLoaded', () => {
         btnConfirmLogout: document.getElementById('btn-confirm-logout'),
 
         adminLink: document.getElementById('nav-item-admin'),
+
+        ownerActions: document.getElementById('owner-actions'),
+        ownerHighlights: document.getElementById('actions-row'),
+        visitorActions: document.getElementById('visitor-actions'),
+        btnFollow: document.getElementById('btn-follow'),
+        btnMessageUser: document.getElementById('btn-message-user'),
+        statFollowers: document.getElementById('btn-view-followers'),
+        statFollowing: document.getElementById('btn-view-following'),
+        modalList: document.getElementById('list-modal'),
+        modalListTitle: document.getElementById('list-modal-title'),
+        modalListBody: document.getElementById('list-modal-body'),
 
         counts: { 
             posts: document.getElementById('count-posts'), 
@@ -159,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isOwnerContext = (targetUid === sessionUid);
 
                 currentProfileUid = sessionUid; // Assinatura para transações (NUNCA assume o target)
+                viewedProfileUid = targetUid;
 
                 // Resolução paralela: Alvo e Sessão
                 const [targetDocSnap, sessionDocSnap, feedSnap] = await Promise.all([
@@ -188,20 +203,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     targetData = targetDocSnap.data();
                     myOriginalData = sessionDocSnap.exists() ? sessionDocSnap.data() : { realname: user.displayName, photo: user.photoURL };
                 }
+
+                if (!Array.isArray(myOriginalData.following)) myOriginalData.following = [];
+                if (!Array.isArray(myOriginalData.followers)) myOriginalData.followers = [];
+
+                viewedProfileData = {
+                    ...targetData,
+                    followers: Array.isArray(targetData.followers) ? [...targetData.followers] : [],
+                    following: Array.isArray(targetData.following) ? [...targetData.following] : []
+                };
                 
                 // Hidrata a interface injetando ambos os DTOs
-                updateHeaderUI(targetData, myOriginalData);
+                updateHeaderUI(viewedProfileData, myOriginalData);
                 renderFeed(feedSnap);
 
                 // RBAC Estrito
                 if (els.btnEdit) els.btnEdit.style.display = isOwnerContext ? 'inline-flex' : 'none';
                 if (els.btnCamera) els.btnCamera.style.display = isOwnerContext ? 'flex' : 'none';
                 
-                const visitorActions = document.getElementById('visitor-actions');
-                const ownerActions = document.getElementById('actions-row');
-                
-                if (visitorActions) visitorActions.style.display = isOwnerContext ? 'none' : 'flex';
-                if (ownerActions) ownerActions.style.display = isOwnerContext ? 'flex' : 'none';
+                if (els.visitorActions) els.visitorActions.style.display = isOwnerContext ? 'none' : 'flex';
+                if (els.ownerActions) els.ownerActions.style.display = isOwnerContext ? 'flex' : 'none';
+                if (els.ownerHighlights) els.ownerHighlights.style.display = isOwnerContext ? 'flex' : 'none';
+                if (els.btnMessageUser) els.btnMessageUser.style.display = isOwnerContext ? 'none' : 'inline-flex';
+                syncFollowUi();
 
             } catch (err) {
                 console.error("[Auth Guard] Falha RPC/Firestore:", err);
@@ -271,6 +295,138 @@ document.addEventListener('DOMContentLoaded', () => {
         if(els.mobileMenuName) els.mobileMenuName.innerText = sessionData.realname || "Meu Perfil";
 
         if(els.adminLink) els.adminLink.style.display = isMasterUser(sessionData) ? 'block' : 'none';
+
+        if (els.statFollowers) {
+            els.statFollowers.onclick = () => openNetworkModal('Seguidores', viewedProfileData?.followers || []);
+        }
+        if (els.statFollowing) {
+            els.statFollowing.onclick = () => openNetworkModal('Seguindo', viewedProfileData?.following || []);
+        }
+    }
+
+    function isViewingOwnProfile() {
+        return !viewedProfileUid || !currentProfileUid || viewedProfileUid === currentProfileUid;
+    }
+
+    function toggleFollowBtnState(isFollowing) {
+        if (!els.btnFollow) return;
+        if (isFollowing) {
+            els.btnFollow.classList.add('following');
+            els.btnFollow.innerHTML = '<i class="fa-solid fa-check"></i> <span>Seguindo</span>';
+        } else {
+            els.btnFollow.classList.remove('following');
+            els.btnFollow.innerHTML = '<i class="fa-solid fa-user-plus"></i> <span>Seguir</span>';
+        }
+    }
+
+    function syncFollowUi() {
+        if (!viewedProfileData || !myOriginalData) return;
+        if (els.counts.followers) els.counts.followers.innerText = viewedProfileData.followers?.length || 0;
+        if (els.counts.following) els.counts.following.innerText = viewedProfileData.following?.length || 0;
+
+        if (!isViewingOwnProfile()) {
+            const amIFollowing = (myOriginalData.following || []).includes(viewedProfileUid);
+            toggleFollowBtnState(amIFollowing);
+        }
+    }
+
+    function applyLocalFollowMutation(shouldFollow) {
+        if (!Array.isArray(myOriginalData.following)) myOriginalData.following = [];
+        if (!Array.isArray(viewedProfileData.followers)) viewedProfileData.followers = [];
+
+        if (shouldFollow) {
+            if (!myOriginalData.following.includes(viewedProfileUid)) {
+                myOriginalData.following.push(viewedProfileUid);
+            }
+            if (!viewedProfileData.followers.includes(currentProfileUid)) {
+                viewedProfileData.followers.push(currentProfileUid);
+            }
+            return;
+        }
+
+        myOriginalData.following = myOriginalData.following.filter((uid) => uid !== viewedProfileUid);
+        viewedProfileData.followers = viewedProfileData.followers.filter((uid) => uid !== currentProfileUid);
+    }
+
+    async function handleFollowToggle() {
+        if (!currentProfileUid || !viewedProfileUid || isViewingOwnProfile()) return;
+        const wasFollowing = (myOriginalData.following || []).includes(viewedProfileUid);
+        const willFollow = !wasFollowing;
+
+        applyLocalFollowMutation(willFollow);
+        syncFollowUi();
+
+        try {
+            const myRef = doc(db, 'users', currentProfileUid);
+            const targetRef = doc(db, 'users', viewedProfileUid);
+
+            await Promise.all([
+                updateDoc(myRef, { following: willFollow ? arrayUnion(viewedProfileUid) : arrayRemove(viewedProfileUid) }),
+                updateDoc(targetRef, { followers: willFollow ? arrayUnion(currentProfileUid) : arrayRemove(currentProfileUid) })
+            ]);
+
+            if (willFollow) {
+                await notifyFollow({
+                    recipientId: viewedProfileUid,
+                    actorId: currentProfileUid,
+                    actorName: myOriginalData?.realname || myOriginalData?.username || 'Usuário',
+                    actorPhoto: myOriginalData?.photo || ''
+                });
+            }
+        } catch (error) {
+            console.error('[Follow] Falha na transação de seguir/desseguir:', error);
+            applyLocalFollowMutation(wasFollowing);
+            syncFollowUi();
+            alert('Não foi possível atualizar o status de seguir agora. Tente novamente.');
+        }
+    }
+
+    async function openNetworkModal(title, uids) {
+        if (!els.modalList || !els.modalListTitle || !els.modalListBody) return;
+
+        els.modalListTitle.textContent = title;
+        els.modalListBody.innerHTML = '<p style="text-align:center;padding:24px;color:#777;">Carregando...</p>';
+        els.modalList.classList.add('open');
+
+        if (!Array.isArray(uids) || uids.length === 0) {
+            els.modalListBody.innerHTML = '<p style="text-align:center;padding:24px;color:#777;">Nenhum perfil encontrado.</p>';
+            return;
+        }
+
+        try {
+            const ids = [...new Set(uids)].slice(0, 100);
+            const users = await Promise.all(ids.map(async (uid) => {
+                const snap = await getDoc(doc(db, 'users', uid));
+                return snap.exists() ? { uid: snap.id, ...snap.data() } : null;
+            }));
+
+            const validUsers = users.filter(Boolean);
+            if (validUsers.length === 0) {
+                els.modalListBody.innerHTML = '<p style="text-align:center;padding:24px;color:#777;">Nenhum perfil encontrado.</p>';
+                return;
+            }
+
+            const listMarkup = validUsers.map((userData) => {
+                const safeName = String(userData.realname || 'Usuário');
+                const safeUsername = String(userData.username || 'usuario');
+                const safePhoto = toSafeImageSrc(userData.photo) || `https://ui-avatars.com/api/?name=${encodeURIComponent(safeName)}`;
+                const href = `../perfil/index.html?uid=${encodeURIComponent(userData.uid)}`;
+                return `
+                    <a class="network-user-item" href="${href}">
+                        <img src="${safePhoto}" alt="Avatar de ${safeName}" class="network-user-avatar">
+                        <div class="network-user-meta">
+                            <strong>${safeName}</strong>
+                            <span>@${safeUsername}</span>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+
+            els.modalListBody.innerHTML = `<div class="network-user-list">${listMarkup}</div>`;
+        } catch (error) {
+            console.error('[NetworkModal] Falha ao carregar lista de rede:', error);
+            els.modalListBody.innerHTML = '<p style="text-align:center;padding:24px;color:#777;">Erro ao carregar perfis.</p>';
+        }
     }
 
     function renderFeed(snapshot) {
@@ -438,6 +594,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if(nowLiked) await updateDoc(ref, { likes: arrayUnion(currentProfileUid) });
             else await updateDoc(ref, { likes: arrayRemove(currentProfileUid) });
             const s = await getDoc(ref); updateLike(s.data().likes);
+
+            if (nowLiked && postData.authorId) {
+                await notifyPostLike({
+                    recipientId: postData.authorId,
+                    actorId: currentProfileUid,
+                    actorName: myOriginalData?.realname || myOriginalData?.username || 'Usuário',
+                    actorPhoto: myOriginalData?.photo || '',
+                    postId
+                });
+            }
         };
 
         await loadComments(postId, document.getElementById('dynamic-comments'));
@@ -491,11 +657,31 @@ document.addEventListener('DOMContentLoaded', () => {
     async function addComment(postId, user, text, image) {
         await addDoc(collection(db, 'posts', postId, 'comments'), { authorId: user.uid, authorName: user.displayName, authorPhoto: user.photoURL, text: text, image: image||null, timestamp: serverTimestamp(), likes: [] });
         await updateDoc(doc(db, 'posts', postId), { commentsCount: increment(1) });
+
+        if (currentPostAuthorId) {
+            await notifyPostComment({
+                recipientId: currentPostAuthorId,
+                actorId: user.uid,
+                actorName: user.displayName || 'Usuário',
+                actorPhoto: user.photoURL || '',
+                postId
+            });
+        }
     }
     
     async function addReply(postId, commentId, user, text, image) {
         await addDoc(collection(db, 'posts', postId, 'comments', commentId, 'replies'), { authorId: user.uid, authorName: user.displayName, authorPhoto: user.photoURL, text: text, image: image||null, timestamp: serverTimestamp(), likes: [] });
         await updateDoc(doc(db, 'posts', postId), { commentsCount: increment(1) });
+
+        if (currentPostAuthorId) {
+            await notifyPostComment({
+                recipientId: currentPostAuthorId,
+                actorId: user.uid,
+                actorName: user.displayName || 'Usuário',
+                actorPhoto: user.photoURL || '',
+                postId
+            });
+        }
     }
 
     document.addEventListener('delete-reply', async (e) => {
@@ -562,6 +748,17 @@ document.addEventListener('DOMContentLoaded', () => {
             tempProfileImage = b64; 
         } 
     };
+
+    if (els.btnFollow) {
+        els.btnFollow.addEventListener('click', handleFollowToggle);
+    }
+
+    if (els.btnMessageUser) {
+        els.btnMessageUser.addEventListener('click', () => {
+            if (!viewedProfileUid || isViewingOwnProfile()) return;
+            window.location.href = `../mensagens/index.html?uid=${encodeURIComponent(viewedProfileUid)}`;
+        });
+    }
 
     document.querySelectorAll('.btn-close').forEach(b => b.onclick = (e) => e.target.closest('.modal-overlay').classList.remove('open'));
 });
