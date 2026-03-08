@@ -1,8 +1,9 @@
 import { 
     db, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, 
     serverTimestamp, arrayUnion, arrayRemove, increment, 
-    query, orderBy 
+    query, orderBy, getDoc
 } from '../config/firebase.proxy.js';
+import { notifyPostComment } from '../../../global/notification-events.js';
 
 export class InteractionService {
     
@@ -48,6 +49,18 @@ export class InteractionService {
         
         const ref = await addDoc(collection(db, 'posts', postId, 'comments'), payload);
         await updateDoc(doc(db, 'posts', postId), { commentsCount: increment(1) });
+
+        const postSnap = await getDoc(doc(db, 'posts', postId));
+        if (postSnap.exists()) {
+            const postData = postSnap.data();
+            await notifyPostComment({
+                recipientId: postData.authorId,
+                actorId: user.uid,
+                actorName: user.displayName || 'Usuário',
+                actorPhoto: user.photoURL || '',
+                postId
+            });
+        }
         
         return { id: ref.id, ...payload };
     }
@@ -67,6 +80,18 @@ export class InteractionService {
         
         await addDoc(collection(db, 'posts', postId, 'comments', commentId, 'replies'), payload);
         await updateDoc(doc(db, 'posts', postId), { commentsCount: increment(1) });
+
+        const postSnap = await getDoc(doc(db, 'posts', postId));
+        if (postSnap.exists()) {
+            const postData = postSnap.data();
+            await notifyPostComment({
+                recipientId: postData.authorId,
+                actorId: user.uid,
+                actorName: user.displayName || 'Usuário',
+                actorPhoto: user.photoURL || '',
+                postId
+            });
+        }
     }
 
     // Deletar Comentário (Remove Pai + Filhos e atualiza contador)
