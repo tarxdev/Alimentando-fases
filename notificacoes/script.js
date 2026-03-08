@@ -5,7 +5,19 @@
 // Importações do Firebase e Configuração
 import { auth, db } from '../firebase-config.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    limit,
+    onSnapshot,
+    orderBy,
+    query,
+    updateDoc,
+    where,
+    writeBatch
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // Importação do Sistema de Cargos (Para validar Admin)
 import { isMasterUser } from '../sistema-cargos/cargos.js';
@@ -22,6 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Autenticação e Dados
     initAuth();
 });
+
+let currentUserId = null;
+let notificationsUnsubscribe = null;
 
 function initAuth() {
     onAuthStateChanged(auth, async (user) => {
@@ -72,14 +87,161 @@ async function loadUserData(user) {
                 console.log('Acesso Admin liberado para:', finalName);
             }
 
+            startNotificationsStream(user.uid);
+
         } else {
             // Fallback para usuário sem registro no banco
             const fallbackPhoto = user.photoURL || `https://ui-avatars.com/api/?name=User&background=random`;
             updateAvatarImages(fallbackPhoto);
+            startNotificationsStream(user.uid);
         }
 
     } catch (error) {
         console.error('Erro ao carregar perfil:', error);
+    }
+}
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function getNotificationMessage(notification) {
+    const actor = escapeHtml(notification.actorName || 'Alguém');
+    if (notification.type === 'follow') return `<strong>${actor}</strong> começou a seguir você.`;
+    if (notification.type === 'like') return `<strong>${actor}</strong> curtiu uma publicação sua.`;
+    if (notification.type === 'comment') return `<strong>${actor}</strong> comentou em uma publicação sua.`;
+    return `<strong>${actor}</strong> interagiu com seu perfil.`;
+}
+
+function getNotificationIcon(type) {
+    if (type === 'follow') return '<i class="fa-solid fa-user-plus"></i>';
+    if (type === 'like') return '<i class="fa-solid fa-heart"></i>';
+    if (type === 'comment') return '<i class="fa-solid fa-comment"></i>';
+    return '<i class="fa-regular fa-bell"></i>';
+}
+
+function formatRelativeTime(timestamp) {
+    if (!timestamp) return 'Agora';
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const diff = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+
+    if (diff < 60) return 'Agora';
+    if (diff < 3600) return `${Math.floor(diff / 60)} min`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} h`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)} d`;
+    return date.toLocaleDateString('pt-BR');
+}
+
+function renderNotifications(notifications) {
+    const container = document.getElementById('notifications-container');
+    if (!container) return;
+
+    if (!notifications || notifications.length === 0) {
+        container.innerHTML = `
+            <div class="notif-item" style="justify-content:center; cursor:default;">
+                <div class="notif-content" style="text-align:center;">
+                    <div class="notif-text">Nenhuma notificação por enquanto.</div>
+                    <div class="notif-time">Quando houver interações, elas aparecerão aqui.</div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = notifications.map((n) => {
+        const photo = escapeHtml(n.actorPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(n.actorName || 'User')}`);
+        const unreadClass = n.read ? '' : 'unread';
+        return `
+            <article class="notif-item ${unreadClass}" data-notification-id="${escapeHtml(n.id)}">
+                <img src="${photo}" class="notif-avatar" alt="Avatar">
+                <div class="notif-content">
+                    <div class="notif-text">${getNotificationIcon(n.type)} ${getNotificationMessage(n)}</div>
+                    <div class="notif-time">${formatRelativeTime(n.timestamp)}</div>
+                </div>
+            </article>
+        `;
+    }).join('');
+
+    container.querySelectorAll('.notif-item').forEach((el) => {
+        el.addEventListener('click', () => {
+            const id = el.getAttribute('data-notification-id');
+            const data = notifications.find((item) => item.id === id);
+            if (data) handleNotificationClick(data, el);
+        });
+    });
+}
+
+function startNotificationsStream(userId) {
+    currentUserId = userId;
+
+    if (notificationsUnsubscribe) {
+        notificationsUnsubscribe();
+        notificationsUnsubscribe = null;
+    }
+
+    const q = query(
+        collection(db, 'notifications'),
+        where('recipientId', '==', userId),
+        orderBy('timestamp', 'desc'),
+        limit(100)
+    );
+
+    notificationsUnsubscribe = onSnapshot(q, (snapshot) => {
+        const notifications = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...docSnap.data()
+        }));
+        renderNotifications(notifications);
+    }, (error) => {
+        console.error('Erro ao carregar notificações:', error);
+    });
+}
+
+async function handleNotificationClick(notification, element) {
+    if (!notification.read) {
+        try {
+            await updateDoc(doc(db, 'notifications', notification.id), { read: true });
+            if (element) element.classList.remove('unread');
+        } catch (error) {
+            console.error('Erro ao marcar notificação como lida:', error);
+        }
+    }
+
+    if (notification.type === 'follow' && notification.actorId) {
+        window.location.href = `../perfil/index.html?uid=${encodeURIComponent(notification.actorId)}`;
+        return;
+    }
+
+    if (notification.postId) {
+        window.location.href = '../perfil/index.html';
+    }
+}
+
+async function markAllNotificationsAsRead() {
+    if (!currentUserId) return;
+
+    try {
+        const unreadQuery = query(
+            collection(db, 'notifications'),
+            where('recipientId', '==', currentUserId),
+            where('read', '==', false),
+            limit(200)
+        );
+        const snapshot = await getDocs(unreadQuery);
+        if (snapshot.empty) return;
+
+        const batch = writeBatch(db);
+        snapshot.docs.forEach((docSnap) => {
+            batch.update(docSnap.ref, { read: true });
+        });
+        await batch.commit();
+    } catch (error) {
+        console.error('Erro ao marcar todas como lidas:', error);
     }
 }
 
@@ -105,7 +267,8 @@ function initUIEvents() {
     // Botão Marcar Lidas
     const btnMarkAll = document.getElementById('btn-mark-all-read');
     if (btnMarkAll) {
-        btnMarkAll.addEventListener('click', () => {
+        btnMarkAll.addEventListener('click', async () => {
+            await markAllNotificationsAsRead();
             if(window.Swal) {
                 Swal.fire({
                     title: 'Pronto!',
@@ -116,15 +279,12 @@ function initUIEvents() {
                     backdrop: `rgba(0,0,0,0.4)`
                 });
             }
-            document.querySelectorAll('.notif-item.unread').forEach(item => {
-                item.classList.remove('unread');
-            });
         });
     }
 
     // Modais
     setupModal('btn-open-tools', 'modal-tools', 'btn-close-tools');
-    setupModal('btn-open-settings', 'modal-settings', 'btn-close-settings');
+    // Configuracoes agora abre pagina dedicada em ../configuracoes/index.html
 
     // Tabs Configurações
     const settingsTabs = document.querySelectorAll('.settings-nav-btn');
