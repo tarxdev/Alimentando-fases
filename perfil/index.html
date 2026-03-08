@@ -1,7 +1,7 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-            <meta name="description" content="Perfil do usuário na plataforma Alimentando Fases. Gerencie suas informações e acompanhe sua jornada nutricional.">
+            <meta name="description" content="Perfil do usuÃ¡rio na plataforma Alimentando Fases. Gerencie suas informaÃ§Ãµes e acompanhe sua jornada nutricional.">
             <link rel="canonical" href="https://alimentandofases.com/perfil/" />
             <script type="application/ld+json">
             {
@@ -47,7 +47,7 @@
         }
         #af-global-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-        /* ANIMAÇÃO DO SPINNER */
+        /* ANIMAÃ‡ÃƒO DO SPINNER */
         .af-spinner-box { position: relative; width: 80px; height: 80px; }
         .af-ring {
             position: absolute; width: 100%; height: 100%; border-radius: 50%;
@@ -159,7 +159,7 @@
             </div>
             <div class="sidebar-search">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="sidebar-user-search" placeholder="Buscar usuário por @...">
+                <input type="text" id="sidebar-user-search" placeholder="Buscar usuÃ¡rio por @...">
             </div>
             <ul class="nav-links">
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> <span>Início</span></a></li>
@@ -177,7 +177,7 @@
                 </li>
                 <li id="nav-item-admin" style="display: none;"><a href="../admin/index.html"><i class="fa-solid fa-lock"></i> <span>Painel Admin</span></a></li>
                 <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> <span>Calendário</span></a></li>
-                <li><a href="javascript:void(0)" id="btn-open-settings" role="button"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
+                <li><a href="../configuracoes/index.html" id="btn-open-settings" role="button"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
             </ul>
             
             <div class="nav-footer">
@@ -206,14 +206,17 @@
                             <h2 class="journey-name skeleton" id="display-realname" style="width: 250px; height: 32px; display:block; margin-bottom: 8px;"></h2>
                             <span class="journey-username skeleton" id="display-username" style="width: 120px; height: 20px; display: block;"></span>
                         </div>
-                        <div class="journey-actions">
+                        <div class="journey-actions" id="owner-actions">
                             <button class="btn-edit-profile" id="btn-open-edit"><i class="fa-solid fa-pen"></i> Editar Perfil</button>
-                            <button class="btn-message-profile" id="btn-message-user" style="display: none; background-color: #53954a; color: white; margin-left: 10px;"><i class="fa-solid fa-envelope"></i> Enviar Mensagem</button>
+                        </div>
+                        <div class="journey-actions" id="visitor-actions" style="display: none;">
+                            <button class="btn-follow-action" id="btn-follow"><i class="fa-solid fa-user-plus"></i> <span>Seguir</span></button>
+                            <button class="btn-message-profile" id="btn-message-user" style="background-color: #53954a; color: white;"><i class="fa-solid fa-envelope"></i> Enviar Mensagem</button>
                         </div>
                     </div>
 
                     <ul class="profile-stats-insta">
-                        <li><span class="stat-count" id="count-posts">0</span> publicações</li>
+                        <li><span class="stat-count" id="count-posts">0</span> publicaÃ§Ãµes</li>
                         <li id="btn-view-followers" class="clickable-stat"><span class="stat-count" id="count-followers">0</span> seguidores</li>
                         <li id="btn-view-following" class="clickable-stat"><span class="stat-count" id="count-following">0</span> seguindo</li>
                     </ul>
@@ -228,7 +231,7 @@
             <div class="journey-highlights-row" id="actions-row">
                 <div class="highlight-card primary-action" onclick="document.getElementById('modal-new-post').classList.add('open')">
                     <div class="h-icon"><i class="fa-solid fa-pen-nib"></i></div>
-                    <div class="h-info"><strong>Registrar hoje</strong><span>Criar publicação</span></div>
+                    <div class="h-info"><strong>Registrar hoje</strong><span>Criar publicaÃ§Ã£o</span></div>
                     <i class="fa-solid fa-arrow-right action-arrow"></i>
                 </div>
                 <div class="highlight-card secondary-action">
@@ -246,7 +249,7 @@
             <div class="tab-content-wrapper">
                 <div id="tab-timeline" class="tab-pane active">
                     <div id="empty-state-timeline" class="empty-state-journey" style="display: none;">
-                        <p style="color: #888; text-align:center; padding:30px;">Ainda não há publicações.</p>
+                        <p style="color: #888; text-align:center; padding:30px;">Ainda nÃ£o hÃ¡ publicaÃ§Ãµes.</p>
                     </div>
                     <div id="feed-container" class="gallery-grid"></div>
                 </div>
@@ -278,7 +281,7 @@
             </div>
             <div class="mobile-menu-search">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="mobile-user-search" placeholder="Buscar usuário por @...">
+                <input type="text" id="mobile-user-search" placeholder="Buscar usuÃ¡rio por @...">
             </div>
             <ul class="mobile-nav-links">
                 <li><a href="../index.html"><i class="fa-solid fa-house"></i> Início</a></li>
@@ -288,7 +291,7 @@
                 <li><a href="../mensagens/index.html"><i class="fa-solid fa-envelope"></i> Mensagens</a></li>
                 <li id="mobile-item-admin" style="display: none;"><a href="../admin/index.html"><i class="fa-solid fa-lock"></i> Painel Admin</a></li>
                 <li><a href="../calendario.html"><i class="fa-regular fa-calendar-check"></i> Calendário</a></li>
-                <li><a href="javascript:void(0)" id="btn-open-settings-mobile" role="button"><i class="fa-solid fa-gear"></i> Configurações</a></li>
+                <li><a href="../configuracoes/index.html" id="btn-open-settings-mobile" role="button"><i class="fa-solid fa-gear"></i> Configurações</a></li>
             </ul>
         </nav>
     </div>
@@ -299,8 +302,8 @@
             <div class="modal-body-modern">
                 <div class="edit-profile-center"><img src="" id="modal-avatar-preview" class="avatar-edit-large af-protected-img" draggable="false"><button id="btn-trigger-file" class="btn-change-photo-text">Alterar foto do perfil</button></div>
                 <div class="form-grid">
-                    <div class="form-group"><label>Nome de Exibição</label><input type="text" class="form-input-modern" id="input-realname"></div>
-                    <div class="form-group"><label>Nome de Usuário</label><div class="input-group-modern"><span class="input-prefix">@</span><input type="text" class="form-input-modern pl-4" id="input-username"></div></div>
+                    <div class="form-group"><label>Nome de ExibiÃ§Ã£o</label><input type="text" class="form-input-modern" id="input-realname"></div>
+                    <div class="form-group"><label>Nome de UsuÃ¡rio</label><div class="input-group-modern"><span class="input-prefix">@</span><input type="text" class="form-input-modern pl-4" id="input-username"></div></div>
                     <div class="form-group"><label>Biografia</label><textarea class="form-textarea-modern" id="input-bio"></textarea></div>
                     <div class="form-group"><label>Link</label><input type="text" class="form-input-modern" id="input-link"></div>
                 </div>
@@ -326,8 +329,8 @@
                     <div class="inst-action-icons"><div class="inst-icons-left"><button class="inst-icon-btn" id="inst-main-like-btn"><i class="fa-regular fa-heart"></i></button></div></div>
                     <p class="inst-likes-count"><span id="inst-likes-number">0</span> curtidas</p>
                     <div class="inst-input-wrapper">
-                        <button id="btn-toggle-emoji" class="inst-emoji-btn">😊</button>
-                        <input type="text" id="inst-comment-input" placeholder="Adicione um comentário..." autocomplete="off">
+                        <button id="btn-toggle-emoji" class="inst-emoji-btn">ðŸ˜Š</button>
+                        <input type="text" id="inst-comment-input" placeholder="Adicione um comentÃ¡rio..." autocomplete="off">
                         <button id="btn-comment-gallery" class="inst-gallery-btn"><i class="fa-regular fa-image"></i></button>
                         <button id="inst-btn-send" class="inst-post-btn">Publicar</button>
                         <div id="inst-emoji-picker-container" class="hidden"><emoji-picker></emoji-picker></div>
@@ -353,8 +356,8 @@
             </div>
             
             <div class="logout-text-content">
-                <h3>Encerrar Sessão?</h3>
-                <p>Você precisará fazer login novamente para acessar sua conta.</p>
+                <h3>Encerrar SessÃ£o?</h3>
+                <p>VocÃª precisarÃ¡ fazer login novamente para acessar sua conta.</p>
             </div>
 
             <div class="luxury-actions">
@@ -370,3 +373,8 @@
     <script type="module" src="js/index.js"></script>
 </body>
 </html>
+
+
+
+
+
