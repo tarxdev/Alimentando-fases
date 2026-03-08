@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario - Alimentando Fases</title>
+    <link rel="icon" href="Imagens/logofavicon.webp">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="stylesheet" href="comunidade/css/core.css">
+    <link rel="stylesheet" href="comunidade/css/layout.css">
+    <link rel="stylesheet" href="calendario.css">
+</head>
+<body class="dashboard-body">
+    <div class="main-layout">
+        <nav class="sidebar">
+            <div class="logo-area">
+                <img src="Imagens/logofavicon.webp" alt="Logo" class="sidebar-logo-img">
+                <div class="brand-text">ALIMENTANDO <span>FASES</span></div>
+            </div>
+
+            <div class="sidebar-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="sidebar-user-search" placeholder="Buscar usuario por @...">
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="index.html"><i class="fa-solid fa-house"></i> <span>Inicio</span></a></li>
+                <li><a href="comunidade/index.html"><i class="fa-solid fa-earth-americas"></i> <span>Comunidade</span></a></li>
+                <li><a href="IA/index.html"><i class="fa-solid fa-robot"></i> <span>Essentia</span></a></li>
+                <li><a href="notificacoes/index.html"><i class="fa-regular fa-bell"></i> <span>Notificacoes</span></a></li>
+                <li>
+                    <a href="mensagens/index.html">
+                        <div class="icon-container"><i class="fa-solid fa-envelope"></i><span id="sidebar-badge" class="nav-badge hidden">0</span></div>
+                        <span>Mensagens</span>
+                    </a>
+                </li>
+                <li id="nav-item-admin" style="display: none;"><a href="admin/index.html"><i class="fa-solid fa-lock"></i> <span>Painel Admin</span></a></li>
+                <li><a href="calendario.html" class="active"><i class="fa-regular fa-calendar-check"></i> <span>Calendario</span></a></li>
+                <li><a href="configuracoes/index.html" id="btn-open-settings" role="button"><i class="fa-solid fa-gear"></i> <span>Configuracoes</span></a></li>
+            </ul>
+
+            <div class="nav-footer">
+                <a href="perfil/index.html" class="profile-pill-link">
+                    <img src="https://ui-avatars.com/api/?name=User" class="nav-avatar" id="nav-avatar-img" alt="Avatar">
+                    <div class="profile-info-mini"><span class="p-name">Meu Perfil</span></div>
+                </a>
+            </div>
+        </nav>
+
+        <main class="content-area calendar-page-area">
+            <section class="content-section calendar-page-section">
+                <h2 class="section-title">Agenda de Nutricao</h2>
+                <p class="section-description">Acompanhe nossos eventos, datas comemorativas da saude e acoes na comunidade. Clique nos dias para ver os detalhes.</p>
+
+                <div class="calendar-container-full">
+                    <div class="calendar-left-panel">
+                        <div class="calendar-header-full">
+                            <button id="prev-month-full" class="nav-btn-full" aria-label="Mes anterior"><i class="fa-solid fa-chevron-left"></i></button>
+                            <h3 id="current-month-full">Mes</h3>
+                            <button id="next-month-full" class="nav-btn-full" aria-label="Proximo mes"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+
+                        <ul class="weekdays-full">
+                            <li>Dom</li><li>Seg</li><li>Ter</li><li>Qua</li><li>Qui</li><li>Sex</li><li>Sab</li>
+                        </ul>
+
+                        <ul class="days-full" id="calendar-days-full"></ul>
+                    </div>
+
+                    <div class="calendar-right-panel">
+                        <div id="event-card-display">
+                            <div class="empty-state-full">
+                                <i class="fa-regular fa-calendar-days"></i>
+                                <h4>Nenhum dia selecionado</h4>
+                                <p>Clique em uma data no calendario para ver os horarios e locais das atividades.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script type="module" src="global/sidebar-auth.js"></script>
+    <script type="module" src="global/sidebar-search.js"></script>
+    <script src="calendario.js"></script>
+</body>
+</html>
+
+
+
+
+
+
