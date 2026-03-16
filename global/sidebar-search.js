@@ -1,6 +1,10 @@
 import { searchUsersByUsername } from "../comunidade/js/services/user-search.service.js";
 import { escapeHtml } from "../comunidade/js/utils/formatters.js";
 
+const DEFAULT_AVATAR_URL = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+const SEARCH_HISTORY_KEY = 'af:user-search-history-v2';
+const SEARCH_HISTORY_LIMIT = 8;
+
 /**
  * Implementação de Memoization/Debounce para otimização de renderização e mitigação de I/O na Main Thread.
  * @param {Function} func 
@@ -79,12 +83,84 @@ class InstagramSearchDrawer {
         }
     }
 
+    getSearchHistory() {
+        try {
+            const raw = localStorage.getItem(SEARCH_HISTORY_KEY);
+            const parsed = JSON.parse(raw || '[]');
+            if (!Array.isArray(parsed)) return [];
+            return parsed.filter((item) => item && typeof item === 'object' && item.uid && item.username);
+        } catch {
+            return [];
+        }
+    }
+
+    setSearchHistory(users) {
+        const safeUsers = Array.isArray(users) ? users.slice(0, SEARCH_HISTORY_LIMIT) : [];
+        localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(safeUsers));
+    }
+
+    normalizeUsername(username) {
+        return String(username || '').replace(/^@/, '').trim();
+    }
+
+    addUserToHistory(user) {
+        const uid = String(user?.uid || '').trim();
+        const username = this.normalizeUsername(user?.username || user?.name || 'user');
+        if (!uid || !username) return;
+
+        const rawAvatar = user?.photo || user?.photoURL || user?.avatar || user?.profileImage || '';
+        const avatar = (rawAvatar && !String(rawAvatar).includes('ui-avatars.com')) ? String(rawAvatar) : DEFAULT_AVATAR_URL;
+        const name = String(user?.name || user?.realname || user?.displayName || username).trim();
+
+        const history = this.getSearchHistory().filter((item) => item.uid !== uid);
+        history.unshift({ uid, username, name, avatar });
+        this.setSearchHistory(history);
+    }
+
+    clearSearchHistory() {
+        localStorage.removeItem(SEARCH_HISTORY_KEY);
+        this.renderIdleState();
+    }
+
     renderIdleState() {
+        const history = this.getSearchHistory();
+        if (!history.length) {
+            this.resultsArea.innerHTML = `
+                <div class="insta-state-msg">
+                    <span>Pesquise por usuários na comunidade</span>
+                </div>
+            `;
+            return;
+        }
+
         this.resultsArea.innerHTML = `
-            <div class="insta-state-msg">
-                <span>Pesquise por usuários na comunidade</span>
+            <div class="insta-recent-header" style="display:flex;align-items:center;justify-content:space-between;padding:6px 4px 12px;">
+                <span class="insta-state-title" style="font-size:0.95rem;">Recentes</span>
+                <button type="button" class="insta-clear-recent" style="border:none;background:none;color:#53954a;cursor:pointer;font-weight:700;">Limpar</button>
             </div>
+            <div class="insta-recent-list"></div>
         `;
+
+        const recentList = this.resultsArea.querySelector('.insta-recent-list');
+        const clearBtn = this.resultsArea.querySelector('.insta-clear-recent');
+
+        if (clearBtn) {
+            clearBtn.onclick = () => this.clearSearchHistory();
+        }
+
+        history.forEach((user) => {
+            const link = document.createElement('a');
+            link.href = `../perfil/index.html?uid=${encodeURIComponent(user.uid)}`;
+            link.className = 'insta-user-item';
+            link.innerHTML = `
+                <img src="${escapeHtml(user.avatar || DEFAULT_AVATAR_URL)}" class="insta-avatar" loading="lazy" alt="Avatar" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR_URL}';">
+                <div class="insta-user-info">
+                    <span class="insta-username">@${escapeHtml(user.username)}</span>
+                    <span class="insta-name">${escapeHtml(user.name || 'Usuário')}</span>
+                </div>
+            `;
+            recentList.appendChild(link);
+        });
     }
 
     renderLoadingState() {
@@ -119,19 +195,29 @@ class InstagramSearchDrawer {
             link.className = 'insta-user-item';
             
             const avatarPath = user.photo || user.photoURL || user.avatar || user.profileImage;
-            const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.username || 'U')}&background=random`;
-            const avatar = avatarPath || fallbackAvatar;
+            const avatar = (avatarPath && !String(avatarPath).includes('ui-avatars.com')) ? avatarPath : DEFAULT_AVATAR_URL;
             
-            const displayName = escapeHtml(user.name || '');
-            const displayUsername = escapeHtml(user.username || 'user');
+            const displayNameRaw = String(user.name || user.realname || '');
+            const displayUsernameRaw = this.normalizeUsername(user.username || user.name || 'user');
+            const displayName = escapeHtml(displayNameRaw);
+            const displayUsername = escapeHtml(displayUsernameRaw);
 
             link.innerHTML = `
-                <img src="${avatar}" class="insta-avatar" loading="lazy" alt="Avatar">
+                <img src="${avatar}" class="insta-avatar" loading="lazy" alt="Avatar" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR_URL}';">
                 <div class="insta-user-info">
                     <span class="insta-username">@${displayUsername}</span>
                     <span class="insta-name">${displayName}</span>
                 </div>
             `;
+
+            link.addEventListener('click', () => {
+                this.addUserToHistory({
+                    uid: user.uid,
+                    username: displayUsernameRaw,
+                    name: displayNameRaw,
+                    photo: avatar
+                });
+            });
             fragment.appendChild(link);
         });
 
