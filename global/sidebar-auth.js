@@ -2,6 +2,8 @@ import { auth, db } from '../firebase-config.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
+const DEFAULT_AVATAR_URL = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
 const loadAuthenticatedUserProfile = () => {
     onAuthStateChanged(auth, async (user) => {
         const profileElements = {
@@ -21,12 +23,13 @@ const loadAuthenticatedUserProfile = () => {
                 const userDoc = await getDoc(userDocRef);
 
                 let displayName = 'Meu Perfil';
-                let photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
+                let photoURL = DEFAULT_AVATAR_URL;
 
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
                     displayName = userData.name || user.displayName || 'Meu Perfil';
-                    photoURL = userData.photoURL || user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
+                    const candidatePhoto = userData.photoURL || user.photoURL || '';
+                    photoURL = (candidatePhoto && !String(candidatePhoto).includes('ui-avatars.com')) ? candidatePhoto : DEFAULT_AVATAR_URL;
 
                     // Verifica o cargo do usuário
                     if (userData.role === 'master') {
@@ -42,7 +45,7 @@ const loadAuthenticatedUserProfile = () => {
                 } else {
                     // Fallback para dados do Auth se não houver doc
                     displayName = user.displayName || 'Meu Perfil';
-                    photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
+                    photoURL = (user.photoURL && !String(user.photoURL).includes('ui-avatars.com')) ? user.photoURL : DEFAULT_AVATAR_URL;
                 }
 
                 // Atualiza a sidebar principal
