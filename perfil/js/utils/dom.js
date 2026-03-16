@@ -2,6 +2,8 @@
 
 import { getRoleBadgeHTML } from '../../../sistema-cargos/cargos.js';
 
+const DEFAULT_AVATAR_URL = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
 function getTimeAgo(timestamp) {
     if (!timestamp) return 'Agora';
     try {
@@ -36,7 +38,7 @@ export function renderCommentItem(comment, currentUserId, currentUserPhoto, post
     
     const badge = getRoleBadgeHTML({ role: comment.authorRole, crn: comment.authorCRN });
     const contentText = comment.text || comment.content || "";
-    const displayAvatar = (isCommentOwner && currentUserPhoto) ? currentUserPhoto : (comment.authorPhoto || 'https://ui-avatars.com/api/?name=User');
+    const displayAvatar = (isCommentOwner && currentUserPhoto) ? currentUserPhoto : (comment.authorPhoto || DEFAULT_AVATAR_URL);
 
     let mediaHtml = '';
     if (comment.image) {
@@ -114,7 +116,7 @@ export function renderCommentItem(comment, currentUserId, currentUserPhoto, post
             const isReplyOwner = currentUserId === reply.authorId;
             const canDeleteReply = isReplyOwner || isPostOwner;
             const rBadge = getRoleBadgeHTML({ role: reply.authorRole, crn: reply.authorCRN });
-            const rAvatar = (isReplyOwner && currentUserPhoto) ? currentUserPhoto : (reply.authorPhoto || 'https://ui-avatars.com/api/?name=U');
+            const rAvatar = (isReplyOwner && currentUserPhoto) ? currentUserPhoto : (reply.authorPhoto || DEFAULT_AVATAR_URL);
             
             const rMedia = reply.image ? `<img src="${reply.image}" class="inst-comment-img" onclick="window.open(this.src)">` : '';
             const deleteReplyBtn = canDeleteReply 
