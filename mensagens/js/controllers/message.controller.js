@@ -4,6 +4,8 @@ import { PresenceService } from '../services/presence.service.js';
 import { GiphyService } from '../services/giphy.service.js';
 import { asmCrypto } from '../services/asm-loader.js';
 
+const DEFAULT_AVATAR_URL = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
 export class MessageController {
     constructor() {
         this.chatService = new ChatService();
@@ -12,6 +14,7 @@ export class MessageController {
         this.isSendingGif = false;
         this.currentUser = null;
         this.activeChatId = null;
+        this.activeOtherUserId = null;
         this.presenceUnsubscribe = null;
         this.lastChats = [];
         this.lastMessages = [];
@@ -70,7 +73,7 @@ export class MessageController {
 
             this.chatService.getUserInfo(otherId).then(u => {
                 const name = u?.name || u?.realname || u?.username || "Usuário";
-                const photo = u?.photo || "https://ui-avatars.com/api/?name=" + name;
+                const photo = (u?.photo && !u.photo.includes('ui-avatars')) ? u.photo : DEFAULT_AVATAR_URL;
 
                 item.dataset.chatName = name;
                 item.dataset.chatPhoto = photo;
@@ -83,6 +86,30 @@ export class MessageController {
                         <span class="conv-last-msg">${preview}</span>
                     </div>
                 `;
+
+                const avatar = item.querySelector('.conv-avatar');
+                if (avatar) {
+                    avatar.onerror = () => {
+                        avatar.onerror = null;
+                        avatar.src = DEFAULT_AVATAR_URL;
+                    };
+                    avatar.style.cursor = 'pointer';
+                    avatar.title = `Ver perfil de ${name}`;
+                    avatar.onclick = (e) => {
+                        e.stopPropagation();
+                        this.openUserProfile(otherId);
+                    };
+                }
+
+                const nameEl = item.querySelector('.conv-name');
+                if (nameEl) {
+                    nameEl.style.cursor = 'pointer';
+                    nameEl.title = `Ver perfil de ${name}`;
+                    nameEl.onclick = (e) => {
+                        e.stopPropagation();
+                        this.openUserProfile(otherId);
+                    };
+                }
             });
 
             item.onclick = (e) => this.openChat(chat.id, e.currentTarget);
@@ -92,6 +119,7 @@ export class MessageController {
 
     openChat(chatId, itemElement) {
         this.activeChatId = chatId;
+        this.activeOtherUserId = itemElement?.dataset?.otherId || null;
         document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
         
         if (itemElement) {
@@ -101,6 +129,10 @@ export class MessageController {
             if (itemElement.dataset.chatName) {
                 this.headerName.innerText = itemElement.dataset.chatName;
                 this.headerAvatar.src = itemElement.dataset.chatPhoto;
+                this.headerAvatar.onerror = () => {
+                    this.headerAvatar.onerror = null;
+                    this.headerAvatar.src = DEFAULT_AVATAR_URL;
+                };
                 
                 // Status Online
                 if(this.presenceUnsubscribe) this.presenceUnsubscribe();
@@ -230,6 +262,11 @@ export class MessageController {
         this.sendBtn.disabled = !hasText || !this.activeChatId;
     }
 
+    openUserProfile(uid) {
+        if (!uid) return;
+        window.location.href = `../perfil/index.html?uid=${encodeURIComponent(uid)}`;
+    }
+
     bindEvents() {
         const send = () => {
             const text = this.input.value.trim();
@@ -289,6 +326,14 @@ export class MessageController {
         // Voltar Mobile
         const btnBack = document.getElementById('btn-back-mobile');
         if(btnBack) btnBack.onclick = () => this.windowPanel.classList.remove('active-mobile');
+
+        // Acessar perfil pelo cabeçalho da conversa ativa
+        const chatUserDetails = document.querySelector('.chat-header .user-details');
+        if (chatUserDetails) {
+            chatUserDetails.style.cursor = 'pointer';
+            chatUserDetails.title = 'Abrir perfil';
+            chatUserDetails.onclick = () => this.openUserProfile(this.activeOtherUserId);
+        }
     }
 
     async searchGifs(term) {
