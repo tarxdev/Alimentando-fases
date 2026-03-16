@@ -15,6 +15,7 @@ import { getRoleBadgeHTML, isMasterUser } from '../../sistema-cargos/cargos.js';
 import { notifyFollow, notifyPostLike, notifyPostComment } from '../../global/notification-events.js';
 
 const COMMON_EMOJIS = ["😂","❤️","😍","🔥","👏","🙌","😭","👀","✨","💯","🥰","🤣","🥺","🙏","😎","✅","🚀","🤔","💀","🤡","🤮","🥳","🤯","🤬","😡","👋","💪","👍","👎"];
+const DEFAULT_AVATAR_URL = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -102,6 +103,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (/[<>"'`]/.test(src)) return '';
         if (/^(https?:\/\/|data:image\/|blob:|\/|\.\.\/|\.\/)/i.test(src)) return src;
         return '';
+    };
+
+    const isLegacyInitialAvatar = (value) => {
+        const src = String(value || '').toLowerCase();
+        return src.includes('ui-avatars.com');
+    };
+
+    const resolveAvatarSrc = (value) => {
+        const safeSrc = toSafeImageSrc(value);
+        return (safeSrc && !isLegacyInitialAvatar(safeSrc)) ? safeSrc : DEFAULT_AVATAR_URL;
     };
 
     const protectedSelector = '.af-protected-img';
@@ -265,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else { els.link.style.display = 'none'; }
         }
 
-        const profilePhoto = profileData.photo || "https://ui-avatars.com/api/?name=User";
+        const profilePhoto = resolveAvatarSrc(profileData.photo);
         if(els.picMain) {
             els.picMain.src = profilePhoto;
             els.picMain.style.background = 'transparent';
@@ -288,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(els.counts.following) els.counts.following.innerText = profileData.following?.length || 0;
 
         // 2. ÁREA DE SESSÃO (DADOS DO USUÁRIO LOGADO)
-        const sessionPhoto = sessionData.photo || "https://ui-avatars.com/api/?name=User";
+        const sessionPhoto = resolveAvatarSrc(sessionData.photo);
         if(els.navAvatar) els.navAvatar.src = sessionPhoto;
         if(els.navAvatarMobile) els.navAvatarMobile.src = sessionPhoto;
         if(els.mobileMenuAvatar) els.mobileMenuAvatar.src = sessionPhoto;
@@ -409,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const listMarkup = validUsers.map((userData) => {
                 const safeName = String(userData.realname || 'Usuário');
                 const safeUsername = String(userData.username || 'usuario');
-                const safePhoto = toSafeImageSrc(userData.photo) || `https://ui-avatars.com/api/?name=${encodeURIComponent(safeName)}`;
+                const safePhoto = resolveAvatarSrc(userData.photo);
                 const href = `../perfil/index.html?uid=${encodeURIComponent(userData.uid)}`;
                 return `
                     <a class="network-user-item" href="${href}">
@@ -473,7 +484,9 @@ document.addEventListener('DOMContentLoaded', () => {
         commentImageBase64 = null;
 
         const isMe = postData.authorId === currentProfileUid;
-        const displayPhoto = isMe ? myOriginalData.photo : (postData.authorPhoto || "https://ui-avatars.com/api/?name=User");
+        const displayPhoto = isMe
+            ? resolveAvatarSrc(myOriginalData?.photo)
+            : resolveAvatarSrc(postData.authorPhoto);
         const badge = getRoleBadgeHTML({ role: postData.authorRole });
         const nameHTML = isMasterUser({ role: postData.authorRole }) ? `<span class="master-text-effect">${postData.authorName}</span>` : postData.authorName;
 
@@ -628,11 +641,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const userPhotosMap = {};
-        if(myOriginalData) userPhotosMap[currentProfileUid] = myOriginalData.photo;
+        if(myOriginalData) userPhotosMap[currentProfileUid] = resolveAvatarSrc(myOriginalData.photo);
         
         await Promise.all(Array.from(authorIds).map(async (uid) => {
             if(userPhotosMap[uid]) return;
-            try { const u = await getDoc(doc(db, 'users', uid)); if(u.exists()) userPhotosMap[uid] = u.data().photo; } catch(e){}
+            try {
+                const u = await getDoc(doc(db, 'users', uid));
+                if (u.exists()) userPhotosMap[uid] = resolveAvatarSrc(u.data().photo);
+            } catch(e){}
         }));
 
         const callbacks = {
@@ -714,7 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('input-username').value = myOriginalData.username; 
         document.getElementById('input-bio').value = myOriginalData.bio || ""; 
         document.getElementById('input-link').value = myOriginalData.link || ""; 
-        if(els.imgPreviewEdit) els.imgPreviewEdit.src = myOriginalData.photo || "https://ui-avatars.com/api/?name=User"; 
+        if(els.imgPreviewEdit) els.imgPreviewEdit.src = resolveAvatarSrc(myOriginalData?.photo); 
         tempProfileImage = null; 
         els.modalEdit.classList.add('open'); 
     };
