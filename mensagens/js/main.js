@@ -13,6 +13,8 @@ import { MessageController } from './controllers/message.controller.js';
 import { isMasterUser } from '../../sistema-cargos/cargos.js';
 import { PresenceService } from './services/presence.service.js';
 
+const DEFAULT_AVATAR_URL = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
 document.addEventListener('DOMContentLoaded', () => {
     
     // 1. Oculta o Loader Global
@@ -39,7 +41,7 @@ function initLayoutAuth() {
             await loadSidebarData(user);
         } else {
             const img = document.getElementById('nav-avatar-img');
-            if(img) img.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+            if(img) img.src = DEFAULT_AVATAR_URL;
         }
     });
 }
@@ -57,7 +59,9 @@ async function loadSidebarData(user) {
             const dbPhoto = data.photo || data.foto; 
             const name = data.nome || data.realname || data.name || user.displayName || "Usuário";
             
-            const displayPhoto = (dbPhoto && !dbPhoto.includes('ui-avatars')) ? dbPhoto : (user.photoURL || `https://ui-avatars.com/api/?name=${name}`);
+            const hasValidDbPhoto = !!dbPhoto && !dbPhoto.includes('ui-avatars');
+            const hasValidProviderPhoto = !!user.photoURL && !user.photoURL.includes('ui-avatars');
+            const displayPhoto = hasValidDbPhoto ? dbPhoto : (hasValidProviderPhoto ? user.photoURL : DEFAULT_AVATAR_URL);
 
             // Atualiza na tela
             const img = document.getElementById('nav-avatar-img');
