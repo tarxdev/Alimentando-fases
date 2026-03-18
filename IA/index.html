@@ -74,6 +74,7 @@
             <div class="chat-container">
                 
                 <div class="chat-header">
+                    <div class="header-glow" aria-hidden="true"></div>
                     <div class="ai-profile">
                         <div class="ai-avatar-wrapper">
                             <i class="fa-solid fa-robot"></i>
@@ -81,6 +82,7 @@
                         <div class="ai-info">
                             <h2>Essentia</h2>
                             <span class="status-indicator"><span class="dot online"></span> Inteligência Artificial</span>
+                            <small class="ai-subtitle">Nutrição, desenvolvimento e receitas com respostas em tempo real</small>
                         </div>
                     </div>
                     <button id="btn-clear-chat" class="icon-btn-ghost" title="Reiniciar Conversa">
@@ -98,6 +100,12 @@
                 </div>
 
                 <div class="chat-input-area">
+                    <div class="quick-prompts" aria-label="Sugestões rápidas">
+                        <button class="quick-prompt-btn" type="button" data-prompt="Monte um cardápio infantil saudável para a semana.">Cardápio semanal</button>
+                        <button class="quick-prompt-btn" type="button" data-prompt="Quais lanches saudáveis posso enviar para a escola?">Lanches escolares</button>
+                        <button class="quick-prompt-btn" type="button" data-prompt="Me dê ideias de receitas rápidas com legumes para crianças.">Receitas rápidas</button>
+                        <button class="quick-prompt-btn" type="button" data-prompt="Como adaptar a alimentação por fase do desenvolvimento?">Por fase</button>
+                    </div>
                     <div class="input-wrapper">
                         <textarea id="user-input" placeholder="Digite sua dúvida aqui..." rows="1"></textarea>
                         <button id="btn-send" class="btn-send-ai" disabled>
