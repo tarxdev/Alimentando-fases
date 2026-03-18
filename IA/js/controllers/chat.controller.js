@@ -29,6 +29,17 @@ export class ChatController {
     init() {
         // Chat Event Listeners
         this.btnSend.addEventListener('click', () => this.send());
+
+        document.querySelectorAll('.quick-prompt-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const prompt = btn.getAttribute('data-prompt') || '';
+                this.input.value = prompt;
+                this.input.style.height = 'auto';
+                this.input.style.height = this.input.scrollHeight + 'px';
+                this.toggleSendButton();
+                this.input.focus();
+            });
+        });
         
         this.input.addEventListener('input', () => {
             this.input.style.height = 'auto';
