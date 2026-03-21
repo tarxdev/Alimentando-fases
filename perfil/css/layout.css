@@ -318,6 +318,23 @@
 .mp-sub { font-size: 0.8rem; color: #888; }
 .mp-actions { display: flex; gap: 10px; }
 
+.mp-avatar-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.mp-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f2f2f2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
 /* BOTTOM NAV */
 .bottom-nav {
     display: none;

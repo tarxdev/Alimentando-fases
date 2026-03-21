@@ -262,11 +262,13 @@
     </div>
 
     <header class="mobile-profile-bar" style="position:fixed; top:0; left:0; width:100%; z-index:1000; display:none;">
-        <button class="mp-btn" onclick="window.location.href='../index.html'"><i class="fa-solid fa-arrow-left"></i></button>
+        <button class="mp-btn" id="btn-mobile-menu" aria-label="Abrir menu"><i class="fa-solid fa-bars"></i></button>
         <div class="mp-identity"><span class="mp-username" id="mobile-username">@usuario</span><span class="mp-sub">Perfil</span></div>
         <div class="mp-actions">
             <button class="mp-btn" id="mp-btn-add"><i class="fa-regular fa-square-plus"></i></button>
-            <button class="mp-btn" id="mp-btn-menu"><i class="fa-solid fa-bars"></i></button>
+            <a href="../perfil/index.html" class="mp-avatar-link" aria-label="Meu perfil">
+                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="mp-avatar af-protected-img" id="nav-avatar-img-mobile" draggable="false" alt="Avatar">
+            </a>
         </div>
     </header>
 
