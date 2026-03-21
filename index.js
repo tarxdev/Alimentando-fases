@@ -5,7 +5,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnEntrar = document.getElementById('btn-entrar');
     const userProfileActions = document.getElementById('user-profile-actions');
     const userDisplayName = document.getElementById('user-display-name');
+    const mobileAvatarLink = document.getElementById('main-header-mobile-avatar-link');
+    const mobileAvatar = document.getElementById('main-header-mobile-avatar');
     // Note que 'btnSair' foi removido desta lista.
+
+    const getFallbackAvatarUrl = (name) => {
+        const safeName = encodeURIComponent(name || 'Perfil');
+        return `https://ui-avatars.com/api/?name=${safeName}&background=53954A&color=ffffff&size=128`;
+    };
+
+    const updateMobileHeaderAvatar = (user) => {
+        if (!mobileAvatarLink || !mobileAvatar) return;
+
+        if (!user) {
+            mobileAvatarLink.classList.remove('is-visible');
+            mobileAvatar.removeAttribute('src');
+            mobileAvatar.alt = 'Foto do perfil';
+            return;
+        }
+
+        const profileName = user.displayName || user.email || 'Perfil';
+        mobileAvatar.src = user.photoURL || getFallbackAvatarUrl(profileName);
+        mobileAvatar.alt = `Foto de ${profileName}`;
+        mobileAvatarLink.classList.add('is-visible');
+    };
 
     // Verifica o estado de autenticação do usuário
     // O auth é definido no seu firebase-config.js
@@ -30,6 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     userDisplayName.textContent = firstName;
                 }
 
+                updateMobileHeaderAvatar(user);
+
                 // ❌ O CÓDIGO DO BOTÃO SAIR FOI REMOVIDO DAQUI ❌
                 // A lógica de sair agora será tratada apenas dentro do perfil/script.js
 
@@ -41,6 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // 2. Esconde as ações do Perfil
                 if (userProfileActions) userProfileActions.style.display = 'none';
+
+                updateMobileHeaderAvatar(null);
             }
         });
     } else {
