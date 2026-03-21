@@ -247,7 +247,7 @@ div:where(.swal2-popup).custom-logout-popup {
     background: #ffffff !important;
     box-shadow: 0 30px 60px rgba(0,0,0,0.3) !important;
     font-family: 'Montserrat', sans-serif !important;
-    width: 360px !important;
+    width: min(92vw, 360px) !important;
 }
 
 /* Ícone Estático */
@@ -334,7 +334,7 @@ button.swal-btn-cancel:hover {
 /* Cartão Flutuante */
 .luxury-logout-card {
     background: #ffffff;
-    width: 380px;
+    width: min(92vw, 380px);
     padding: 40px 30px;
     border-radius: 32px;
     box-shadow: 
@@ -421,3 +421,20 @@ button.swal-btn-cancel:hover {
 
 .btn-confirm-lux i { transition: transform 0.2s; }
 .btn-confirm-lux:hover i { transform: translateX(4px); }
+
+@media (max-width: 480px) {
+    .luxury-logout-card {
+        padding: 28px 18px;
+        border-radius: 22px;
+    }
+
+    .luxury-actions {
+        flex-direction: column;
+    }
+
+    .btn-cancel-lux,
+    .btn-confirm-lux {
+        width: 100%;
+        justify-content: center;
+    }
+}
