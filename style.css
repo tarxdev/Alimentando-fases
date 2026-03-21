@@ -5895,6 +5895,44 @@ body section#adolescencia .news-card__excerpt strong {
         left: 15px !important;
         right: auto !important;
     }
+
+    .content-section {
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+}
+
+@media (max-width: 768px) {
+    .meta-block-visual,
+    #hydration-calculator {
+        flex-direction: column !important;
+    }
+
+    .meta-icons,
+    .meta-text,
+    #hydration-calculator .calc-config,
+    #hydration-calculator #calcResultado {
+        min-width: 0 !important;
+        width: 100% !important;
+        border-left: none !important;
+    }
+
+    .meta-icons,
+    .meta-text,
+    #hydration-calculator .calc-config,
+    #hydration-calculator #calcResultado {
+        padding: 18px 14px !important;
+    }
+
+    #age-group-selector {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    #age-group-selector .age-button {
+        width: 100%;
+    }
 }
 /* =======================================================
  * 📱 CORREÇÃO FINAL: ESPAÇAMENTO E FORMATO (MOBILE)
