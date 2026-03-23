@@ -16,6 +16,43 @@
     <link rel="stylesheet" href="calendario.css">
 </head>
 <body class="dashboard-body">
+    <header class="mobile-header">
+        <button class="icon-btn" id="btn-mobile-menu" aria-label="Abrir menu"><i class="fa-solid fa-bars"></i></button>
+        <div class="mobile-brand">
+            <img src="Imagens/logofavicon.webp" alt="Logo" class="mobile-logo">
+            <div class="mobile-brand-text"><strong>Calendario</strong><span>Alimentando Fases</span></div>
+        </div>
+        <a href="perfil/index.html" class="mobile-avatar-link" aria-label="Perfil"><img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="mobile-avatar" id="mobile-nav-avatar" alt="Avatar"></a>
+    </header>
+
+    <div class="mobile-menu-overlay" id="mobile-menu-overlay">
+        <nav class="mobile-menu" id="mobile-drawer" aria-label="Menu principal">
+            <div class="mobile-menu-header">
+                <div class="mobile-user">
+                    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="mobile-menu-avatar" id="mobile-menu-avatar" alt="Avatar">
+                    <div class="mobile-user-text"><strong id="mobile-menu-name">Meu Perfil</strong><span>Gerencie sua conta</span></div>
+                </div>
+                <button class="icon-btn" id="btn-close-mobile-menu" aria-label="Fechar menu"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="mobile-menu-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="mobile-user-search" placeholder="Buscar usuario por @...">
+            </div>
+
+            <ul class="mobile-nav-links">
+                <li><a href="index.html"><i class="fa-solid fa-house"></i> Inicio</a></li>
+                <li><a href="comunidade/index.html"><i class="fa-solid fa-earth-americas"></i> Comunidade</a></li>
+                <li><a href="IA/index.html"><i class="fa-solid fa-robot"></i> Essentia</a></li>
+                <li><a href="notificacoes/index.html"><i class="fa-regular fa-bell"></i> Notificacoes</a></li>
+                <li><a href="mensagens/index.html"><i class="fa-solid fa-envelope"></i> Mensagens</a></li>
+                <li id="mobile-item-admin" style="display: none;"><a href="admin/index.html"><i class="fa-solid fa-lock"></i> Painel Admin</a></li>
+                <li><a href="calendario.html" class="active"><i class="fa-regular fa-calendar-check"></i> Calendario</a></li>
+                <li><a href="configuracoes/index.html"><i class="fa-solid fa-gear"></i> Configuracoes</a></li>
+            </ul>
+        </nav>
+    </div>
+
     <div class="main-layout">
         <nav class="sidebar">
             <div class="logo-area">
@@ -85,6 +122,14 @@
             </section>
         </main>
     </div>
+
+    <nav class="bottom-nav" aria-label="Atalhos mobile">
+        <a href="index.html" class="bn-item"><i class="fa-solid fa-house"></i><span>Inicio</span></a>
+        <a href="comunidade/index.html" class="bn-item"><i class="fa-solid fa-earth-americas"></i><span>Comunidade</span></a>
+        <a href="calendario.html" class="bn-item active"><i class="fa-regular fa-calendar-check"></i><span>Calendario</span></a>
+        <a href="notificacoes/index.html" class="bn-item"><i class="fa-regular fa-bell"></i><span>Notificacoes</span></a>
+        <a href="perfil/index.html" class="bn-item"><i class="fa-regular fa-user"></i><span>Perfil</span></a>
+    </nav>
 
     <script type="module" src="global/sidebar-auth.js"></script>
     <script type="module" src="global/sidebar-search.js"></script>

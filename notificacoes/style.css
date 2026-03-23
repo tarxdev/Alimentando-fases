@@ -95,6 +95,132 @@
 .profile-info-mini span { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* =======================================================
+ * MOBILE HEADER + DRAWER + NAVBAR
+ * ======================================================= */
+.mobile-header {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 150;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #ececec;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.mobile-brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.mobile-logo { width: 30px; height: 30px; }
+.mobile-brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+.mobile-brand-text strong { font-size: 0.9rem; color: #222; }
+.mobile-brand-text span { font-size: 0.72rem; color: #777; }
+
+.icon-btn {
+    background: #f3f4f6;
+    border: 1px solid #e6e6e6;
+    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    color: #222;
+}
+
+.mobile-avatar-link,
+.mobile-avatar { width: 40px; height: 40px; border-radius: 50%; }
+.mobile-avatar { object-fit: cover; border: 2px solid #f2f2f2; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+.mobile-menu-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(2px);
+    z-index: 160;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.mobile-menu-overlay.open { display: flex; opacity: 1; pointer-events: auto; }
+
+.mobile-menu {
+    width: 82%;
+    max-width: 360px;
+    height: 100%;
+    background: #fff;
+    box-shadow: 8px 0 24px rgba(0,0,0,0.08);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    overflow-y: auto;
+}
+
+.mobile-menu-overlay.open .mobile-menu { transform: translateX(0); }
+.mobile-menu-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mobile-user { display: flex; align-items: center; gap: 12px; }
+.mobile-menu-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.mobile-user-text strong { display: block; font-size: 0.95rem; color: #222; }
+.mobile-user-text span { font-size: 0.8rem; color: #777; }
+
+.mobile-nav-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.mobile-nav-links a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #f1f1f1;
+    color: #222;
+    font-weight: 700;
+    background: #fafafa;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.mobile-nav-links a.active { background: #e8f5e9; border-color: #b8dec0; color: #53954a; }
+
+.bottom-nav {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 68px;
+    background: #fff;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 -6px 20px rgba(0,0,0,0.08);
+    z-index: 140;
+    padding: 8px 10px;
+    gap: 6px;
+    justify-content: space-between;
+}
+
+.bottom-nav .bn-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: #777;
+    font-weight: 700;
+    font-size: 0.72rem;
+    text-decoration: none;
+    border-radius: 12px;
+    padding: 6px 4px;
+}
+
+.bottom-nav .bn-item.active { color: #53954a; background: #e8f5e9; }
+
+/* =======================================================
  * 3. ÁREA CENTRAL
  * ======================================================= */
 .content-area { 
@@ -238,6 +364,8 @@
 @media (max-width: 700px) {
     .sidebar { display: none; }
     .right-sidebar { display: none; }
-    .main-layout { flex-direction: column; }
-    .content-area { padding: 20px 15px; }
+    .mobile-header { display: flex; }
+    .bottom-nav { display: flex; }
+    .main-layout { flex-direction: column; padding-top: 66px; }
+    .content-area { padding: 20px 15px; padding-bottom: 100px; }
 }

@@ -30,10 +30,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Eventos UI
     initUIEvents();
+    initMobileMenu();
     
     // 3. Autenticação e Dados
     initAuth();
 });
+
+function initMobileMenu() {
+    const btnMobileMenu = document.getElementById('btn-mobile-menu');
+    const mobileOverlay = document.getElementById('mobile-menu-overlay');
+    const btnCloseMobileMenu = document.getElementById('btn-close-mobile-menu');
+
+    if (btnMobileMenu && mobileOverlay) {
+        btnMobileMenu.addEventListener('click', () => mobileOverlay.classList.add('open'));
+    }
+
+    if (btnCloseMobileMenu && mobileOverlay) {
+        btnCloseMobileMenu.addEventListener('click', () => mobileOverlay.classList.remove('open'));
+    }
+
+    if (mobileOverlay) {
+        mobileOverlay.addEventListener('click', (event) => {
+            if (event.target === mobileOverlay) {
+                mobileOverlay.classList.remove('open');
+            }
+        });
+
+        mobileOverlay.querySelectorAll('a').forEach((link) => {
+            link.addEventListener('click', () => mobileOverlay.classList.remove('open'));
+        });
+    }
+}
 
 let currentUserId = null;
 let notificationsUnsubscribe = null;
