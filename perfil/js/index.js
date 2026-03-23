@@ -264,6 +264,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const isTargetMaster = isMasterUser(profileData);
         if(els.realname) els.realname.innerHTML = `${isTargetMaster ? `<span class="master-text-effect">${profileData.realname}</span>` : profileData.realname} ${getRoleBadgeHTML(profileData)}`;
         if(els.username) els.username.innerText = `@${profileData.username}`;
+        // Atualiza o @ do usuário no topo do mobile
+        const mobileUsername = document.getElementById('mobile-username');
+        if (mobileUsername) {
+            mobileUsername.innerText = profileData.username ? `@${profileData.username}` : (profileData.email ? `@${profileData.email.split('@')[0]}` : '@usuario');
+        }
         if(els.bio) els.bio.innerText = profileData.bio || "";
         if(els.bioBlock) els.bioBlock.style.display = profileData.bio ? 'block' : 'none';
 
