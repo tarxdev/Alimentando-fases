@@ -1,8 +1,19 @@
 import { auth, db } from '../firebase-config.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { isMasterUser } from '../sistema-cargos/cargos.js';
 
 const DEFAULT_AVATAR_URL = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
+const canAccessAdminPanel = (userData) => {
+    if (!userData) return false;
+
+    // Regra oficial (sistema-cargos) + compatibilidade com legado.
+    if (isMasterUser(userData)) return true;
+
+    const role = String(userData.role || userData.authorRole || '').toLowerCase();
+    return role === 'master' || role === 'admin_master';
+};
 
 const loadAuthenticatedUserProfile = () => {
     onAuthStateChanged(auth, async (user) => {
@@ -27,12 +38,12 @@ const loadAuthenticatedUserProfile = () => {
 
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    displayName = userData.name || user.displayName || 'Meu Perfil';
+                    displayName = userData.nome || userData.realname || userData.name || user.displayName || 'Meu Perfil';
                     const candidatePhoto = userData.photoURL || user.photoURL || '';
                     photoURL = (candidatePhoto && !String(candidatePhoto).includes('ui-avatars.com')) ? candidatePhoto : DEFAULT_AVATAR_URL;
 
                     // Verifica o cargo do usuário
-                    if (userData.role === 'master') {
+                    if (canAccessAdminPanel(userData)) {
                         const adminPanel = document.getElementById('nav-item-admin');
                         const mobileAdminPanel = document.getElementById('mobile-item-admin');
                         if (adminPanel) {
