@@ -103,12 +103,9 @@ export class MessageController {
 
                 const nameEl = item.querySelector('.conv-name');
                 if (nameEl) {
-                    nameEl.style.cursor = 'pointer';
-                    nameEl.title = `Ver perfil de ${name}`;
-                    nameEl.onclick = (e) => {
-                        e.stopPropagation();
-                        this.openUserProfile(otherId);
-                    };
+                    nameEl.style.cursor = 'default';
+                    nameEl.removeAttribute('title');
+                    nameEl.onclick = null;
                 }
             });
 
