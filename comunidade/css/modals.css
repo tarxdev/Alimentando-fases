@@ -20,9 +20,9 @@
  * 2. MODAL DE VISUALIZAÇÃO (INSTAGRAM STYLE)
  * ======================================================= */
 .modal-instagram-container { 
-    background: white; width: 95%; max-width: 1250px; height: 90vh; 
-    display: flex; border-radius: 4px; overflow: hidden; 
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: scaleUp 0.2s ease-out; 
+    background: white; width: 100vw; max-width: 100vw; height: 100vh; max-height: 100vh;
+    display: flex; border-radius: 0; overflow: hidden;
+    box-shadow: none; animation: scaleUp 0.2s ease-out;
 }
 
 /* ESQUERDA (Imagem) */
@@ -273,13 +273,12 @@ div:where(.swal2-container) div:where(.swal2-popup).swal-edit-wide {
 .insta-edit-body { flex: 1; padding: 0 16px; }
 .insta-edit-textarea { width: 100%; height: 100%; border: none; padding: 0; resize: none; font-family: inherit; font-size: 1rem; outline: none; color: #262626; }
 
-@media (max-width: 850px) {
-    .modal-instagram-container { flex-direction: column; height: 100%; width: 100%; border-radius: 0; }
+@media (max-width: 1200px) {
+    .modal-instagram-container { width: 100vw; max-width: 100vw; height: 100vh; max-height: 100vh; border-radius: 0; flex-direction: column; }
     .inst-left-side { height: 40vh; flex: none; background: #000; }
     .inst-post-img { object-fit: contain; }
     .inst-right-side { width: 100%; border-left: none; }
     .btn-close-modal-inst { position: absolute; top: 10px; right: 10px; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.8); z-index: 10; }
-    
     div:where(.swal2-container) div:where(.swal2-popup).swal-edit-wide { height: auto !important; max-height: 90vh !important; flex-direction: column !important; }
     .insta-edit-layout { flex-direction: column; overflow-y: auto; }
     .insta-edit-image-col { height: 300px; flex: none; width: 100%; }
